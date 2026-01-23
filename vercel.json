@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cd frontend/suplock-dapp && npm ci && npm run build",
-  "outputDirectory": "frontend/suplock-dapp/.next",
-  "framework": "nextjs"
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "framework": "vite"
 }
