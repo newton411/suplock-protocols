@@ -1,0 +1,12 @@
+[package]
+name = "suplock"
+version = "0.1.0"
+
+[dependencies]
+Stdlib = { git = "https://github.com/SupraOracles/supra-move-stdlib.git", rev = "main" }
+SupraFramework = { git = "https://github.com/SupraOracles/supra-framework.git", rev = "main" }
+
+[addresses]
+suplock = "0x0"
+std = "0x1"
+supra = "0x2"

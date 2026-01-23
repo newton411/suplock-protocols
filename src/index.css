@@ -1,0 +1,153 @@
+@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Space+Grotesk:wght@300..700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 2%;
+    --foreground: 135 100% 50%;
+    
+    --card: 0 0% 5%;
+    --card-foreground: 135 100% 50%;
+    
+    --popover: 0 0% 5%;
+    --popover-foreground: 135 100% 50%;
+    
+    --primary: 135 100% 50%;
+    --primary-foreground: 0 0% 0%;
+    
+    --secondary: 135 100% 10%;
+    --secondary-foreground: 135 100% 50%;
+    
+    --muted: 135 50% 10%;
+    --muted-foreground: 135 50% 60%;
+    
+    --accent: 183 100% 50%;
+    --accent-foreground: 0 0% 0%;
+    
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 135 100% 20%;
+    --input: 135 100% 15%;
+    --ring: 135 100% 50%;
+    
+    --radius: 0rem;
+
+    /* Fonts */
+    --font-sans: 'Space Grotesk', sans-serif;
+    --font-mono: 'Geist Mono', monospace;
+    
+    /* Custom Tokens */
+    --matrix-glow: 0 0 15px hsla(135, 100%, 50%, 0.5);
+    --matrix-shadow: 0 0 30px hsla(135, 100%, 50%, 0.2);
+    --scanline-color: rgba(0, 255, 65, 0.05);
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-mono selection:bg-primary/30 selection:text-primary;
+    background-image: 
+      linear-gradient(var(--scanline-color) 1px, transparent 1px),
+      linear-gradient(90deg, var(--scanline-color) 1px, transparent 1px);
+    background-size: 100% 4px, 4px 100%;
+    overflow-x: hidden;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-sans;
+  }
+}
+
+@layer components {
+  .matrix-card {
+    @apply bg-card/80 border border-primary/30 relative overflow-hidden transition-all duration-300 backdrop-blur-sm;
+    box-shadow: var(--matrix-shadow);
+  }
+  
+  .matrix-card:hover {
+    @apply border-primary/60;
+    box-shadow: var(--matrix-glow);
+  }
+  
+  .matrix-card::before {
+    content: '';
+    @apply absolute inset-0 pointer-events-none opacity-5;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 1px,
+      hsl(var(--primary)) 1px,
+      hsl(var(--primary)) 2px
+    );
+  }
+  
+  .neon-text {
+    text-shadow: 0 0 10px hsla(135, 100%, 50%, 0.8),
+                 0 0 20px hsla(135, 100%, 50%, 0.4);
+  }
+  
+  .neon-border {
+    @apply border-primary;
+    box-shadow: 0 0 10px hsla(135, 100%, 50%, 0.5);
+  }
+
+  .glitch-hover:hover {
+    animation: glitch 0.3s cubic-bezier(.25,.46,.45,.94) both infinite;
+  }
+  
+  .matrix-btn-primary {
+    @apply bg-primary text-primary-foreground font-bold px-6 py-2 uppercase tracking-tighter relative overflow-hidden transition-all hover:scale-105 active:scale-95;
+    clip-path: polygon(0 0, 100% 0, 100% 70%, 90% 100%, 0 100%);
+  }
+
+  .matrix-btn-secondary {
+    @apply bg-transparent border-2 border-primary text-primary font-bold px-6 py-2 uppercase tracking-tighter relative overflow-hidden transition-all hover:bg-primary/10 hover:scale-105 active:scale-95;
+    clip-path: polygon(10% 0, 100% 0, 100% 100%, 0 100%, 0 30%);
+  }
+}
+
+@keyframes glitch {
+  0% { transform: translate(0); }
+  20% { transform: translate(-2px, 2px); }
+  40% { transform: translate(-2px, -2px); }
+  60% { transform: translate(2px, 2px); }
+  80% { transform: translate(2px, -2px); }
+  100% { transform: translate(0); }
+}
+
+.crt-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+  z-index: 9999;
+  background-size: 100% 2px, 3px 100%;
+  pointer-events: none;
+  opacity: 0.15;
+}
+
+.crt-flicker {
+  animation: flicker 0.15s infinite;
+}
+
+@keyframes flicker {
+  0% { opacity: 0.97; }
+  100% { opacity: 1; }
+}
+
+.matrix-grid {
+  background-image: 
+    linear-gradient(to right, rgba(0, 255, 65, 0.1) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 255, 65, 0.1) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
