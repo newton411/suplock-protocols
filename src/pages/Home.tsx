@@ -88,6 +88,9 @@ export function Home() {
               <p className="text-muted-foreground mb-6 leading-relaxed">
                 SUPLOCK is a comprehensive DeFi protocol engineered to solve the long-term sustainability challenges of the $SUPRA token. By implementing a multi-layered burning and reward mechanism, we aim to establish a permanent price floor while maximizing holder value.
               </p>
+              <p className="text-muted-foreground mb-6 leading-relaxed">
+                <strong className="text-primary">In simple terms:</strong> Think of SUPLOCK like a reverse vending machine for $SUPRA. Instead of prices falling because of endless selling, we automatically buy and burn tokens to create scarcity—while rewarding you for participating.
+              </p>
               <p className="text-muted-foreground mb-10 leading-relaxed">
                 Our architecture combines vote-escrow locking (veSUPRA), governance incentives, and privacy-preserving yield vaults, all running on the ultra-high-performance Supra L1.
               </p>
@@ -158,6 +161,103 @@ export function Home() {
                 </p>
               </motion.div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Why This Matters Section */}
+      <section className="py-24 relative">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-4xl md:text-5xl font-bold mb-12 neon-text tracking-tighter uppercase text-center">Why This Matters for $SUPRA</h2>
+            
+            <div className="grid md:grid-cols-2 gap-8 mb-12">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="matrix-card p-8 border-l-4 border-primary"
+              >
+                <h3 className="text-xl font-bold mb-4 text-primary uppercase">The Supply Problem</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                  Most tokens face a fundamental issue: unlimited selling pressure crushes prices. $SUPRA needs active demand destruction to reach its 10B supply floor.
+                </p>
+                <p className="text-xs text-primary/60 italic">
+                  SUPLOCK solves this by automatically redirecting protocol profits to buy and burn tokens—creating a "price floor" that protects your investment.
+                </p>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 }}
+                className="matrix-card p-8 border-l-4 border-accent"
+              >
+                <h3 className="text-xl font-bold mb-4 text-accent uppercase">The Yield Opportunity</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                  Passive holders get nothing. Active participants with SUPLOCK earn consistent yields while helping strengthen the token.
+                </p>
+                <p className="text-xs text-accent/60 italic">
+                  Lock your tokens, earn yields, AND earn a share of protocol revenue—all while the supply floor strengthens beneath your position.
+                </p>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2 }}
+                className="matrix-card p-8 border-l-4 border-primary"
+              >
+                <h3 className="text-xl font-bold mb-4 text-primary uppercase">Community Ownership</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                  In traditional finance, corporations make decisions for you. SUPLOCK puts YOU in control.
+                </p>
+                <p className="text-xs text-primary/60 italic">
+                  veSUPRA holders vote on everything: fee distribution, vault parameters, even treasury spending. Your lock duration = your voting power.
+                </p>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3 }}
+                className="matrix-card p-8 border-l-4 border-accent"
+              >
+                <h3 className="text-xl font-bold mb-4 text-accent uppercase">Privacy & Security</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                  Traditional DeFi vaults leak information about your positions, enabling "MEV" (miners extracting value from you).
+                </p>
+                <p className="text-xs text-accent/60 italic">
+                  SUPLOCK's LP Vacuum layer encrypts all yield strategies, protecting your profits from being frontrun or exploited.
+                </p>
+              </motion.div>
+            </div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="matrix-card p-8 md:p-12 bg-gradient-to-r from-primary/10 to-accent/10 border-2 border-primary/30"
+            >
+              <h3 className="text-2xl font-bold mb-6 uppercase">The Core Promise: "Burn to Floor. Yield Forever."</h3>
+              <div className="grid md:grid-cols-3 gap-8">
+                <div>
+                  <div className="text-4xl font-bold text-primary mb-2">10B</div>
+                  <p className="text-sm text-muted-foreground">Supply floor target ensures price support as scarcity increases.</p>
+                </div>
+                <div>
+                  <div className="text-4xl font-bold text-accent mb-2">12-42%</div>
+                  <p className="text-sm text-muted-foreground">Annual yields for locked holders, adjusted by lock duration.</p>
+                </div>
+                <div>
+                  <div className="text-4xl font-bold text-primary mb-2">∞</div>
+                  <p className="text-sm text-muted-foreground">Perpetual fee-sharing with veSUPRA holders—forever.</p>
+                </div>
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -236,19 +336,68 @@ export function Home() {
       {/* Whitepaper Section */}
       <section id="whitepaper" className="py-24 bg-primary/[0.02]">
         <div className="container mx-auto px-4">
-          <div className="matrix-card p-12 text-center max-w-4xl mx-auto border-2 border-primary/50">
+          <div className="matrix-card p-12 text-center max-w-4xl mx-auto border-2 border-primary/50 mb-12">
             <h2 className="text-4xl md:text-5xl font-bold mb-6 neon-text tracking-tighter uppercase">Deep Dive into $SUPRA</h2>
-            <p className="text-muted-foreground mb-12 leading-relaxed text-lg">
+            <p className="text-muted-foreground mb-8 leading-relaxed text-lg">
               Explore the technical implementation, mathematical models, and game theory behind the SUPLOCK Protocol. 
-              Our whitepaper details the transition from high-supply to the 10B floor.
+              Our whitepapers detail the transition from high-supply to the 10B floor, and the evolution toward fully autonomous DeFi.
+            </p>
+            <p className="text-sm text-primary/70 mb-8 italic">
+              <strong>New to DeFi?</strong> Start with Phase 1 to understand the basics. Ready for advanced concepts? Phase 2 covers automation and governance.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-6">
-              <a href="#" className="matrix-btn-primary flex items-center justify-center gap-2">
-                <FileText className="w-5 h-5" /> Read Whitepaper
+              <a 
+                href="https://gamma.app/docs/The-Future-of-DeFi-is-Autonomous-t8cilvep4vid95g" 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="matrix-btn-primary flex items-center justify-center gap-2"
+              >
+                <FileText className="w-5 h-5" /> Phase 1: AutoFi Foundations
               </a>
-              <a href="#" className="matrix-btn-secondary flex items-center justify-center gap-2">
-                <Download className="w-5 h-5" /> Download PDF
+              <a 
+                href="https://gamma.app/docs/The-Future-of-DeFi-is-Autonomous-t8cilvep4vid95g" 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="matrix-btn-secondary flex items-center justify-center gap-2"
+              >
+                <FileText className="w-5 h-5" /> Phase 2: Autonomous DeFi
               </a>
+            </div>
+          </div>
+
+          <div className="max-w-4xl mx-auto">
+            <h3 className="text-2xl font-bold mb-8 text-center text-primary uppercase">What You'll Learn</h3>
+            <div className="grid md:grid-cols-2 gap-6">
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                className="p-6 border border-primary/20 bg-primary/5"
+              >
+                <h4 className="font-bold text-primary mb-3 uppercase">Phase 1: AutoFi Foundations</h4>
+                <ul className="text-sm text-muted-foreground space-y-2">
+                  <li className="flex items-center gap-2"><div className="w-1 h-1 bg-primary rotate-45" /> Why $SUPRA needs supply destruction</li>
+                  <li className="flex items-center gap-2"><div className="w-1 h-1 bg-primary rotate-45" /> How the 10B supply floor works</li>
+                  <li className="flex items-center gap-2"><div className="w-1 h-1 bg-primary rotate-45" /> veSUPRA locking mechanics explained</li>
+                  <li className="flex items-center gap-2"><div className="w-1 h-1 bg-primary rotate-45" /> Yield generation strategies (simple version)</li>
+                  <li className="flex items-center gap-2"><div className="w-1 h-1 bg-primary rotate-45" /> Fee distribution model</li>
+                </ul>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                className="p-6 border border-accent/20 bg-accent/5"
+              >
+                <h4 className="font-bold text-accent mb-3 uppercase">Phase 2: Autonomous DeFi</h4>
+                <ul className="text-sm text-muted-foreground space-y-2">
+                  <li className="flex items-center gap-2"><div className="w-1 h-1 bg-accent rotate-45" /> Intent-based execution engines (AutoFi)</li>
+                  <li className="flex items-center gap-2"><div className="w-1 h-1 bg-accent rotate-45" /> Cross-chain coordination with HyperNova</li>
+                  <li className="flex items-center gap-2"><div className="w-1 h-1 bg-accent rotate-45" /> Advanced yield strategies (delta-neutral, MEV protection)</li>
+                  <li className="flex items-center gap-2"><div className="w-1 h-1 bg-accent rotate-45" /> Governance DAO architecture</li>
+                  <li className="flex items-center gap-2"><div className="w-1 h-1 bg-accent rotate-45" /> Long-term token economics (24+ month projections)</li>
+                </ul>
+              </motion.div>
             </div>
           </div>
         </div>

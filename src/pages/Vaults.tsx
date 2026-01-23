@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Zap, ShieldCheck, ArrowUpRight, Percent, Globe, Lock, Vote, Database } from 'lucide-react';
+import { Zap, ShieldCheck, ArrowUpRight, Percent, Globe, Lock, Vote, Database, TrendingUp, Eye, EyeOff } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { InfoPopover, protocolInfo } from '../components/ui/info-popover';
 import { InfoBanner } from '../components/InfoBanner';
@@ -61,6 +61,136 @@ const Vaults = () => {
           description="Deposit assets into any vault and your position automatically splits into Principal Tokens (PT) and Yield Tokens (YT). PT represents your deposit, YT represents future earnings—both tradeable separately for maximum capital flexibility."
           tip="Advanced strategy: Sell PT for instant liquidity while keeping YT for long-term yield."
         />
+      </div>
+
+      {/* Vault Strategies Explained */}
+      <div className="max-w-5xl mx-auto space-y-6 mb-8">
+        <h3 className="text-2xl font-bold neon-text uppercase tracking-tighter text-center mb-8">Understanding Your Vault Options</h3>
+        
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="matrix-card p-8 border-l-4 border-primary"
+        >
+          <div className="flex items-start gap-4 mb-6">
+            <ShieldCheck className="w-8 h-8 text-primary shrink-0 mt-1" />
+            <div className="flex-1">
+              <h4 className="text-lg font-bold text-primary mb-2 uppercase">Stable Vault (12.4% APY) - For Conservative Investors</h4>
+              <p className="text-sm text-muted-foreground mb-4">
+                <strong className="text-primary">Best for:</strong> Investors who want steady, predictable returns with minimal risk.
+              </p>
+              <p className="text-sm text-muted-foreground mb-4">
+                This vault holds SUPRA and generates yields primarily from protocol fees. It's the safest option—your principal is protected by the 10B floor that we're aggressively building.
+              </p>
+              <div className="p-3 bg-primary/5 border border-primary/20 rounded text-xs text-muted-foreground">
+                <strong className="text-primary">Revenue Source:</strong> Protocol fees (35% distributed to veSUPRA holders) and base APR (12%) paid directly by the protocol to reward participation.
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.1 }}
+          className="matrix-card p-8 border-l-4 border-accent"
+        >
+          <div className="flex items-start gap-4 mb-6">
+            <TrendingUp className="w-8 h-8 text-accent shrink-0 mt-1" />
+            <div className="flex-1">
+              <h4 className="text-lg font-bold text-accent mb-2 uppercase">Delta-Neutral Vault (18.9% APY) - For Balanced Investors</h4>
+              <p className="text-sm text-muted-foreground mb-4">
+                <strong className="text-accent">Best for:</strong> Investors seeking higher returns with moderate complexity.
+              </p>
+              <p className="text-sm text-muted-foreground mb-4">
+                This strategy uses USDC (stablecoin) and hedging to capture yields while minimizing price volatility. It's "delta-neutral" because it doesn't care if SUPRA goes up or down—it profits from the yield farming mechanics itself.
+              </p>
+              <div className="p-3 bg-accent/5 border border-accent/20 rounded text-xs text-muted-foreground">
+                <strong className="text-primary">Revenue Source:</strong> Combines staking rewards (Supra PoEL) with DeFi protocol yields and hedging gains. Higher complexity enables greater returns.
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.2 }}
+          className="matrix-card p-8 border-l-4 border-primary"
+        >
+          <div className="flex items-start gap-4 mb-6">
+            <ArrowUpRight className="w-8 h-8 text-primary shrink-0 mt-1" />
+            <div className="flex-1">
+              <h4 className="text-lg font-bold text-primary mb-2 uppercase">Liquid Staking Vault (8.2% APY) - For Stakers</h4>
+              <p className="text-sm text-muted-foreground mb-4">
+                <strong className="text-primary">Best for:</strong> ETH stakers who want to earn while participating in Supra.
+              </p>
+              <p className="text-sm text-muted-foreground mb-4">
+                Deposits stETH (liquid-staked Ethereum) and earns validator rewards while also earning Supra yields. You're essentially getting paid twice: once from Ethereum staking, once from SUPLOCK.
+              </p>
+              <div className="p-3 bg-primary/5 border border-primary/20 rounded text-xs text-muted-foreground">
+                <strong className="text-primary">Revenue Source:</strong> ETH staking already yields approximately 4% annually. Combined with Supra yields, this equals 8.2% with established stability.
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.3 }}
+          className="matrix-card p-8 border-l-4 border-destructive bg-gradient-to-r from-destructive/5 to-transparent"
+        >
+          <div className="flex items-start gap-4 mb-6">
+            <EyeOff className="w-8 h-8 text-destructive shrink-0 mt-1" />
+            <div className="flex-1">
+              <h4 className="text-lg font-bold text-destructive mb-2 uppercase">LP Vacuum Strategy (42.1% APY) - For Advanced Users ⚠️</h4>
+              <p className="text-sm text-muted-foreground mb-4">
+                <strong className="text-destructive">Best for:</strong> Experienced traders who understand DeFi mechanics and can handle volatility.
+              </p>
+              <p className="text-sm text-muted-foreground mb-4">
+                The highest-yield strategy uses automated market maker (AMM) strategies to capture trading fees and MEV gains. <strong>MEV Protected</strong> means hackers can't see what you're doing—only the protocol knows.
+              </p>
+              <div className="p-3 bg-destructive/5 border border-destructive/20 rounded text-xs text-muted-foreground">
+                <strong className="text-destructive">Revenue Source:</strong> Captures multiple yield streams including LP fees, market-making gains, and MEV rebates. Higher complexity presents proportionally higher capital risk. Deploy only funds you can afford to lose.
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        <div className="matrix-card p-8 bg-primary/5 border-2 border-primary/30">
+          <h4 className="text-lg font-bold text-primary mb-6 uppercase">How PT/YT Splitting Works (Advanced)</h4>
+          <p className="text-sm text-muted-foreground mb-6">
+            Every vault deposit automatically splits into two tokens:
+          </p>
+          <div className="grid md:grid-cols-2 gap-6 mb-6">
+            <div className="p-4 bg-background/50 border border-primary/20 rounded">
+              <div className="font-bold text-primary mb-2 uppercase text-sm">Principal Token (PT)</div>
+              <p className="text-xs text-muted-foreground mb-3">Represents your initial deposit. Trade it for liquidity without losing your yield rights.</p>
+              <ul className="text-xs text-muted-foreground space-y-1">
+                <li className="flex items-center gap-2"><div className="w-1 h-1 bg-primary rotate-45" /> Can be sold for cash immediately</li>
+                <li className="flex items-center gap-2"><div className="w-1 h-1 bg-primary rotate-45" /> No yield after sale</li>
+                <li className="flex items-center gap-2"><div className="w-1 h-1 bg-primary rotate-45" /> Useful if you need emergency liquidity</li>
+              </ul>
+            </div>
+            <div className="p-4 bg-background/50 border border-primary/20 rounded">
+              <div className="font-bold text-primary mb-2 uppercase text-sm">Yield Token (YT)</div>
+              <p className="text-xs text-muted-foreground mb-3">Represents all future earnings from your deposit. Keep it to earn 100% of profits.</p>
+              <ul className="text-xs text-muted-foreground space-y-1">
+                <li className="flex items-center gap-2"><div className="w-1 h-1 bg-primary rotate-45" /> Captures all future yields</li>
+                <li className="flex items-center gap-2"><div className="w-1 h-1 bg-primary rotate-45" /> Appreciation as vault grows</li>
+                <li className="flex items-center gap-2"><div className="w-1 h-1 bg-primary rotate-45" /> Can be held or traded</li>
+              </ul>
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground italic border-t border-primary/20 pt-4">
+            <strong>Example:</strong> You deposit 10 SUPRA. You receive PT (worth 10 SUPRA, tradeable) + YT (worth future yields). If yields = 2 SUPRA/year, sell PT for 10 cash while keeping YT to earn the 2 SUPRA yield.
+          </p>
+        </div>
       </div>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">

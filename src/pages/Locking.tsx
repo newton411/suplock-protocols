@@ -62,6 +62,76 @@ const Locking = () => {
         tip="Lock for 48 months to maximize your boost multiplier and governance influence."
       />
 
+      {/* Understanding Locking Section */}
+      <div className="max-w-4xl mx-auto space-y-6 mb-8">
+        <div className="matrix-card p-8 border-l-4 border-primary">
+          <h3 className="text-lg font-bold text-primary mb-4 uppercase">What Does "Locking" Mean?</h3>
+          <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+            When you "lock" your $SUPRA tokens, you're voluntarily storing them in a smart contract for a set period (3 to 48 months). During this time, you cannot sell them. But here's what you gain:
+          </p>
+          <div className="grid md:grid-cols-3 gap-4">
+            <div className="p-4 bg-primary/5 border border-primary/20">
+              <div className="font-bold text-primary mb-2 uppercase text-sm">✓ Governance Votes</div>
+              <p className="text-xs text-muted-foreground">Every veSUPRA token = 1 vote in protocol decisions. Longer locks = more voting power.</p>
+            </div>
+            <div className="p-4 bg-primary/5 border border-primary/20">
+              <div className="font-bold text-primary mb-2 uppercase text-sm">✓ Yield Rewards</div>
+              <p className="text-xs text-muted-foreground">Earn 12-42% APY depending on lock duration. Longer locks = higher rewards.</p>
+            </div>
+            <div className="p-4 bg-primary/5 border border-primary/20">
+              <div className="font-bold text-primary mb-2 uppercase text-sm">✓ Fee Sharing</div>
+              <p className="text-xs text-muted-foreground">Share in 35% of all protocol fees paid in USDC. Forever.</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="matrix-card p-8 border-l-4 border-accent">
+          <h3 className="text-lg font-bold text-accent mb-4 uppercase">The Boost Multiplier Explained</h3>
+          <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+            Your boost multiplier ranges from 1.0x (3-month lock) to 2.5x (48-month lock). This multiplies your rewards:
+          </p>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center p-3 bg-accent/5 border border-accent/20">
+              <span className="text-sm">3-Month Lock</span>
+              <span className="font-bold text-accent">1.0x = 12% APY</span>
+            </div>
+            <div className="flex justify-between items-center p-3 bg-accent/5 border border-accent/20">
+              <span className="text-sm">12-Month Lock</span>
+              <span className="font-bold text-accent">1.375x = 16.5% APY</span>
+            </div>
+            <div className="flex justify-between items-center p-3 bg-accent/5 border border-accent/20">
+              <span className="text-sm">24-Month Lock</span>
+              <span className="font-bold text-accent">1.75x = 21% APY</span>
+            </div>
+            <div className="flex justify-between items-center p-3 bg-accent/5 border border-accent/20">
+              <span className="text-sm">48-Month Lock (Maximum)</span>
+              <span className="font-bold text-accent">2.5x = 30% APY</span>
+            </div>
+          </div>
+          <p className="text-xs text-accent/60 mt-4 italic">
+            <strong className="text-accent uppercase text-sm">Formula:</strong> The boost is calculated as <strong>1 + (lock_months / 48) × 1.5</strong>. Longer locks yield exponentially higher returns and voting power.
+          </p>
+        </div>
+
+        <div className="matrix-card p-8 bg-gradient-to-r from-primary/10 to-accent/10 border-2 border-primary/30">
+          <h3 className="text-lg font-bold mb-4 uppercase">Real-World Example</h3>
+          <div className="space-y-4 text-sm">
+            <div className="p-4 border border-primary/20 bg-background/50">
+              <p className="font-bold mb-2">Scenario: You lock 100,000 $SUPRA for 24 months</p>
+              <ul className="space-y-2 text-xs text-muted-foreground">
+                <li>✓ Boost Multiplier: 1.75x</li>
+                <li>✓ Annual Yield: 100,000 × 21% = <strong>21,000 $SUPRA/year</strong></li>
+                <li>✓ Your voting power: 175,000 veSUPRA (100,000 × 1.75)</li>
+                <li>✓ Protocol fees: If protocol earns $100K/month, you get: 175,000 / 84.2M × 35% = <strong>~0.73 USDC/month</strong></li>
+              </ul>
+            </div>
+            <p className="text-xs text-muted-foreground italic">
+              That's in addition to your 21,000 $SUPRA/year in yields, AND you're helping strengthen the 10B supply floor by participating.
+            </p>
+          </div>
+        </div>
+      </div>
+
       <div className="grid md:grid-cols-2 gap-8">
         <div className="matrix-card p-8 space-y-8">
           <div className="space-y-4">

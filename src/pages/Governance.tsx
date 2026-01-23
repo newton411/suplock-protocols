@@ -62,6 +62,160 @@ const Governance = () => {
         />
       </div>
 
+      {/* Why Governance Matters */}
+      <div className="max-w-4xl mx-auto space-y-6 mb-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="matrix-card p-8 border-l-4 border-primary bg-gradient-to-r from-primary/10 to-transparent"
+        >
+          <h3 className="text-lg font-bold text-primary mb-4 uppercase">Why Governance Matters</h3>
+          <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+            In traditional finance, banks and fund managers decide everything. In SUPLOCK, <strong>YOU decide</strong>. Every veSUPRA token you hold is a vote—a direct say in how protocol revenue flows and what features get built.
+          </p>
+          <p className="text-muted-foreground text-sm leading-relaxed">
+            This matters because protocol decisions directly affect your returns. Should we burn more tokens? Increase vault rewards? Distribute more fees? Your voice decides, not some centralized team.
+          </p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.1 }}
+          className="matrix-card p-8 border-2 border-primary/30"
+        >
+          <h3 className="text-lg font-bold text-primary mb-6 uppercase">How Voting Works (4 Simple Steps)</h3>
+          <div className="space-y-4">
+            <div className="flex gap-4">
+              <div className="flex-shrink-0 w-10 h-10 bg-primary/20 border border-primary rounded-full flex items-center justify-center font-bold text-primary">1</div>
+              <div className="flex-1">
+                <h4 className="font-bold text-primary mb-1 uppercase">Lock Your $SUPRA</h4>
+                <p className="text-xs text-muted-foreground">Lock tokens for 3-48 months to receive veSUPRA governance tokens. More locked = more voting power.</p>
+              </div>
+            </div>
+            <div className="flex gap-4">
+              <div className="flex-shrink-0 w-10 h-10 bg-primary/20 border border-primary rounded-full flex items-center justify-center font-bold text-primary">2</div>
+              <div className="flex-1">
+                <h4 className="font-bold text-primary mb-1 uppercase">See Active Proposals</h4>
+                <p className="text-xs text-muted-foreground">New proposals appear every week. Read the details, check if it benefits you, then decide.</p>
+              </div>
+            </div>
+            <div className="flex gap-4">
+              <div className="flex-shrink-0 w-10 h-10 bg-primary/20 border border-primary rounded-full flex items-center justify-center font-bold text-primary">3</div>
+              <div className="flex-1">
+                <h4 className="font-bold text-primary mb-1 uppercase">Cast Your Vote</h4>
+                <p className="text-xs text-muted-foreground">Use your veSUPRA to vote FOR or AGAINST. You have 7 days. Each veSUPRA = 1 vote.</p>
+              </div>
+            </div>
+            <div className="flex gap-4">
+              <div className="flex-shrink-0 w-10 h-10 bg-primary/20 border border-primary rounded-full flex items-center justify-center font-bold text-primary">4</div>
+              <div className="flex-1">
+                <h4 className="font-bold text-primary mb-1 uppercase">Changes Execute</h4>
+                <p className="text-xs text-muted-foreground">If your vote passes (&gt;50%), the change happens automatically 3 days later (timelock for security).</p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.2 }}
+          className="matrix-card p-8 bg-accent/5 border-l-4 border-accent"
+        >
+          <h3 className="text-lg font-bold text-accent mb-6 uppercase">What You Can Vote On</h3>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="space-y-3">
+              <div className="flex gap-3 items-start">
+                <span className="text-accent font-bold text-lg mt-1">💰</span>
+                <div>
+                  <h4 className="font-bold text-primary uppercase text-sm">Revenue Distribution</h4>
+                  <p className="text-xs text-muted-foreground">How protocol fees are split: burn%, dividends%, vault rewards%, treasury%</p>
+                </div>
+              </div>
+              <div className="flex gap-3 items-start">
+                <span className="text-accent font-bold text-lg mt-1">⚙️</span>
+                <div>
+                  <h4 className="font-bold text-primary uppercase text-sm">Vault Parameters</h4>
+                  <p className="text-xs text-muted-foreground">Adjust APY targets, risk levels, and which assets are supported</p>
+                </div>
+              </div>
+              <div className="flex gap-3 items-start">
+                <span className="text-accent font-bold text-lg mt-1">🏦</span>
+                <div>
+                  <h4 className="font-bold text-primary uppercase text-sm">Treasury Allocation</h4>
+                  <p className="text-xs text-muted-foreground">Decide where protocol funds go: audits, partnerships, grants, rewards</p>
+                </div>
+              </div>
+            </div>
+            <div className="space-y-3">
+              <div className="flex gap-3 items-start">
+                <span className="text-accent font-bold text-lg mt-1">🔒</span>
+                <div>
+                  <h4 className="font-bold text-primary uppercase text-sm">Locking Rules</h4>
+                  <p className="text-xs text-muted-foreground">Minimum lock duration, boost multiplier formulas, early unlock penalties</p>
+                </div>
+              </div>
+              <div className="flex gap-3 items-start">
+                <span className="text-accent font-bold text-lg mt-1">🌉</span>
+                <div>
+                  <h4 className="font-bold text-primary uppercase text-sm">New Integrations</h4>
+                  <p className="text-xs text-muted-foreground">Whitelist new assets, activate cross-chain bridges, launch new vaults</p>
+                </div>
+              </div>
+              <div className="flex gap-3 items-start">
+                <span className="text-accent font-bold text-lg mt-1">🛠️</span>
+                <div>
+                  <h4 className="font-bold text-primary uppercase text-sm">Protocol Upgrades</h4>
+                  <p className="text-xs text-muted-foreground">Major changes to contracts or mechanics require community approval</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.3 }}
+          className="matrix-card p-8 bg-primary/5 border border-primary/20"
+        >
+          <h3 className="text-lg font-bold text-primary mb-4 uppercase">Real-World Voting Example</h3>
+          <div className="space-y-4 text-sm">
+            <div className="p-4 border border-primary/20 bg-background/50 rounded">
+              <p className="font-bold mb-2">Proposal: "Increase USDC Vault APY from 18.9% to 22%"</p>
+              <div className="space-y-2 text-xs text-muted-foreground">
+                <div className="flex justify-between">
+                  <span>Your veSUPRA voting power:</span>
+                  <span className="font-bold">175,000</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>You vote: FOR (Approved)</span>
+                  <span className="font-bold">+175,000 votes</span>
+                </div>
+                <div className="border-t border-primary/10 pt-2">
+                  <div className="flex justify-between mb-1">
+                    <span>Total votes for proposal:</span>
+                    <span className="font-bold">45.3M veSUPRA</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Result:</span>
+                    <span className="font-bold text-primary">PASSED (68% approval)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground italic">
+              3 days later: The vault APY automatically increases to 22%, and everyone begins earning higher yields. Your governance power directly improved protocol performance.
+            </p>
+          </div>
+        </motion.div>
+      </div>
+
       <div className="grid md:grid-cols-3 gap-6">
         {[
           { label: 'Total Proposals', value: '142', icon: FileText },
