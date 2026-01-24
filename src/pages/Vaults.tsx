@@ -58,8 +58,8 @@ const Vaults = () => {
       <div className="max-w-5xl mx-auto">
         <InfoBanner
           title="How AutoFi Vaults Work"
-          description="Deposit assets into any vault and your position automatically splits into Principal Tokens (PT) and Yield Tokens (YT). PT represents your deposit, YT represents future earnings—both tradeable separately for maximum capital flexibility."
-          tip="Advanced strategy: Sell PT for instant liquidity while keeping YT for long-term yield."
+          description="Deposit assets into any vault and your position automatically splits into Principal Tokens (PT) and Yield Tokens (YT) via our yield_vaults.move contract. PT represents your deposit, YT represents future earnings—both tradeable separately for maximum capital flexibility on Supra L1's high-speed infrastructure."
+          tip="Advanced strategy: Sell PT for instant liquidity while keeping YT for long-term yield. Supra's 500K+ TPS enables seamless PT/YT trading."
         />
       </div>
 
@@ -188,7 +188,7 @@ const Vaults = () => {
             </div>
           </div>
           <p className="text-xs text-muted-foreground italic border-t border-primary/20 pt-4">
-            <strong>Example:</strong> You deposit 10 SUPRA. You receive PT (worth 10 SUPRA, tradeable) + YT (worth future yields). If yields = 2 SUPRA/year, sell PT for 10 cash while keeping YT to earn the 2 SUPRA yield.
+            <strong>Example:</strong> You deposit 10 SUPRA via yield_vaults.move contract. You receive PT (worth 10 SUPRA, tradeable on Supra L1) + YT (worth future yields). If yields = 2 SUPRA/year, sell PT for 10 cash while keeping YT to earn the 2 SUPRA yield through automated smart contract distributions.
           </p>
         </div>
       </div>

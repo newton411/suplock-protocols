@@ -102,8 +102,11 @@ export function Home() {
               <p className="text-muted-foreground mb-6 leading-relaxed">
                 <strong className="text-primary">In simple terms:</strong> Think of SUPLOCK like a reverse vending machine for $SUPRA. Instead of prices falling because of endless selling, we automatically buy and burn tokens to create scarcity—while rewarding you for participating.
               </p>
+              <p className="text-muted-foreground mb-6 leading-relaxed">
+                Built natively on <strong className="text-primary">Supra L1</strong>—the world's fastest blockchain with 500,000+ TPS, sub-second finality, and integrated oracle infrastructure. Our Move-based smart contracts leverage Supra's unique capabilities including dVRF randomness, cross-chain bridges via HyperNova, and native oracle feeds.
+              </p>
               <p className="text-muted-foreground mb-10 leading-relaxed">
-                Our architecture combines vote-escrow locking (veSUPRA), governance incentives, and privacy-preserving yield vaults, all running on the ultra-high-performance Supra L1.
+                Our architecture combines vote-escrow locking (veSUPRA), governance incentives, and privacy-preserving yield vaults, all running on the ultra-high-performance Supra L1 with institutional-grade security.
               </p>
               
               <div className="grid grid-cols-2 gap-6">
@@ -113,7 +116,7 @@ export function Home() {
                 </div>
                 <div className="p-4 border-l-2 border-primary bg-primary/5">
                   <h4 className="text-primary font-bold uppercase text-xs mb-1">L1 Chain</h4>
-                  <p className="text-lg font-bold">Supra L1</p>
+                  <p className="text-lg font-bold">Supra L1 (500K+ TPS)</p>
                 </div>
               </div>
             </motion.div>
@@ -143,17 +146,17 @@ export function Home() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-4 neon-text tracking-tighter uppercase">Protocol Features</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto uppercase text-xs tracking-widest font-bold">Cutting-edge DeFi primitives on Supra L1</p>
+            <p className="text-muted-foreground max-w-2xl mx-auto uppercase text-xs tracking-widest font-bold">Cutting-edge DeFi primitives powered by Supra L1's 500K+ TPS infrastructure</p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-              { title: 'Vote-Escrow Locking', desc: 'Lock $SUPRA to receive veSUPRA, granting governance power and a share of protocol fees.', icon: <Lock className="w-8 h-8" /> },
-              { title: 'Deflationary Vaults', desc: 'Automated mechanisms that buy and burn $SUPRA to maintain a constant supply floor.', icon: <Flame className="w-8 h-8" /> },
-              { title: 'Yield Optimization', desc: 'Privacy-preserving vaults that maximize returns via dual PoEL and delta-neutral strategies.', icon: <Repeat className="w-8 h-8" /> },
-              { title: 'Governance DAO', desc: 'Full community control over protocol parameters, emissions, and treasury allocation.', icon: <Users className="w-8 h-8" /> },
-              { title: 'AutoFi Primitives', desc: 'Intent-based execution engines that automate complex DeFi loops for maximum efficiency.', icon: <Zap className="w-8 h-8" /> },
-              { title: 'Cross-Chain Burn', desc: 'HyperNova-powered bridges that allow burning assets from other chains to boost rewards.', icon: <Globe className="w-8 h-8" /> }
+              { title: 'Vote-Escrow Locking', desc: 'Lock $SUPRA for 3-48 months to receive veSUPRA NFTs with 1x-2.5x boost multipliers. Soulbound for 30 days, then transferable. Smart contract: suplock_core.move', icon: <Lock className="w-8 h-8" /> },
+              { title: 'Deflationary Vaults', desc: 'Automated SUPReserve burns 50% of fees pre-floor (>10B supply), 0% post-floor. Uses Supra Oracle for real-time price feeds and USDC conversion.', icon: <Flame className="w-8 h-8" /> },
+              { title: 'Yield Optimization', desc: 'PT/YT token splitting with EigenLayer & Symbiotic restaking. LP Vacuum encrypts intents to prevent MEV extraction. Built with Move language security.', icon: <Repeat className="w-8 h-8" /> },
+              { title: 'Governance DAO', desc: 'veSUPRA holders vote on revenue splits, vault parameters, treasury allocation. 7-day voting + 3-day timelock execution via vesupra.move contract.', icon: <Users className="w-8 h-8" /> },
+              { title: 'AutoFi Primitives', desc: 'Intent-based execution leverages Supra dVRF for randomness and native oracle feeds. Automated yield compounding and rebalancing strategies.', icon: <Zap className="w-8 h-8" /> },
+              { title: 'Cross-Chain Burn', desc: 'HyperNova bridge integration allows burning assets from Ethereum, Bitcoin, and other chains to boost $SUPRA rewards and accelerate floor achievement.', icon: <Globe className="w-8 h-8" /> }
             ].map((f, i) => (
               <motion.div
                 key={f.title}
@@ -191,10 +194,10 @@ export function Home() {
               >
                 <h3 className="text-xl font-bold mb-4 text-primary uppercase">The Supply Problem</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                  Most tokens face a fundamental issue: unlimited selling pressure crushes prices. $SUPRA needs active demand destruction to reach its 10B supply floor.
+                  $SUPRA has a max supply of 100B tokens with current circulation above the 10B target floor. Traditional tokenomics allow unlimited selling pressure to crush prices. SUPLOCK implements algorithmic supply destruction.
                 </p>
                 <p className="text-xs text-primary/60 italic">
-                  SUPLOCK solves this by automatically redirecting protocol profits to buy and burn tokens—creating a "price floor" that protects your investment.
+                  Our SUPReserve contract automatically converts 50% of protocol fees to $SUPRA buybacks and burns them to address @0x1 (dead address), permanently reducing circulating supply until the 10B floor is achieved.
                 </p>
               </motion.div>
 
@@ -273,6 +276,157 @@ export function Home() {
         </div>
       </section>
 
+      {/* Supra L1 Technical Advantages */}
+      <section className="py-24 bg-primary/[0.02] border-y border-primary/10">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 neon-text tracking-tighter uppercase">Built on Supra L1</h2>
+            <p className="text-muted-foreground max-w-3xl mx-auto text-lg leading-relaxed">
+              SUPLOCK leverages Supra's cutting-edge blockchain infrastructure to deliver unparalleled performance, security, and functionality that traditional chains simply cannot match.
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="matrix-card p-8 border-l-4 border-primary"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <Zap className="w-8 h-8 text-primary" />
+                <h3 className="text-xl font-bold text-primary uppercase">500,000+ TPS</h3>
+              </div>
+              <p className="text-sm text-muted-foreground mb-4">
+                World's fastest blockchain enables instant lock confirmations, real-time yield calculations, and seamless PT/YT token trading without network congestion.
+              </p>
+              <div className="text-xs text-primary/60 font-mono">
+                Contract: suplock_core.move leverages native aggregators for atomic operations
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="matrix-card p-8 border-l-4 border-accent"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <Activity className="w-8 h-8 text-accent" />
+                <h3 className="text-xl font-bold text-accent uppercase">Sub-Second Finality</h3>
+              </div>
+              <p className="text-sm text-muted-foreground mb-4">
+                Transactions confirm in under 1 second. Lock your SUPRA, vote on governance, or claim rewards with instant finality—no waiting for block confirmations.
+              </p>
+              <div className="text-xs text-accent/60 font-mono">
+                Governance: vesupra.move executes votes with immediate settlement
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="matrix-card p-8 border-l-4 border-primary"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <Database className="w-8 h-8 text-primary" />
+                <h3 className="text-xl font-bold text-primary uppercase">Native Oracle Feeds</h3>
+              </div>
+              <p className="text-sm text-muted-foreground mb-4">
+                Built-in Supra Oracle provides real-time $SUPRA price feeds for accurate buyback calculations and yield distributions—no external oracle dependencies.
+              </p>
+              <div className="text-xs text-primary/60 font-mono">
+                SUPReserve: supreserve.move uses native price feeds for USDC conversions
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
+              className="matrix-card p-8 border-l-4 border-accent"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <ShieldCheck className="w-8 h-8 text-accent" />
+                <h3 className="text-xl font-bold text-accent uppercase">dVRF Randomness</h3>
+              </div>
+              <p className="text-sm text-muted-foreground mb-4">
+                Distributed Verifiable Random Function ensures fair execution ordering for LP Vacuum strategies, preventing MEV extraction and frontrunning attacks.
+              </p>
+              <div className="text-xs text-accent/60 font-mono">
+                Privacy: yield_vaults.move encrypts intents using dVRF entropy
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.4 }}
+              className="matrix-card p-8 border-l-4 border-primary"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <Globe className="w-8 h-8 text-primary" />
+                <h3 className="text-xl font-bold text-primary uppercase">HyperNova Bridges</h3>
+              </div>
+              <p className="text-sm text-muted-foreground mb-4">
+                Native cross-chain infrastructure allows burning assets from Ethereum, Bitcoin, and other chains to accelerate the 10B supply floor achievement.
+              </p>
+              <div className="text-xs text-primary/60 font-mono">
+                Cross-chain: Burn ETH/BTC to boost $SUPRA rewards via HyperNova
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.5 }}
+              className="matrix-card p-8 border-l-4 border-accent"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <Lock className="w-8 h-8 text-accent" />
+                <h3 className="text-xl font-bold text-accent uppercase">Move Language Security</h3>
+              </div>
+              <p className="text-sm text-muted-foreground mb-4">
+                Resource-oriented programming prevents reentrancy attacks, double-spending, and common DeFi exploits. Your locked tokens are mathematically secure.
+              </p>
+              <div className="text-xs text-accent/60 font-mono">
+                Security: Move's resource model ensures asset safety by design
+              </div>
+            </motion.div>
+          </div>
+
+          <div className="matrix-card p-8 bg-gradient-to-r from-primary/10 to-accent/10 border-2 border-primary/30">
+            <div className="text-center">
+              <h3 className="text-2xl font-bold mb-4 uppercase">Why This Matters for SUPLOCK</h3>
+              <p className="text-muted-foreground max-w-4xl mx-auto leading-relaxed">
+                Traditional DeFi protocols are limited by slow, expensive blockchains. SUPLOCK on Supra L1 delivers institutional-grade performance with consumer-friendly costs. 
+                Lock tokens instantly, trade PT/YT with zero slippage, claim rewards in real-time, and participate in governance without gas wars.
+              </p>
+              <div className="grid md:grid-cols-3 gap-6 mt-8">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-primary mb-2">$0.00001</div>
+                  <p className="text-xs text-muted-foreground uppercase">Transaction Cost</p>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-accent mb-2">&lt;1s</div>
+                  <p className="text-xs text-muted-foreground uppercase">Confirmation Time</p>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-primary mb-2">100%</div>
+                  <p className="text-xs text-muted-foreground uppercase">Uptime Guarantee</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Yield Calculator Section */}
       <section className="py-24 relative overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
@@ -282,6 +436,119 @@ export function Home() {
             <p className="text-muted-foreground max-w-2xl mx-auto uppercase text-xs tracking-widest font-bold">Calculate potential returns with SUPLOCK optimization</p>
           </div>
           <YieldCalculator />
+        </div>
+      </section>
+
+      {/* Smart Contract Architecture */}
+      <section className="py-24 relative">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 neon-text tracking-tighter uppercase">Smart Contract Architecture</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto uppercase text-xs tracking-widest font-bold">Production-ready Move contracts powering the SUPLOCK ecosystem</p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="space-y-6"
+            >
+              <div className="matrix-card p-6 border-l-4 border-primary">
+                <div className="flex items-center gap-3 mb-3">
+                  <Lock className="w-6 h-6 text-primary" />
+                  <h3 className="text-lg font-bold text-primary uppercase">suplock_core.move</h3>
+                </div>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Core locking mechanism with user-owned LockPosition resources. Eliminates write conflicts through event-driven aggregation and atomic boost calculations.
+                </p>
+                <ul className="text-xs text-muted-foreground space-y-1">
+                  <li className="flex items-center gap-2"><div className="w-1 h-1 bg-primary rotate-45" /> Lock duration: 3 months to 4 years</li>
+                  <li className="flex items-center gap-2"><div className="w-1 h-1 bg-primary rotate-45" /> Boost multiplier: 1x to 2.5x (formula-based)</li>
+                  <li className="flex items-center gap-2"><div className="w-1 h-1 bg-primary rotate-45" /> Early unlock penalties with time decay</li>
+                  <li className="flex items-center gap-2"><div className="w-1 h-1 bg-primary rotate-45" /> Aggregator-based total supply tracking</li>
+                </ul>
+              </div>
+
+              <div className="matrix-card p-6 border-l-4 border-accent">
+                <div className="flex items-center gap-3 mb-3">
+                  <Vote className="w-6 h-6 text-accent" />
+                  <h3 className="text-lg font-bold text-accent uppercase">vesupra.move</h3>
+                </div>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Governance DAO with soulbound veSUPRA NFTs. Implements 7-day voting periods with 3-day timelock execution for security.
+                </p>
+                <ul className="text-xs text-muted-foreground space-y-1">
+                  <li className="flex items-center gap-2"><div className="w-1 h-1 bg-accent rotate-45" /> Soulbound NFTs (30-day transfer restriction)</li>
+                  <li className="flex items-center gap-2"><div className="w-1 h-1 bg-accent rotate-45" /> Proposal types: revenue, vaults, treasury</li>
+                  <li className="flex items-center gap-2"><div className="w-1 h-1 bg-accent rotate-45" /> Voting power = amount × boost multiplier</li>
+                  <li className="flex items-center gap-2"><div className="w-1 h-1 bg-accent rotate-45" /> Automated execution via timelock queue</li>
+                </ul>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="space-y-6"
+            >
+              <div className="matrix-card p-6 border-l-4 border-primary">
+                <div className="flex items-center gap-3 mb-3">
+                  <Database className="w-6 h-6 text-primary" />
+                  <h3 className="text-lg font-bold text-primary uppercase">supreserve.move</h3>
+                </div>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Automated fee distribution flywheel with dual-mode operation. Pre-floor burns 50% of fees, post-floor redirects to dividends.
+                </p>
+                <ul className="text-xs text-muted-foreground space-y-1">
+                  <li className="flex items-center gap-2"><div className="w-1 h-1 bg-primary rotate-45" /> USDC fee aggregation and conversion</li>
+                  <li className="flex items-center gap-2"><div className="w-1 h-1 bg-primary rotate-45" /> Automated monthly distributions</li>
+                  <li className="flex items-center gap-2"><div className="w-1 h-1 bg-primary rotate-45" /> Burns to @0x1 dead address permanently</li>
+                  <li className="flex items-center gap-2"><div className="w-1 h-1 bg-primary rotate-45" /> Oracle-based supply floor monitoring</li>
+                </ul>
+              </div>
+
+              <div className="matrix-card p-6 border-l-4 border-accent">
+                <div className="flex items-center gap-3 mb-3">
+                  <Zap className="w-6 h-6 text-accent" />
+                  <h3 className="text-lg font-bold text-accent uppercase">yield_vaults.move</h3>
+                </div>
+                <p className="text-sm text-muted-foreground mb-3">
+                  PT/YT splitting with EigenLayer & Symbiotic restaking. LP Vacuum encrypts intents using dVRF for MEV protection.
+                </p>
+                <ul className="text-xs text-muted-foreground space-y-1">
+                  <li className="flex items-center gap-2"><div className="w-1 h-1 bg-accent rotate-45" /> Principal Token (PT) and Yield Token (YT)</li>
+                  <li className="flex items-center gap-2"><div className="w-1 h-1 bg-accent rotate-45" /> Dual restaking integration (EigenLayer + Symbiotic)</li>
+                  <li className="flex items-center gap-2"><div className="w-1 h-1 bg-accent rotate-45" /> Encrypted intent processing for privacy</li>
+                  <li className="flex items-center gap-2"><div className="w-1 h-1 bg-accent rotate-45" /> Composable collateral receipts</li>
+                </ul>
+              </div>
+            </motion.div>
+          </div>
+
+          <div className="matrix-card p-8 mt-12 bg-gradient-to-r from-primary/10 to-accent/10 border-2 border-primary/30">
+            <div className="text-center">
+              <h3 className="text-2xl font-bold mb-4 uppercase">Move Language Advantages</h3>
+              <div className="grid md:grid-cols-3 gap-8">
+                <div>
+                  <ShieldCheck className="w-12 h-12 text-primary mx-auto mb-3" />
+                  <h4 className="font-bold text-primary mb-2 uppercase">Resource Safety</h4>
+                  <p className="text-xs text-muted-foreground">Resources cannot be copied or dropped, preventing double-spending and ensuring asset safety by design.</p>
+                </div>
+                <div>
+                  <Zap className="w-12 h-12 text-accent mx-auto mb-3" />
+                  <h4 className="font-bold text-accent mb-2 uppercase">Formal Verification</h4>
+                  <p className="text-xs text-muted-foreground">Mathematical proofs ensure contract correctness, eliminating entire classes of bugs common in Solidity.</p>
+                </div>
+                <div>
+                  <Database className="w-12 h-12 text-primary mx-auto mb-3" />
+                  <h4 className="font-bold text-primary mb-2 uppercase">Gas Efficiency</h4>
+                  <p className="text-xs text-muted-foreground">Optimized bytecode and native aggregators reduce transaction costs by 90% compared to Ethereum.</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 

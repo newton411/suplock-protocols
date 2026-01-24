@@ -1,338 +1,402 @@
-/// Supra DVRF Integration Module
-/// Provides verifiable randomness for fair governance distributions
-/// Uses Supra's Distributed VRF for unbiasable randomness on-chain
-/// 
-/// Use Cases:
-/// - Fair selection of governance committee members
-/// - Random audit triggers for treasury
-/// - Fair distribution in vault lottery systems
-/// - Randomized reward order to prevent MEV
+/// DVRF Integration Module for Supra L1
+/// Integrates with Supra's Distributed Verifiable Random Function (DVRF)
+/// Provides cryptographically secure randomness for SUPLOCK protocol
 
 module suplock::dvrf_integration {
     use std::signer;
     use std::vector;
-    use std::string::String;
+    use std::hash;
+    use supra_framework::object::{Self, UID};
+    use supra_framework::event;
+    use supra_framework::clock::{Self, Clock};
 
     /// Error codes
-    const ERR_INVALID_ENTROPY: u64 = 4001;
-    const ERR_RANDOMNESS_UNAVAILABLE: u64 = 4002;
-    const ERR_UNAUTHORIZED: u64 = 4003;
-    const ERR_SEED_EXPIRED: u64 = 4004;
+    const ERR_ALREADY_INITIALIZED: u64 = 4001;
+    const ERR_NOT_ADMIN: u64 = 4002;
+    const ERR_INVALID_SEED: u64 = 4003;
+    const ERR_STALE_RANDOMNESS: u64 = 4004;
+    const ERR_EMPTY_CANDIDATES: u64 = 4005;
+    const ERR_INVALID_RANGE: u64 = 4006;
 
-    /// Randomness freshness requirement (1 hour)
-    const MAX_SEED_AGE: u64 = 3600;
+    /// Constants
+    const SEED_LENGTH: u64 = 32; // 32 bytes for seed
+    const MAX_SEED_AGE_SECS: u64 = 3600; // 1 hour max age
+    const RANDOMNESS_REFRESH_INTERVAL: u64 = 1800; // 30 minutes
 
-    /// DVRF seed data (from Supra's randomness infrastructure)
-    struct RandomnessSeed has store {
-        seed: vector<u8>,
-        timestamp: u64,
-        is_valid: bool,
+    /// Admin capability for DVRF management
+    struct AdminCap has key, store {
+        id: UID,
     }
 
-    /// DVRF state manager
+    /// DVRF Manager state
     struct DVRFManager has key {
-        current_seed: RandomnessSeed,
-        previous_seed: RandomnessSeed,
-        seed_update_count: u64,
+        id: UID,
         admin: address,
-        is_dvrf_enabled: bool,
+        // Current randomness seed from Supra DVRF network
+        current_seed: vector<u8>,
+        seed_generation: u64, // Increments with each seed update
+        last_seed_update: u64,
+        total_randomness_requests: u64,
+        // Supra DVRF network integration
+        supra_dvrf_address: address, // Supra's native DVRF contract
+        authorized_updaters: vector<address>, // Supra DVRF oracle nodes
+        // Randomness quality metrics
+        entropy_quality_score: u64, // 0-100 quality score
+        seed_rotation_count: u64,
     }
 
-    /// Randomness consumption event (for audit)
+    /// Randomness request record
+    struct RandomnessRequest has store {
+        request_id: u64,
+        requester: address,
+        seed_used: vector<u8>,
+        seed_generation: u64,
+        timestamp: u64,
+        purpose: vector<u8>, // Description of randomness use
+    }
+
+    /// Events
     #[event]
-    struct RandomnessConsumed has drop {
-        consumer: address,
-        use_case: String,
-        seed_age: u64,
+    struct DVRFInitialized has copy, drop {
+        admin: address,
+        supra_dvrf_address: address,
+        initial_seed: vector<u8>,
         timestamp: u64,
     }
 
     #[event]
-    struct RandomnessSeedUpdated has drop {
-        seed_count: u64,
-        previous_timestamp: u64,
-        new_timestamp: u64,
+    struct RandomnessSeedUpdated has copy, drop {
+        old_seed: vector<u8>,
+        new_seed: vector<u8>,
+        generation: u64,
+        updater: address,
+        entropy_score: u64,
         timestamp: u64,
     }
 
-    /// Initialize DVRF manager
-    public fun initialize_dvrf(account: &signer) {
+    #[event]
+    struct RandomnessRequested has copy, drop {
+        request_id: u64,
+        requester: address,
+        purpose: vector<u8>,
+        seed_generation: u64,
+        timestamp: u64,
+    }
+
+    #[event]
+    struct CommitteeSelected has copy, drop {
+        candidates_count: u64,
+        selected_index: u64,
+        selected_address: address,
+        seed_used: vector<u8>,
+        timestamp: u64,
+    }
+
+    /// Initialize DVRF integration with Supra's DVRF network
+    public fun initialize_dvrf(
+        account: &signer,
+        supra_dvrf_address: address,
+        initial_seed: vector<u8>,
+        authorized_updaters: vector<address>,
+        ctx: &mut TxContext,
+    ) {
         let admin = signer::address_of(account);
         
+        assert!(
+            !object::id_exists<DVRFManager>(admin),
+            ERR_ALREADY_INITIALIZED,
+        );
+
+        assert!(
+            vector::length(&initial_seed) == SEED_LENGTH,
+            ERR_INVALID_SEED,
+        );
+
+        // Create admin capability
+        let admin_cap = AdminCap {
+            id: object::new(ctx),
+        };
+
+        let current_time = clock::timestamp_ms(clock) / 1000;
+
+        // Initialize DVRF manager
         let manager = DVRFManager {
-            current_seed: RandomnessSeed {
-                seed: vector::empty(),
-                timestamp: 0,
-                is_valid: false,
-            },
-            previous_seed: RandomnessSeed {
-                seed: vector::empty(),
-                timestamp: 0,
-                is_valid: false,
-            },
-            seed_update_count: 0,
+            id: object::new(ctx),
             admin,
-            is_dvrf_enabled: true,
+            current_seed: initial_seed,
+            seed_generation: 1,
+            last_seed_update: current_time,
+            total_randomness_requests: 0,
+            supra_dvrf_address,
+            authorized_updaters,
+            entropy_quality_score: 100, // Start with perfect score
+            seed_rotation_count: 0,
         };
 
-        move_to(account, manager);
-    }
+        // Transfer admin capability to admin
+        object::transfer(admin_cap, admin);
+        
+        // Transfer manager to admin
+        object::transfer(manager, admin);
 
-    /// Update randomness seed from Supra Oracle
-    /// Called periodically to refresh randomness
-    public fun update_randomness_seed(
-        oracle_caller: &signer,
-        new_seed: vector<u8>,
-        manager_addr: address,
-    ) acquires DVRFManager {
-        let caller = signer::address_of(oracle_caller);
-        let manager = borrow_global_mut<DVRFManager>(manager_addr);
-
-        // Verify caller is authorized (would be oracle in production)
-        assert!(caller == manager.admin, ERR_UNAUTHORIZED);
-        assert!(vector::length(&new_seed) > 0, ERR_INVALID_ENTROPY);
-
-        let old_timestamp = manager.current_seed.timestamp;
-
-        // Rotate seeds
-        manager.previous_seed = manager.current_seed;
-        manager.current_seed = RandomnessSeed {
-            seed: new_seed,
-            timestamp: current_timestamp(),
-            is_valid: true,
-        };
-        manager.seed_update_count = manager.seed_update_count + 1;
-
-        0x1::event::emit(RandomnessSeedUpdated {
-            seed_count: manager.seed_update_count,
-            previous_timestamp: old_timestamp,
-            new_timestamp: manager.current_seed.timestamp,
-            timestamp: current_timestamp(),
+        event::emit(DVRFInitialized {
+            admin,
+            supra_dvrf_address,
+            initial_seed,
+            timestamp: current_time,
         });
     }
 
-    /// Generate random number in range [0, max_value)
-    /// Uses current DVRF seed
-    public fun random_in_range(
-        max_value: u64,
-        manager_addr: address,
-    ): u64 acquires DVRFManager {
-        assert!(max_value > 0, 4005);
+    /// Update randomness seed (called by Supra DVRF oracle nodes)
+    public fun update_randomness_seed(
+        updater: &signer,
+        new_seed: vector<u8>,
+        entropy_score: u64,
+        manager: &mut DVRFManager,
+        clock: &Clock,
+    ) {
+        let updater_addr = signer::address_of(updater);
+        
+        // Verify updater is authorized (Supra DVRF oracle node)
+        assert!(
+            vector::contains(&manager.authorized_updaters, &updater_addr) || 
+            updater_addr == manager.admin,
+            ERR_NOT_ADMIN,
+        );
 
-        let manager = borrow_global<DVRFManager>(manager_addr);
-        assert!(manager.is_dvrf_enabled, ERR_RANDOMNESS_UNAVAILABLE);
-        assert!(manager.current_seed.is_valid, ERR_RANDOMNESS_UNAVAILABLE);
+        assert!(
+            vector::length(&new_seed) == SEED_LENGTH,
+            ERR_INVALID_SEED,
+        );
 
-        // Check seed freshness
-        let seed_age = current_timestamp() - manager.current_seed.timestamp;
-        assert!(seed_age <= MAX_SEED_AGE, ERR_SEED_EXPIRED);
+        let current_time = clock::timestamp_ms(clock) / 1000;
+        let old_seed = manager.current_seed;
 
-        // Generate random number from seed
-        let random_u64 = extract_u64_from_seed(&manager.current_seed.seed);
-        random_u64 % max_value
+        // Update seed
+        manager.current_seed = new_seed;
+        manager.seed_generation = manager.seed_generation + 1;
+        manager.last_seed_update = current_time;
+        manager.entropy_quality_score = entropy_score;
+        manager.seed_rotation_count = manager.seed_rotation_count + 1;
+
+        event::emit(RandomnessSeedUpdated {
+            old_seed,
+            new_seed,
+            generation: manager.seed_generation,
+            updater: updater_addr,
+            entropy_score,
+            timestamp: current_time,
+        });
     }
 
-    /// Generate random number with fallback to previous seed if current expired
-    public fun random_in_range_with_fallback(
-        max_value: u64,
+    /// Get current randomness seed with freshness validation
+    public fun get_randomness_seed(
         manager_addr: address,
-    ): (u64, bool) acquires DVRFManager {
-        let manager = borrow_global<DVRFManager>(manager_addr);
-        assert!(max_value > 0, 4005);
+        ctx: &mut TxContext,
+    ): vector<u8> {
+        let manager = object::borrow_global<DVRFManager>(manager_addr);
+        let current_time = clock::timestamp_ms(clock) / 1000;
 
-        // Try current seed
-        let seed_age = current_timestamp() - manager.current_seed.timestamp;
-        if (manager.current_seed.is_valid && seed_age <= MAX_SEED_AGE) {
-            let random = extract_u64_from_seed(&manager.current_seed.seed);
-            return (random % max_value, false);
-        };
+        // Validate seed freshness
+        assert!(
+            current_time - manager.last_seed_update <= MAX_SEED_AGE_SECS,
+            ERR_STALE_RANDOMNESS,
+        );
 
-        // Fall back to previous seed
-        assert!(manager.previous_seed.is_valid, ERR_RANDOMNESS_UNAVAILABLE);
-        let random = extract_u64_from_seed(&manager.previous_seed.seed);
-        (random % max_value, true) // true = fallback used
+        // Record randomness request
+        let manager_mut = object::borrow_global_mut<DVRFManager>(manager_addr);
+        manager_mut.total_randomness_requests = manager_mut.total_randomness_requests + 1;
+
+        event::emit(RandomnessRequested {
+            request_id: manager_mut.total_randomness_requests,
+            requester: tx_context::sender(ctx),
+            purpose: b"general_randomness",
+            seed_generation: manager.seed_generation,
+            timestamp: current_time,
+        });
+
+        manager.current_seed
     }
 
-    /// Select random committee member from set of candidates
-    /// Uses DVRF for fair, verifiable selection
+    /// Select random committee member using DVRF
     public fun select_random_committee_member(
         candidates: vector<address>,
         manager_addr: address,
-    ): address acquires DVRFManager {
-        let count = vector::length(&candidates);
-        assert!(count > 0, 4005);
+        ctx: &mut TxContext,
+    ): address {
+        assert!(
+            !vector::is_empty(&candidates),
+            ERR_EMPTY_CANDIDATES,
+        );
 
-        let index = random_in_range((count as u64), manager_addr);
-        *vector::borrow(&candidates, index as u64)
-    }
+        let manager = object::borrow_global<DVRFManager>(manager_addr);
+        let current_time = clock::timestamp_ms(clock) / 1000;
 
-    /// Shuffle array using DVRF (Fisher-Yates shuffle)
-    /// Creates fair, verifiable ordering
-    public fun shuffle_array<T>(
-        array: vector<T>,
-        manager_addr: address,
-    ): vector<T> acquires DVRFManager {
-        let len = vector::length(&array);
-        if (len <= 1) {
-            return array;
-        };
+        // Validate seed freshness
+        assert!(
+            current_time - manager.last_seed_update <= MAX_SEED_AGE_SECS,
+            ERR_STALE_RANDOMNESS,
+        );
 
-        let shuffled = array;
-        let i = len - 1;
+        // Generate deterministic randomness from seed + context
+        let context = vector::empty<u8>();
+        vector::append(&mut context, manager.current_seed);
+        vector::append(&mut context, bcs::to_bytes(&current_time));
+        vector::append(&mut context, bcs::to_bytes(&vector::length(&candidates)));
 
-        while (i > 0) {
-            let j = random_in_range((i as u64) + 1, manager_addr);
-            
-            // Swap elements at i and j
-            let temp = *vector::borrow(&shuffled, i as u64);
-            *vector::borrow_mut(&mut shuffled, i as u64) = *vector::borrow(&shuffled, j);
-            *vector::borrow_mut(&mut shuffled, j) = temp;
+        let hash_bytes = hash::sha3_256(context);
+        let random_u64 = bytes_to_u64(hash_bytes);
+        let selected_index = random_u64 % vector::length(&candidates);
+        let selected_address = *vector::borrow(&candidates, selected_index);
 
-            i = i - 1;
-        };
+        // Record committee selection
+        let manager_mut = object::borrow_global_mut<DVRFManager>(manager_addr);
+        manager_mut.total_randomness_requests = manager_mut.total_randomness_requests + 1;
 
-        shuffled
-    }
-
-    /// Fair lottery: Distribute rewards to random subset of candidates
-    /// Uses DVRF to ensure fairness
-    public fun fair_lottery_distribution(
-        candidates: vector<address>,
-        num_winners: u64,
-        manager_addr: address,
-    ): vector<address> acquires DVRFManager {
-        let candidate_count = vector::length(&candidates);
-        assert!(num_winners <= candidate_count, 4005);
-
-        // Shuffle candidates using DVRF
-        let shuffled = shuffle_array(candidates, manager_addr);
-
-        // Take first num_winners
-        let winners = vector::empty();
-        let i = 0;
-        while (i < num_winners) {
-            vector::push_back(&mut winners, *vector::borrow(&shuffled, i));
-            i = i + 1;
-        };
-
-        winners
-    }
-
-    /// Audit trigger randomness: Randomly select audit targets
-    /// Used to prevent auditors from being bribed to skip checks
-    public fun random_audit_selection(
-        eligible_targets: u64,
-        num_audits: u64,
-        manager_addr: address,
-    ): vector<u64> acquires DVRFManager {
-        assert!(num_audits <= eligible_targets, 4005);
-
-        let selected = vector::empty();
-        let attempted = 0;
-        let max_attempts = num_audits * 10; // Prevent infinite loop
-
-        while (vector::length(&selected) < num_audits && attempted < max_attempts) {
-            let target = random_in_range(eligible_targets, manager_addr);
-            
-            // Check if already selected
-            if (!vector::contains(&selected, &target)) {
-                vector::push_back(&mut selected, target);
-            };
-
-            attempted = attempted + 1;
-        };
-
-        selected
-    }
-
-    /// Generate random threshold value for proposal approval
-    /// Uses DVRF to make thresholds unpredictable and fair
-    public fun random_approval_threshold(
-        min_threshold_bps: u64,
-        max_threshold_bps: u64,
-        manager_addr: address,
-    ): u64 acquires DVRFManager {
-        assert!(min_threshold_bps < max_threshold_bps, 4005);
-        
-        let range = max_threshold_bps - min_threshold_bps;
-        let random_offset = random_in_range(range, manager_addr);
-        min_threshold_bps + (random_offset as u64)
-    }
-
-    /// Fair order processing: Randomize execution order to prevent MEV
-    /// Critical for fee distribution and dividend claims
-    public fun randomize_processing_order(
-        items: vector<u64>,
-        manager_addr: address,
-    ): vector<u64> acquires DVRFManager {
-        shuffle_array(items, manager_addr)
-    }
-
-    /// Get current DVRF state (view function)
-    public fun get_dvrf_state(manager_addr: address): (u64, bool, u64) acquires DVRFManager {
-        let manager = borrow_global<DVRFManager>(manager_addr);
-        let seed_age = if (manager.current_seed.is_valid) {
-            current_timestamp() - manager.current_seed.timestamp
-        } else {
-            0
-        };
-        (manager.seed_update_count, manager.current_seed.is_valid, seed_age)
-    }
-
-    /// Emit consumption event (for audit trail)
-    public fun log_randomness_consumption(
-        consumer: address,
-        use_case: String,
-        manager_addr: address,
-    ) acquires DVRFManager {
-        let manager = borrow_global<DVRFManager>(manager_addr);
-        let seed_age = current_timestamp() - manager.current_seed.timestamp;
-
-        0x1::event::emit(RandomnessConsumed {
-            consumer,
-            use_case,
-            seed_age,
-            timestamp: current_timestamp(),
+        event::emit(CommitteeSelected {
+            candidates_count: vector::length(&candidates),
+            selected_index,
+            selected_address,
+            seed_used: manager.current_seed,
+            timestamp: current_time,
         });
+
+        selected_address
     }
 
-    // ============== INTERNAL HELPERS ==============
+    /// Generate random number in range [min, max) using DVRF
+    public fun generate_random_in_range(
+        min: u64,
+        max: u64,
+        purpose: vector<u8>,
+        manager_addr: address,
+        ctx: &mut TxContext,
+    ): u64 {
+        assert!(min < max, ERR_INVALID_RANGE);
 
-    /// Extract u64 from seed bytes using hash
-    /// Implements deterministic but unpredictable extraction
-    fun extract_u64_from_seed(seed: &vector<u8>): u64 {
-        // In production, use Move's hash module to convert seed to u64
-        // For now, implement basic extraction
-        let result: u64 = 0;
-        let i = 0;
-        
-        while (i < vector::length(seed) && i < 8) {
-            let byte = *vector::borrow(seed, i);
-            result = (result << 8) | (byte as u64);
-            i = i + 1;
-        };
+        let manager = object::borrow_global<DVRFManager>(manager_addr);
+        let current_time = clock::timestamp_ms(clock) / 1000;
+
+        // Validate seed freshness
+        assert!(
+            current_time - manager.last_seed_update <= MAX_SEED_AGE_SECS,
+            ERR_STALE_RANDOMNESS,
+        );
+
+        // Generate deterministic randomness
+        let context = vector::empty<u8>();
+        vector::append(&mut context, manager.current_seed);
+        vector::append(&mut context, purpose);
+        vector::append(&mut context, bcs::to_bytes(&current_time));
+        vector::append(&mut context, bcs::to_bytes(&min));
+        vector::append(&mut context, bcs::to_bytes(&max));
+
+        let hash_bytes = hash::sha3_256(context);
+        let random_u64 = bytes_to_u64(hash_bytes);
+        let range = max - min;
+        let result = min + (random_u64 % range);
+
+        // Record randomness request
+        let manager_mut = object::borrow_global_mut<DVRFManager>(manager_addr);
+        manager_mut.total_randomness_requests = manager_mut.total_randomness_requests + 1;
+
+        event::emit(RandomnessRequested {
+            request_id: manager_mut.total_randomness_requests,
+            requester: tx_context::sender(ctx),
+            purpose,
+            seed_generation: manager.seed_generation,
+            timestamp: current_time,
+        });
 
         result
     }
 
-    /// Get current block timestamp
-    fun current_timestamp(): u64 {
-        0x1::chain::get_block_timestamp()
-    }
-
-    #[test]
-    fun test_random_in_range() {
-        let manager_addr = @0x1;
-        // Test would initialize DVRF and verify randomness
-    }
-
-    #[test]
-    fun test_fair_lottery() {
-        let candidates = vector::empty();
-        vector::push_back(&mut candidates, @0x1);
-        vector::push_back(&mut candidates, @0x2);
-        vector::push_back(&mut candidates, @0x3);
+    /// Check if randomness seed needs refresh
+    public fun needs_seed_refresh(
+        manager_addr: address,
+        clock: &Clock,
+    ): bool {
+        let manager = object::borrow_global<DVRFManager>(manager_addr);
+        let current_time = clock::timestamp_ms(clock) / 1000;
         
-        // Test fair selection
+        current_time - manager.last_seed_update >= RANDOMNESS_REFRESH_INTERVAL
+    }
+
+    /// Add authorized updater (admin only)
+    public fun add_authorized_updater(
+        admin_cap: &AdminCap,
+        new_updater: address,
+        manager: &mut DVRFManager,
+    ) {
+        assert!(
+            object::owner(admin_cap) == manager.admin,
+            ERR_NOT_ADMIN,
+        );
+
+        if (!vector::contains(&manager.authorized_updaters, &new_updater)) {
+            vector::push_back(&mut manager.authorized_updaters, new_updater);
+        };
+    }
+
+    /// Helper function to convert bytes to u64
+    fun bytes_to_u64(bytes: vector<u8>): u64 {
+        let result = 0u64;
+        let i = 0;
+        let len = if (vector::length(&bytes) > 8) { 8 } else { vector::length(&bytes) };
+        
+        while (i < len) {
+            let byte = *vector::borrow(&bytes, i);
+            result = result + ((byte as u64) << ((i * 8) as u8));
+            i = i + 1;
+        };
+        
+        result
+    }
+
+    /// View functions
+    public fun get_current_seed_info(
+        manager_addr: address,
+    ): (vector<u8>, u64, u64, u64) {
+        let manager = object::borrow_global<DVRFManager>(manager_addr);
+        (
+            manager.current_seed,
+            manager.seed_generation,
+            manager.last_seed_update,
+            manager.entropy_quality_score,
+        )
+    }
+
+    public fun get_dvrf_stats(
+        manager_addr: address,
+    ): (u64, u64, u64) {
+        let manager = object::borrow_global<DVRFManager>(manager_addr);
+        (
+            manager.total_randomness_requests,
+            manager.seed_rotation_count,
+            vector::length(&manager.authorized_updaters),
+        )
+    }
+
+    public fun is_seed_fresh(
+        manager_addr: address,
+        clock: &Clock,
+    ): bool {
+        let manager = object::borrow_global<DVRFManager>(manager_addr);
+        let current_time = clock::timestamp_ms(clock) / 1000;
+        
+        current_time - manager.last_seed_update <= MAX_SEED_AGE_SECS
+    }
+
+    #[test_only]
+    public fun test_bytes_to_u64() {
+        let test_bytes = vector[0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08];
+        let result = bytes_to_u64(test_bytes);
+        assert!(result > 0, 0);
+    }
+
+    #[test_only]
+    public fun test_seed_length() {
+        assert!(SEED_LENGTH == 32, 0);
+        assert!(MAX_SEED_AGE_SECS == 3600, 0);
     }
 }

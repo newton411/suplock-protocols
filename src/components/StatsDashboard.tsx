@@ -1,32 +1,38 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
-import { Flame, ShieldCheck, Database, BarChart3, TrendingDown, Users } from 'lucide-react';
+import { Flame, Database, BarChart3, Users } from 'lucide-react';
+import { useProtocolStats } from '../hooks/useApi';
 
 export function StatsDashboard() {
-  const [stats, setStats] = useState({
-    burned: 12543029,
-    tvl: 45293041,
-    apy: 32.5,
-    stakers: 12402
-  });
+  const { data: protocolStats, loading, error } = useProtocolStats();
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setStats(prev => ({
-        burned: prev.burned + Math.floor(Math.random() * 50),
-        tvl: prev.tvl + (Math.random() > 0.5 ? 100 : -50),
-        apy: Math.max(15, Math.min(150, prev.apy + (Math.random() - 0.5))),
-        stakers: prev.stakers + (Math.random() > 0.8 ? 1 : 0)
-      }));
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="matrix-card p-5 animate-pulse">
+            <div className="h-4 bg-primary/20 rounded mb-2"></div>
+            <div className="h-8 bg-primary/20 rounded mb-1"></div>
+            <div className="h-3 bg-primary/20 rounded w-1/2"></div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-red-400 text-center p-4">
+        Failed to load protocol stats: {error}
+      </div>
+    );
+  }
 
   const items = [
-    { label: 'Total $SUPRA Burned', value: stats.burned.toLocaleString(), sub: 'Goal: 10B Floor', icon: <Flame className="w-5 h-5" />, color: 'text-orange-500' },
-    { label: 'Total Value Locked', value: `$${stats.tvl.toLocaleString()}`, sub: '+12.4% (24h)', icon: <Database className="w-5 h-5" />, color: 'text-blue-500' },
-    { label: 'Current Avg APY', value: `${stats.apy.toFixed(1)}%`, sub: 'Phase 2 Loops Active', icon: <BarChart3 className="w-5 h-5" />, color: 'text-primary' },
-    { label: 'Total Participants', value: stats.stakers.toLocaleString(), sub: 'On Supra L1', icon: <Users className="w-5 h-5" />, color: 'text-purple-500' }
+    { label: 'Total $SUPRA Burned', value: protocolStats?.totalBurned || '0', sub: 'Goal: 10B Floor', icon: <Flame className="w-5 h-5" />, color: 'text-orange-500' },
+    { label: 'Total Value Locked', value: protocolStats?.totalLocked || '0', sub: 'SUPRA Locked', icon: <Database className="w-5 h-5" />, color: 'text-blue-500' },
+    { label: 'Protocol Fees', value: `$${protocolStats?.protocolFees || '0'}`, sub: 'Monthly Revenue', icon: <BarChart3 className="w-5 h-5" />, color: 'text-primary' },
+    { label: 'veSUPRA Holders', value: protocolStats?.veSUPRAHolders?.toLocaleString() || '0', sub: 'Active Participants', icon: <Users className="w-5 h-5" />, color: 'text-purple-500' }
   ];
 
   return (

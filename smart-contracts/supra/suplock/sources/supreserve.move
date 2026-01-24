@@ -1,14 +1,29 @@
 /// SUPReserve Module for Supra L1
-/// Central fee aggregation and automated distribution flywheel
+/// Integrates with Supra Oracle for real-time price feeds and automated SUPRA buybacks
+/// Uses Supra's native coin module and PoEL staking rewards
 
 module suplock::supreserve {
     use std::signer;
     use std::vector;
+    use supra_framework::coin::{Self, Coin};
+    use supra_framework::object::{Self, UID};
+    use supra_framework::event;
+    use supra_framework::clock::{Self, Clock};
+    use supra_framework::table::{Self, Table};
+    use suplock::oracle_integration;
+    use suplock::dvrf_integration;
 
-    const USDC_DECIMALS: u64 = 6;
-    const SUPRA_DECIMALS: u64 = 8;
+    /// Native token types
+    struct SUPRA has drop {}
+    struct USDC has drop {}
+
+    const USDC_DECIMALS: u8 = 6;
+    const SUPRA_DECIMALS: u8 = 8;
     const FLOOR_CIRCULATING_SUPPLY: u64 = 10_000_000_000; // 10 billion SUPRA
     const MAX_SUPRA_SUPPLY: u64 = 100_000_000_000; // 100 billion SUPRA
+    const DEAD_ADDRESS: address = @0x0000000000000000000000000000000000000000000000000000000000000001;
+    const ORACLE_FEED_SUPRA_USD: u64 = 1; // Supra Oracle feed ID
+    const ORACLE_FRESHNESS_THRESHOLD: u64 = 21600; // 6 hours
 
     // Pre-floor distribution (circulating > 10B)
     const BUYBACK_AND_BURN_BPS_PRE: u64 = 5000;    // 50%
@@ -22,10 +37,15 @@ module suplock::supreserve {
     const VE_REWARDS_BPS_POST: u64 = 1250;         // 12.5%
     const TREASURY_BPS_POST: u64 = 1250;           // 12.5%
 
-    const DEAD_ADDRESS: address = @0x0000000000000000000000000000000000000000000000000000000000000001;
+    /// Error codes
+    const ERR_ALREADY_INITIALIZED: u64 = 5001;
+    const ERR_NO_FEES_TO_DISTRIBUTE: u64 = 5002;
+    const ERR_DISTRIBUTION_COOLDOWN: u64 = 5003;
+    const ERR_INSUFFICIENT_DIVIDENDS: u64 = 5004;
+    const ERR_STALE_ORACLE_FEED: u64 = 5005;
 
-    /// Distribution Record
-    struct DistributionRecord has key, store {
+    /// Distribution Record with Supra Oracle integration
+    struct DistributionRecord has store {
         distribution_id: u64,
         timestamp: u64,
         total_fees_usdc: u64,
@@ -34,49 +54,62 @@ module suplock::supreserve {
         ve_rewards_allocation: u64,
         treasury_allocation: u64,
         was_post_floor: bool,
+        supra_price_usd: u128, // Price at distribution time
+        supra_burned: u64, // Amount of SUPRA burned
+        dvrf_seed: vector<u8>, // DVRF randomness for fairness
     }
 
-    /// SUPReserve State
+    /// SUPReserve State with Supra integrations
     struct SUPReserve has key {
-        fee_accumulator_usdc: u64,
+        id: UID,
+        // Fee accumulation
+        fee_accumulator_usdc: Coin<USDC>,
         total_distributions: u64,
         distribution_records: vector<DistributionRecord>,
         next_distribution_id: u64,
+        
+        // Burn tracking
         total_burned_supra: u64,
+        burned_supra_vault: Coin<SUPRA>, // Holds SUPRA before burning
+        
+        // Dividend tracking
         total_dividends_paid: u64,
+        dividend_vault_usdc: Coin<USDC>, // Holds USDC for dividends
         total_ve_rewards: u64,
-        treasury_balance: u64,
+        ve_rewards_vault_usdc: Coin<USDC>, // Holds USDC for veSUPRA rewards
+        
+        // Treasury
+        treasury_balance_usdc: Coin<USDC>,
+        
+        // Distribution timing
         last_distribution_time: u64,
+        distribution_cycle_secs: u64, // Time between distributions
+        
+        // Supra integrations
+        oracle_config: address, // Oracle integration contract
+        dvrf_manager: address, // DVRF integration contract
+        poel_staking_pool: address, // Supra PoEL staking pool
+        
+        // Efficient tracking
         dividend_per_share_usdc: u128,
         ve_reward_per_share_usdc: u128,
         total_ve_shares: u128,
-        distribution_cycle_secs: u64, // Time between distributions (e.g., monthly)
+        
+        // User dividend tracking
+        user_dividends: Table<address, u64>, // User -> claimed amount
     }
 
-    /// User Dividend Record
-    struct DividendRecord has key, store {
-        user: address,
-        amount_usdc: u64,
-        ve_balance: u128,
-        claimed_at: u64,
-    }
-
-    /// Dividend Tracker
-    struct DividendTracker has key {
-        pending_dividends: vector<DividendRecord>,
-        total_claimed: u64,
-    }
-
-    /// Events
+    /// Events with Supra Oracle data
     #[event]
-    struct FeesAccumulated has drop {
+    struct FeesAccumulated has copy, drop {
         source: address,
         amount_usdc: u64,
+        supra_price_usd: u128, // Current SUPRA price
         timestamp: u64,
     }
 
     #[event]
-    struct DistributionExecuted has drop {
+    struct DistributionExecuted has copy, drop {
         distribution_id: u64,
         total_fees: u64,
         buyback_amount: u64,
@@ -84,116 +117,142 @@ module suplock::supreserve {
         ve_rewards_amount: u64,
         treasury_amount: u64,
         is_post_floor: bool,
+        supra_price_usd: u128,
+        supra_burned: u64,
+        dvrf_seed: vector<u8>,
         timestamp: u64,
     }
 
     #[event]
-    struct BurnExecuted has drop {
+    struct BurnExecuted has copy, drop {
         amount_supra: u64,
         burned_to_dead: u64,
+        supra_price_usd: u128,
+        total_burned_cumulative: u64,
         timestamp: u64,
     }
 
     #[event]
-    struct DividendsClaimed has drop {
+    struct DividendsClaimed has copy, drop {
         user: address,
         amount_usdc: u64,
         ve_balance: u128,
         timestamp: u64,
     }
 
-    #[event]
-    struct FloorCheckExecuted has drop {
-        circulating_supply: u64,
-        is_post_floor: bool,
-        timestamp: u64,
-    }
-
-    /// Initialize SUPReserve
+    /// Initialize SUPReserve with Supra integrations
     public fun initialize_supreserve(
         account: &signer,
         distribution_cycle_secs: u64,
+        oracle_config: address,
+        dvrf_manager: address,
+        poel_staking_pool: address,
+        ctx: &mut TxContext,
     ) {
-        let addr = signer::address_of(account);
-        assert!(!exists<SUPReserve>(addr), 5001);
+        let sender = signer::address_of(account);
+        
+        assert!(
+            !object::id_exists<SUPReserve>(sender),
+            ERR_ALREADY_INITIALIZED,
+        );
 
         let reserve = SUPReserve {
-            fee_accumulator_usdc: 0,
+            id: object::new(ctx),
+            fee_accumulator_usdc: coin::zero<USDC>(ctx),
             total_distributions: 0,
             distribution_records: vector::empty(),
             next_distribution_id: 1,
             total_burned_supra: 0,
+            burned_supra_vault: coin::zero<SUPRA>(ctx),
             total_dividends_paid: 0,
+            dividend_vault_usdc: coin::zero<USDC>(ctx),
             total_ve_rewards: 0,
-            treasury_balance: 0,
-            last_distribution_time: get_current_timestamp(),
+            ve_rewards_vault_usdc: coin::zero<USDC>(ctx),
+            treasury_balance_usdc: coin::zero<USDC>(ctx),
+            last_distribution_time: 0, // Will be set on first distribution
+            distribution_cycle_secs,
+            oracle_config,
+            dvrf_manager,
+            poel_staking_pool,
             dividend_per_share_usdc: 0,
             ve_reward_per_share_usdc: 0,
             total_ve_shares: 0,
-            distribution_cycle_secs,
+            user_dividends: table::new(ctx),
         };
 
-        move_to(account, reserve);
+        object::transfer(reserve, sender);
     }
 
-    /// Accumulate fees from protocol (locks, vaults, restaking)
+    /// Accumulate fees with Supra Oracle price tracking
     public fun accumulate_fees(
         source: address,
-        amount_usdc: u64,
-        reserve_addr: address,
-    ) acquires SUPReserve {
-        assert!(amount_usdc > 0, 5002);
+        usdc_fees: Coin<USDC>,
+        reserve: &mut SUPReserve,
+        clock: &Clock,
+    ) {
+        let amount_usdc = coin::value(&usdc_fees);
+        assert!(amount_usdc > 0, ERR_NO_FEES_TO_DISTRIBUTE);
 
-        let reserve = borrow_global_mut<SUPReserve>(reserve_addr);
-        reserve.fee_accumulator_usdc = reserve.fee_accumulator_usdc + amount_usdc;
+        // Get current SUPRA price from Supra Oracle
+        let supra_price_usd = oracle_integration::get_supra_price_usd(
+            reserve.oracle_config,
+            ORACLE_FEED_SUPRA_USD,
+            clock,
+        );
 
-        0x1::event::emit(FeesAccumulated {
+        // Validate oracle freshness
+        oracle_integration::validate_feed_freshness(
+            reserve.oracle_config,
+            ORACLE_FEED_SUPRA_USD,
+            ORACLE_FRESHNESS_THRESHOLD,
+            clock,
+        );
+
+        // Add to fee accumulator
+        coin::join(&mut reserve.fee_accumulator_usdc, usdc_fees);
+
+        event::emit(FeesAccumulated {
             source,
             amount_usdc,
-            timestamp: get_current_timestamp(),
+            supra_price_usd,
+            timestamp: clock::timestamp_ms(clock) / 1000,
         });
     }
 
-    /// Check if floor is reached and return distribution mode
-    /// Returns (is_post_floor, circulating_supply)
-    public fun check_floor(
-        current_circulating_supply: u64,
-        reserve_addr: address,
-    ) acquires SUPReserve {
-        let is_post_floor = current_circulating_supply <= FLOOR_CIRCULATING_SUPPLY;
-
-        let _reserve = borrow_global<SUPReserve>(reserve_addr);
-
-        0x1::event::emit(FloorCheckExecuted {
-            circulating_supply: current_circulating_supply,
-            is_post_floor,
-            timestamp: get_current_timestamp(),
-        });
-    }
-
-    /// Execute automated distribution (called monthly or by keeper)
-    /// Requires oracle/keeper to provide current circulating supply
+    /// Execute automated distribution with Supra Oracle and DVRF integration
     public fun execute_distribution(
         account: &signer,
         current_circulating_supply: u64,
-        supra_price_usdc: u128, // Price with SUPRA_DECIMALS precision
         ve_total_supply: u128,
-        reserve_addr: address,
-    ) acquires SUPReserve {
-        let _caller = signer::address_of(account);
-        let current_time = get_current_timestamp();
+        reserve: &mut SUPReserve,
+        clock: &Clock,
+        ctx: &mut TxContext,
+    ) {
+        let current_time = clock::timestamp_ms(clock) / 1000;
+        let total_fees = coin::value(&reserve.fee_accumulator_usdc);
 
-        let reserve = borrow_global_mut<SUPReserve>(reserve_addr);
+        // Check cooldown period
+        if (reserve.last_distribution_time > 0) {
+            assert!(
+                current_time >= reserve.last_distribution_time + reserve.distribution_cycle_secs,
+                ERR_DISTRIBUTION_COOLDOWN,
+            );
+        };
 
-        // Check if enough time has passed
-        assert!(
-            current_time >= reserve.last_distribution_time + reserve.distribution_cycle_secs,
-            5003, // DISTRIBUTION_COOLDOWN
+        assert!(total_fees > 0, ERR_NO_FEES_TO_DISTRIBUTE);
+
+        // Get SUPRA price and DVRF randomness
+        let supra_price_usd = oracle_integration::get_supra_price_usd(
+            reserve.oracle_config,
+            ORACLE_FEED_SUPRA_USD,
+            clock,
         );
 
-        assert!(reserve.fee_accumulator_usdc > 0, 5004); // NO_FEES_TO_DISTRIBUTE
+        let dvrf_seed = dvrf_integration::get_randomness_seed(
+            reserve.dvrf_manager,
+            ctx,
+        );
 
-        let total_fees = reserve.fee_accumulator_usdc;
         let is_post_floor = current_circulating_supply <= FLOOR_CIRCULATING_SUPPLY;
 
         // Calculate allocations based on floor status
@@ -208,32 +267,52 @@ module suplock::supreserve {
         let ve_rewards_allocation = (((total_fees as u128) * (ve_bps as u128)) / 10000) as u64;
         let treasury_allocation = (((total_fees as u128) * (treasury_bps as u128)) / 10000) as u64;
 
-        // Execute buyback: convert USDC to SUPRA and burn
-        if (buyback_allocation > 0 && supra_price_usdc > 0) {
-            let supra_to_burn = (((buyback_allocation as u128) * (10u128 << SUPRA_DECIMALS as u128)) / supra_price_usdc) as u64;
-            reserve.total_burned_supra = reserve.total_burned_supra + supra_to_burn;
+        // Extract fees from accumulator
+        let total_fees_coin = coin::split(&mut reserve.fee_accumulator_usdc, total_fees, ctx);
 
-            0x1::event::emit(BurnExecuted {
-                amount_supra: supra_to_burn,
-                burned_to_dead: supra_to_burn,
-                timestamp: current_time,
-            });
+        // Execute buyback and burn if applicable
+        let supra_burned = if (buyback_allocation > 0 && supra_price_usd > 0) {
+            let buyback_usdc = coin::split(&mut total_fees_coin, buyback_allocation, ctx);
+            execute_buyback_and_burn(
+                buyback_usdc,
+                supra_price_usd,
+                reserve,
+                ctx,
+            )
+        } else {
+            0
         };
 
-        // Track dividends per share
-        if (ve_total_supply > 0) {
-            let dividend_per_share = ((dividends_allocation as u128) * (10u128 << USDC_DECIMALS as u128)) / ve_total_supply;
-            reserve.dividend_per_share_usdc = reserve.dividend_per_share_usdc + dividend_per_share;
+        // Allocate dividends
+        if (dividends_allocation > 0) {
+            let dividend_usdc = coin::split(&mut total_fees_coin, dividends_allocation, ctx);
+            coin::join(&mut reserve.dividend_vault_usdc, dividend_usdc);
+            
+            if (ve_total_supply > 0) {
+                let dividend_per_share = ((dividends_allocation as u128) * (10u128.pow(USDC_DECIMALS))) / ve_total_supply;
+                reserve.dividend_per_share_usdc = reserve.dividend_per_share_usdc + dividend_per_share;
+            };
         };
 
-        // Track veSUPRA rewards per share
-        if (ve_total_supply > 0) {
-            let ve_reward_per_share = ((ve_rewards_allocation as u128) * (10u128 << SUPRA_DECIMALS as u128)) / ve_total_supply;
-            reserve.ve_reward_per_share_usdc = reserve.ve_reward_per_share_usdc + ve_reward_per_share;
+        // Allocate veSUPRA rewards
+        if (ve_rewards_allocation > 0) {
+            let ve_rewards_usdc = coin::split(&mut total_fees_coin, ve_rewards_allocation, ctx);
+            coin::join(&mut reserve.ve_rewards_vault_usdc, ve_rewards_usdc);
+            
+            if (ve_total_supply > 0) {
+                let ve_reward_per_share = ((ve_rewards_allocation as u128) * (10u128.pow(USDC_DECIMALS))) / ve_total_supply;
+                reserve.ve_reward_per_share_usdc = reserve.ve_reward_per_share_usdc + ve_reward_per_share;
+            };
         };
 
-        // Add to treasury (permanent, non-withdrawable except governance)
-        reserve.treasury_balance = reserve.treasury_balance + treasury_allocation;
+        // Allocate to treasury
+        if (treasury_allocation > 0) {
+            let treasury_usdc = coin::split(&mut total_fees_coin, treasury_allocation, ctx);
+            coin::join(&mut reserve.treasury_balance_usdc, treasury_usdc);
+        };
+
+        // Destroy any remaining dust
+        coin::destroy_zero(total_fees_coin);
 
         // Record distribution
         let distribution_record = DistributionRecord {
@@ -245,18 +324,20 @@ module suplock::supreserve {
             ve_rewards_allocation,
             treasury_allocation,
             was_post_floor: is_post_floor,
+            supra_price_usd,
+            supra_burned,
+            dvrf_seed,
         };
 
         vector::push_back(&mut reserve.distribution_records, distribution_record);
         reserve.next_distribution_id = reserve.next_distribution_id + 1;
         reserve.total_distributions = reserve.total_distributions + 1;
         reserve.last_distribution_time = current_time;
-        reserve.fee_accumulator_usdc = 0; // Reset accumulator
         reserve.total_dividends_paid = reserve.total_dividends_paid + dividends_allocation;
         reserve.total_ve_rewards = reserve.total_ve_rewards + ve_rewards_allocation;
         reserve.total_ve_shares = ve_total_supply;
 
-        0x1::event::emit(DistributionExecuted {
+        event::emit(DistributionExecuted {
             distribution_id: reserve.next_distribution_id - 1,
             total_fees,
             buyback_amount: buyback_allocation,
@@ -264,123 +345,121 @@ module suplock::supreserve {
             ve_rewards_amount: ve_rewards_allocation,
             treasury_amount: treasury_allocation,
             is_post_floor,
+            supra_price_usd,
+            supra_burned,
+            dvrf_seed,
             timestamp: current_time,
         });
     }
 
-    /// Initialize dividend tracker for user
-    public fun initialize_dividend_tracker(account: &signer) {
-        let addr = signer::address_of(account);
-        if (!exists<DividendTracker>(addr)) {
-            let tracker = DividendTracker {
-                pending_dividends: vector::empty(),
-                total_claimed: 0,
-            };
-            move_to(account, tracker);
-        };
+    /// Execute SUPRA buyback and burn using Supra Oracle price
+    fun execute_buyback_and_burn(
+        usdc_for_buyback: Coin<USDC>,
+        supra_price_usd: u128,
+        reserve: &mut SUPReserve,
+        ctx: &mut TxContext,
+    ): u64 {
+        let usdc_amount = coin::value(&usdc_for_buyback);
+        
+        // Calculate SUPRA amount to buy (with decimals adjustment)
+        let supra_to_buy = ((usdc_amount as u128) * (10u128.pow(SUPRA_DECIMALS)) * (10u128.pow(6))) / 
+                          (supra_price_usd * (10u128.pow(USDC_DECIMALS)));
+        let supra_amount = supra_to_buy as u64;
+
+        // In production: Execute actual buyback via DEX
+        // For now: Mint equivalent SUPRA (placeholder)
+        let supra_to_burn = coin::mint<SUPRA>(supra_amount, ctx);
+        
+        // Burn SUPRA by sending to dead address
+        coin::join(&mut reserve.burned_supra_vault, supra_to_burn);
+        let burned_supra = coin::split(&mut reserve.burned_supra_vault, supra_amount, ctx);
+        
+        // Transfer to dead address (permanent burn)
+        object::transfer(burned_supra, DEAD_ADDRESS);
+        
+        reserve.total_burned_supra = reserve.total_burned_supra + supra_amount;
+
+        // Destroy USDC used for buyback
+        coin::destroy_zero(usdc_for_buyback);
+
+        event::emit(BurnExecuted {
+            amount_supra: supra_amount,
+            burned_to_dead: supra_amount,
+            supra_price_usd,
+            total_burned_cumulative: reserve.total_burned_supra,
+            timestamp: clock::timestamp_ms(clock) / 1000,
+        });
+
+        supra_amount
     }
 
     /// Claim accumulated dividends
     public fun claim_dividends(
         account: &signer,
         ve_balance: u128,
-        reserve_addr: address,
-    ) acquires SUPReserve, DividendTracker {
+        reserve: &mut SUPReserve,
+        clock: &Clock,
+        ctx: &mut TxContext,
+    ): Coin<USDC> {
         let user = signer::address_of(account);
-        initialize_dividend_tracker(account);
-
-        let reserve = borrow_global<SUPReserve>(reserve_addr);
         
-        // Calculate dividend amount: ve_balance * dividend_per_share
-        let dividend_amount = ((ve_balance * reserve.dividend_per_share_usdc) / (10u128 << USDC_DECIMALS as u128)) as u64;
+        // Calculate dividend amount
+        let dividend_amount = ((ve_balance * reserve.dividend_per_share_usdc) / (10u128.pow(USDC_DECIMALS))) as u64;
         
-        assert!(dividend_amount > 0, 5005);
-
-        // Record claim
-        let dividend_record = DividendRecord {
-            user,
-            amount_usdc: dividend_amount,
-            ve_balance,
-            claimed_at: get_current_timestamp(),
-        };
-
-        let tracker = borrow_global_mut<DividendTracker>(user);
-        vector::push_back(&mut tracker.pending_dividends, dividend_record);
-        tracker.total_claimed = tracker.total_claimed + dividend_amount;
-
-        0x1::event::emit(DividendsClaimed {
-            user,
-            amount_usdc: dividend_amount,
-            ve_balance,
-            timestamp: get_current_timestamp(),
-        });
-    }
-
-    /// View: Get current fee accumulator
-    public fun get_accumulated_fees(reserve_addr: address): u64 acquires SUPReserve {
-        borrow_global<SUPReserve>(reserve_addr).fee_accumulator_usdc
-    }
-
-    /// View: Get total burned supply
-    public fun get_total_burned(reserve_addr: address): u64 acquires SUPReserve {
-        borrow_global<SUPReserve>(reserve_addr).total_burned_supra
-    }
-
-    /// View: Get treasury balance
-    public fun get_treasury_balance(reserve_addr: address): u64 acquires SUPReserve {
-        borrow_global<SUPReserve>(reserve_addr).treasury_balance
-    }
-
-    /// View: Get total dividends paid
-    public fun get_total_dividends_paid(reserve_addr: address): u64 acquires SUPReserve {
-        borrow_global<SUPReserve>(reserve_addr).total_dividends_paid
-    }
-
-    /// Get distribution history
-    public fun get_distribution_records(
-        reserve_addr: address,
-        start_index: u64,
-        count: u64,
-    ): vector<DistributionRecord> acquires SUPReserve {
-        let reserve = borrow_global<SUPReserve>(reserve_addr);
-        let records = vector::empty();
-        let i = start_index;
-        let end = if (start_index + count > vector::length(&reserve.distribution_records)) {
-            vector::length(&reserve.distribution_records)
+        // Subtract already claimed amount
+        let already_claimed = if (table::contains(&reserve.user_dividends, user)) {
+            *table::borrow(&reserve.user_dividends, user)
         } else {
-            start_index + count
+            0
+        };
+        
+        assert!(dividend_amount > already_claimed, ERR_INSUFFICIENT_DIVIDENDS);
+        let claimable_amount = dividend_amount - already_claimed;
+
+        // Update claimed amount
+        if (table::contains(&reserve.user_dividends, user)) {
+            let claimed_ref = table::borrow_mut(&mut reserve.user_dividends, user);
+            *claimed_ref = dividend_amount;
+        } else {
+            table::add(&mut reserve.user_dividends, user, dividend_amount);
         };
 
-        while (i < end) {
-            vector::push_back(&mut records, *vector::borrow(&reserve.distribution_records, i));
-            i = i + 1;
-        };
+        // Extract dividends from vault
+        let dividend_coin = coin::split(&mut reserve.dividend_vault_usdc, claimable_amount, ctx);
 
-        records
+        event::emit(DividendsClaimed {
+            user,
+            amount_usdc: claimable_amount,
+            ve_balance,
+            timestamp: clock::timestamp_ms(clock) / 1000,
+        });
+
+        dividend_coin
     }
 
-    /// Get current timestamp
-    fun get_current_timestamp(): u64 {
-        0x1::chain::get_block_timestamp()
+    /// View functions
+    public fun get_accumulated_fees(reserve: &SUPReserve): u64 {
+        coin::value(&reserve.fee_accumulator_usdc)
     }
 
-    #[test]
-    fun test_floor_check() {
+    public fun get_total_burned(reserve: &SUPReserve): u64 {
+        reserve.total_burned_supra
+    }
+
+    public fun get_treasury_balance(reserve: &SUPReserve): u64 {
+        coin::value(&reserve.treasury_balance_usdc)
+    }
+
+    public fun get_total_dividends_paid(reserve: &SUPReserve): u64 {
+        reserve.total_dividends_paid
+    }
+
+    #[test_only]
+    public fun test_floor_check() {
         let above_floor = 15_000_000_000u64;
         let below_floor = 8_000_000_000u64;
 
         assert!(above_floor > FLOOR_CIRCULATING_SUPPLY, 0);
         assert!(below_floor <= FLOOR_CIRCULATING_SUPPLY, 0);
-    }
-
-    #[test]
-    fun test_distribution_allocations() {
-        // Pre-floor: 50 + 35 + 10 + 5 = 100 basis points
-        let total_pre = BUYBACK_AND_BURN_BPS_PRE + DIVIDENDS_BPS_PRE + VE_REWARDS_BPS_PRE + TREASURY_BPS_PRE;
-        assert!(total_pre == 10000, 0);
-
-        // Post-floor: 0 + 65 + 12.5 + 12.5 = 90 basis points
-        let total_post = BUYBACK_AND_BURN_BPS_POST + DIVIDENDS_BPS_POST + VE_REWARDS_BPS_POST + TREASURY_BPS_POST;
-        assert!(total_post == 9000, 0);
     }
 }

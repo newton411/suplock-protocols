@@ -14,8 +14,8 @@ const SwapBridge = () => {
   const [fromChain, setFromChain] = useState('Supra L1');
   const [toChain, setToChain] = useState('Ethereum');
 
-  const tokens = ['SUPRA', 'USDC', 'ETH', 'BTC', 'veSUPRA'];
-  const chains = ['Supra L1', 'Ethereum', 'Polygon', 'Arbitrum', 'Base'];
+  const tokens = ['SUPRA', 'iSUPRA', 'USDC', 'ETH', 'BTC', 'veSUPRA'];
+  const chains = ['Supra L1', 'Ethereum', 'Polygon', 'Arbitrum', 'Base', 'Solana'];
 
   const navItems = [
     { id: 'overview', label: 'Overview', icon: Globe, path: '/' },

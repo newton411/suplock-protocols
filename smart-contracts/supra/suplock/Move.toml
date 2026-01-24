@@ -1,12 +1,40 @@
 [package]
 name = "suplock"
-version = "0.1.0"
+version = "1.0.0"
+authors = ["SUPLOCK Development Team"]
+license = "MIT"
+publish = false
 
 [dependencies]
+# Supra L1 Framework Dependencies
 Stdlib = { git = "https://github.com/SupraOracles/supra-move-stdlib.git", rev = "main" }
 SupraFramework = { git = "https://github.com/SupraOracles/supra-framework.git", rev = "main" }
 
 [addresses]
-suplock = "0x0"
+# SUPLOCK Protocol Addresses
+suplock = "0x2"
 std = "0x1"
-supra = "0x2"
+supra = "0x3"
+
+# Supra L1 System Addresses
+supra_oracle = "0x4"
+supra_dvrf = "0x5"
+supra_poel = "0x6"
+
+[dev-addresses]
+# Development addresses for testing
+test_account = "0x100"
+oracle_admin = "0x101"
+dvrf_admin = "0x102"
+user1 = "0x200"
+user2 = "0x201"
+user3 = "0x202"
+
+[build]
+compiler_version = "1.0"
+language_version = "1.0"
+
+[prover]
+auto_trace_level = "VerifiedFunction"
+check_inconsistency = true
+timeout = 40
