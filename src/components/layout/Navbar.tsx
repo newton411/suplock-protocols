@@ -1,5 +1,5 @@
 import React from 'react';
-import { Terminal, Wallet, Globe, Lock, Vote, Zap, Database, BookOpen } from 'lucide-react';
+import { Terminal, Wallet, Globe, Lock, Vote, Zap, Database, BookOpen, ArrowUpDown } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
@@ -9,6 +9,7 @@ const Navbar = ({ connected, account, connectWallet, onOpenLearn }: { connected:
     { id: 'lock', label: 'Lock', icon: Lock, path: '/locking' },
     { id: 'governance', label: 'DAO', icon: Vote, path: '/governance' },
     { id: 'vaults', label: 'Vaults', icon: Zap, path: '/vaults' },
+    { id: 'swap', label: 'Swap', icon: ArrowUpDown, path: '/swap' },
     { id: 'reserve', label: 'Reserve', icon: Database, path: '/reserve' },
   ];
 
