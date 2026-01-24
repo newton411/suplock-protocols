@@ -5,7 +5,7 @@ export const WalletConnectButton: React.FC = () => {
   const wallet = useContext(WalletContext);
 
   if (!wallet) {
-    return <div>Error: Wallet context not available</div>;
+    return <div>Error: Starkey Wallet context not available</div>;
   }
 
   const { isConnected, address, connectWallet, disconnectWallet, balance } = wallet;
@@ -32,7 +32,7 @@ export const WalletConnectButton: React.FC = () => {
           onClick={connectWallet}
           className="px-6 py-2 bg-gold hover:bg-darkGold text-dark font-bold rounded-lg transition transform hover:scale-105"
         >
-          Connect Wallet
+          Connect Starkey Wallet
         </button>
       )}
     </div>

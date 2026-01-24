@@ -23,12 +23,10 @@ const Navbar = ({ connected, account, connectWallet, onOpenLearn }: { connected:
     <nav className="h-20 border-b border-primary/30 backdrop-blur-md sticky top-0 z-50 px-6 flex items-center justify-between bg-black/50">
       <div className="flex items-center gap-8">
         <NavLink to="/" className="flex items-center gap-3 group">
-          <div className="w-10 h-10 border-2 border-primary flex items-center justify-center neon-border group-hover:scale-110 transition-transform">
-            <Terminal className="w-6 h-6" />
-          </div>
+          <img src="/suplock-logo.png" alt="SUPLOCK" className="w-10 h-10 group-hover:scale-110 transition-transform" />
           <div className="hidden sm:block">
             <h1 className="text-xl font-bold tracking-tighter neon-text leading-none uppercase">SUPLOCK</h1>
-            <span className="text-[10px] text-primary/60 font-mono tracking-widest uppercase">Protocol v1.0.4</span>
+            <span className="text-[10px] text-primary/60 font-mono tracking-widest uppercase">Burn to Floor. Yield Forever.</span>
           </div>
         </NavLink>
 

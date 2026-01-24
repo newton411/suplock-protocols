@@ -47,11 +47,22 @@ export function Home() {
                 <span className="text-[10px] text-primary font-bold uppercase tracking-[0.2em]">Next-Gen Supra L1 Tokenomics</span>
               </div>
               <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 tracking-tighter leading-tight neon-text uppercase">
+                <div className="flex items-center justify-center gap-4 mb-4">
+                  <img src="/suplock-logo.png" alt="SUPLOCK" className="w-16 h-16 md:w-20 md:h-20" />
+                  <span className="text-primary font-black">SUPLOCK</span>
+                </div>
                 Revolutionizing <br />
                 <span className="text-primary font-black">$SUPRA</span> Tokenomics
               </h1>
+              <div className="mb-6">
+                <p className="text-2xl md:text-3xl font-bold text-primary/80 mb-2 uppercase tracking-wide">
+                  "Burn to Floor. Yield Forever."
+                </p>
+                <p className="text-sm text-primary/60 italic">
+                  Official SUPLOCK Protocol • Follow us: <a href="https://x.com/i/status/2015011212321309038" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80 underline">@SUPLOCK_Protocol</a>
+                </p>
+              </div>
               <p className="text-lg md:text-xl text-muted-foreground mb-12 max-w-2xl mx-auto uppercase tracking-wide font-mono leading-relaxed">
-                "Burn to Floor. Yield Forever." <br />
                 Deflation, Yields, and Automation built natively for the Supra ecosystem.
               </p>
               
@@ -347,7 +358,7 @@ export function Home() {
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-6">
               <a 
-                href="https://gamma.app/docs/The-Future-of-DeFi-is-Autonomous-t8cilvep4vid95g" 
+                href="https://gamma.app/docs/SUPLOCK-Protocol-n46yb80drrasx2f" 
                 target="_blank"
                 rel="noopener noreferrer"
                 className="matrix-btn-primary flex items-center justify-center gap-2"
@@ -355,7 +366,7 @@ export function Home() {
                 <FileText className="w-5 h-5" /> Phase 1: AutoFi Foundations
               </a>
               <a 
-                href="https://gamma.app/docs/The-Future-of-DeFi-is-Autonomous-t8cilvep4vid95g" 
+                href="https://gamma.app/docs/SUPLOCK-Phase-2-Autonomous-Yield-Engine-for-Supra-L1-esrcnhubfuncuq5" 
                 target="_blank"
                 rel="noopener noreferrer"
                 className="matrix-btn-secondary flex items-center justify-center gap-2"

@@ -45,8 +45,11 @@ const App: React.FC = () => {
         <nav className="border-b border-gold/30 sticky top-0 z-50 bg-dark/95 backdrop-blur">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
             <div className="flex items-center gap-2">
-              <div className="text-3xl">⛓️</div>
-              <h1 className="text-2xl font-bold text-gold">SUPLOCK</h1>
+              <img src="/suplock-logo.png" alt="SUPLOCK" className="w-8 h-8" />
+              <div>
+                <h1 className="text-2xl font-bold text-gold">SUPLOCK</h1>
+                <p className="text-xs text-gold/60">Burn to Floor. Yield Forever.</p>
+              </div>
             </div>
             <div className="hidden md:flex gap-6">
               {(['overview', 'lock', 'governance', 'vaults', 'dividends'] as Tab[]).map((tab) => (
@@ -88,12 +91,20 @@ const App: React.FC = () => {
                     Start Locking
                   </button>
                   <a
-                    href="https://gamma.app/docs/Sustainable-DeFi-7jabltpt95th05k"
+                    href="https://gamma.app/docs/SUPLOCK-Protocol-n46yb80drrasx2f"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="px-8 py-3 border-2 border-gold text-gold hover:bg-gold/10 font-bold rounded-lg transition"
                   >
-                    View Whitepaper
+                    Phase 1 Whitepaper
+                  </a>
+                  <a
+                    href="https://gamma.app/docs/SUPLOCK-Phase-2-Autonomous-Yield-Engine-for-Supra-L1-esrcnhubfuncuq5"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-8 py-3 border-2 border-gold text-gold hover:bg-gold/10 font-bold rounded-lg transition"
+                  >
+                    Phase 2 Whitepaper
                   </a>
                 </div>
               </div>
@@ -194,11 +205,17 @@ const App: React.FC = () => {
         {/* Footer */}
         <footer className="border-t border-gold/30 mt-20 py-8">
           <div className="container mx-auto px-4 text-center text-gray-400">
-            <p>SUPLOCK Protocol v0.1.0 • Built for Supra L1</p>
+            <p>SUPLOCK Protocol v1.0.4 • Built for Supra L1 • "Burn to Floor. Yield Forever."</p>
             <p className="mt-2 text-sm">
-              <a href="https://gamma.app/docs/Sustainable-DeFi-7jabltpt95th05k" target="_blank" rel="noopener noreferrer" className="text-gold hover:text-darkGold">
-                Whitepaper
+              <a href="https://gamma.app/docs/SUPLOCK-Protocol-n46yb80drrasx2f" target="_blank" rel="noopener noreferrer" className="text-gold hover:text-darkGold">
+                Phase 1 Whitepaper
               </a>
+              {' '} • {' '}
+              <a href="https://gamma.app/docs/SUPLOCK-Phase-2-Autonomous-Yield-Engine-for-Supra-L1-esrcnhubfuncuq5" target="_blank" rel="noopener noreferrer" className="text-gold hover:text-darkGold">
+                Phase 2 Whitepaper
+              </a>
+              {' '} • {' '}
+              <a href="https://x.com/i/status/2015011212321309038" target="_blank" rel="noopener noreferrer" className="text-gold hover:text-darkGold">Official X</a>
               {' '} • {' '}
               <a href="#" className="text-gold hover:text-darkGold">GitHub</a>
               {' '} • {' '}

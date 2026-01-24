@@ -4,7 +4,8 @@ import { Github, Twitter, MessageSquare, ExternalLink, ShieldAlert, Award, Globe
 
 export function Footer() {
   const links = [
-    { label: 'Twitter (X)', icon: <Twitter className="w-4 h-4" />, href: 'https://x.com/Newton_crypt', color: 'hover:text-primary' },
+    { label: 'Official X (Twitter)', icon: <Twitter className="w-4 h-4" />, href: 'https://x.com/i/status/2015011212321309038', color: 'hover:text-primary' },
+    { label: 'Founder X', icon: <Twitter className="w-4 h-4" />, href: 'https://x.com/Newton_crypt', color: 'hover:text-accent' },
     { label: 'Discord', icon: <MessageSquare className="w-4 h-4" />, href: 'https://discord.gg/supralabs', color: 'hover:text-primary' },
     { label: 'GitHub', icon: <Github className="w-4 h-4" />, href: 'https://github.com/newton411/AI-solutions', color: 'hover:text-primary' }
   ];
@@ -15,10 +16,16 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           {/* Brand */}
           <div className="col-span-1 md:col-span-2">
-            <h3 className="text-2xl font-bold text-primary tracking-tighter mb-4 uppercase neon-text">SUPLOCK Protocol</h3>
+            <div className="flex items-center gap-3 mb-4">
+              <img src="/suplock-logo.png" alt="SUPLOCK" className="w-8 h-8" />
+              <h3 className="text-2xl font-bold text-primary tracking-tighter uppercase neon-text">SUPLOCK Protocol</h3>
+            </div>
+            <p className="text-primary/80 font-bold mb-2 uppercase tracking-wide">
+              "Burn to Floor. Yield Forever."
+            </p>
             <p className="text-muted-foreground max-w-sm text-sm leading-relaxed mb-6">
               The premier deflationary engine and yield optimizer for the Supra ecosystem. 
-              Burn to Floor. Yield Forever. Founded by @Newton_crypt.
+              Founded by @Newton_crypt.
             </p>
             <div className="flex gap-4">
               {links.map(link => (
