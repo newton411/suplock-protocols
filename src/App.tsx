@@ -13,8 +13,6 @@ import Locking from './pages/Locking';
 import Governance from './pages/Governance';
 import Vaults from './pages/Vaults';
 import Reserve from './pages/Reserve';
-import Swap from './pages/Swap';
-import Bridge from './pages/Bridge';
 
 function App() {
   const [connected, setConnected] = useState(false);
@@ -93,8 +91,6 @@ function App() {
             <Route path="/governance" element={<Governance />} />
             <Route path="/vaults" element={<Vaults />} />
             <Route path="/reserve" element={<Reserve />} />
-            <Route path="/swap" element={<Swap />} />
-            <Route path="/bridge" element={<Bridge />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>

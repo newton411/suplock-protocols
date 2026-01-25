@@ -1,8 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Database, Coins, ArrowDownCircle, Info, Globe, Lock, Vote, Zap, Repeat, Share2 } from 'lucide-react';
+import { Database, Coins, ArrowDownToLine, RefreshCw, Globe, Lock, Vote, Zap, TrendingDown, Flame, Gift } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
-import { InfoPopover, protocolInfo } from '../components/ui/info-popover';
+import { InfoBanner } from '../components/InfoBanner';
 
 const Reserve = () => {
   const navItems = [
@@ -11,8 +11,6 @@ const Reserve = () => {
     { id: 'governance', label: 'DAO', icon: Vote, path: '/governance' },
     { id: 'vaults', label: 'Vaults', icon: Zap, path: '/vaults' },
     { id: 'reserve', label: 'Reserve', icon: Database, path: '/reserve' },
-    { id: 'swap', label: 'Swap', icon: Repeat, path: '/swap' },
-    { id: 'bridge', label: 'Bridge', icon: Share2, path: '/bridge' },
   ];
 
   return (
@@ -172,7 +170,7 @@ const Reserve = () => {
                   <p className="text-xs text-muted-foreground">
                     Current supply is HIGH. We're aggressively burning tokens to reach 10B. You still earn 35% of fees, but 50% goes to burns.
                   </p>
-                <p className="text-accent/60 italic mt-2 font-mono">Lower supply creates scarcity and increased price. Your veSUPRA appreciates accordingly.</p>
+                <p className="text-accent/60 italic mt-2 font-mono\">Lower supply creates scarcity and increased price. Your veSUPRA appreciates accordingly.</p>
                 </div>
               </div>
             </div>

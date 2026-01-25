@@ -1,5 +1,5 @@
 import React from 'react';
-import { Terminal, Wallet, Globe, Lock, Vote, Zap, Database, BookOpen, Repeat, Share2 } from 'lucide-react';
+import { Terminal, Wallet, Globe, Lock, Vote, Zap, Database, BookOpen } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
@@ -10,8 +10,6 @@ const Navbar = ({ connected, account, connectWallet, onOpenLearn }: { connected:
     { id: 'governance', label: 'DAO', icon: Vote, path: '/governance' },
     { id: 'vaults', label: 'Vaults', icon: Zap, path: '/vaults' },
     { id: 'reserve', label: 'Reserve', icon: Database, path: '/reserve' },
-    { id: 'swap', label: 'Swap', icon: Repeat, path: '/swap' },
-    { id: 'bridge', label: 'Bridge', icon: Share2, path: '/bridge' },
   ];
 
   const anchorLinks = [
@@ -25,12 +23,8 @@ const Navbar = ({ connected, account, connectWallet, onOpenLearn }: { connected:
     <nav className="h-20 border-b border-primary/30 backdrop-blur-md sticky top-0 z-50 px-6 flex items-center justify-between bg-black/50">
       <div className="flex items-center gap-8">
         <NavLink to="/" className="flex items-center gap-3 group">
-          <div className="w-10 h-10 border-2 border-primary flex items-center justify-center neon-border group-hover:scale-110 transition-transform overflow-hidden bg-black">
-            <img 
-              src="https://i.ibb.co/KxfQ8rsK/Picsart-26-01-24-12-01-00-111.jpg" 
-              alt="SUPLOCK Logo" 
-              className="w-full h-full object-cover"
-            />
+          <div className="w-10 h-10 border-2 border-primary flex items-center justify-center neon-border group-hover:scale-110 transition-transform">
+            <Terminal className="w-6 h-6" />
           </div>
           <div className="hidden sm:block">
             <h1 className="text-xl font-bold tracking-tighter neon-text leading-none uppercase">SUPLOCK</h1>

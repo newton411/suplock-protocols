@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Share2, Repeat, Activity, Globe, Lock, Vote, Zap, Database } from 'lucide-react';
+import { LockKeyhole, Activity, Globe, Lock, Vote, Zap, Database } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { InfoPopover, protocolInfo } from '../components/ui/info-popover';
 import { InfoBanner } from '../components/InfoBanner';
@@ -19,8 +19,6 @@ const Locking = () => {
     { id: 'governance', label: 'DAO', icon: Vote, path: '/governance' },
     { id: 'vaults', label: 'Vaults', icon: Zap, path: '/vaults' },
     { id: 'reserve', label: 'Reserve', icon: Database, path: '/reserve' },
-    { id: 'swap', label: 'Swap', icon: Repeat, path: '/swap' },
-    { id: 'bridge', label: 'Bridge', icon: Share2, path: '/bridge' },
   ];
 
   return (
@@ -199,7 +197,7 @@ const Locking = () => {
 
         <div className="matrix-card p-8 relative overflow-hidden flex flex-col justify-between">
           <div className="absolute top-0 right-0 p-4">
-            <Lock className="w-20 h-20 text-primary/5 -rotate-12" />
+            <LockKeyhole className="w-20 h-20 text-primary/5 -rotate-12" />
           </div>
           
           <div className="space-y-8">

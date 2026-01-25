@@ -1,19 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { 
-  Zap, 
-  TrendingUp, 
-  Shield, 
-  Layers, 
-  ArrowUpRight, 
-  Info, 
-  Globe, 
-  Lock, 
-  Vote, 
-  Database,
-  Repeat,
-  Share2
-} from 'lucide-react';
+import { Zap, ShieldCheck, ArrowUpRight, Percent, Globe, Lock, Vote, Database, TrendingUp, Eye, EyeOff } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { InfoPopover, protocolInfo } from '../components/ui/info-popover';
 import { InfoBanner } from '../components/InfoBanner';
@@ -32,8 +19,6 @@ const Vaults = () => {
     { id: 'governance', label: 'DAO', icon: Vote, path: '/governance' },
     { id: 'vaults', label: 'Vaults', icon: Zap, path: '/vaults' },
     { id: 'reserve', label: 'Reserve', icon: Database, path: '/reserve' },
-    { id: 'swap', label: 'Swap', icon: Repeat, path: '/swap' },
-    { id: 'bridge', label: 'Bridge', icon: Share2, path: '/bridge' },
   ];
 
   return (

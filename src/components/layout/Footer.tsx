@@ -15,16 +15,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           {/* Brand */}
           <div className="col-span-1 md:col-span-2">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 border border-primary/30 overflow-hidden bg-black">
-                <img 
-                  src="https://i.ibb.co/KxfQ8rsK/Picsart-26-01-24-12-01-00-111.jpg" 
-                  alt="SUPLOCK Logo" 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <h3 className="text-2xl font-bold text-primary tracking-tighter uppercase neon-text">SUPLOCK Protocol</h3>
-            </div>
+            <h3 className="text-2xl font-bold text-primary tracking-tighter mb-4 uppercase neon-text">SUPLOCK Protocol</h3>
             <p className="text-muted-foreground max-w-sm text-sm leading-relaxed mb-4">
               The premier deflationary engine and yield optimizer for the Supra ecosystem. 
               Burn to Floor. Yield Forever. Founded by @Newton_crypt.
