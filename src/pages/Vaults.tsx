@@ -1,6 +1,19 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Zap, ShieldCheck, ArrowUpRight, Percent, Globe, Lock, Vote, Database, TrendingUp, Eye, EyeOff } from 'lucide-react';
+import { 
+  Zap, 
+  TrendingUp, 
+  Shield, 
+  Layers, 
+  ArrowUpRight, 
+  Info, 
+  Globe, 
+  Lock, 
+  Vote, 
+  Database,
+  Repeat,
+  Share2
+} from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { InfoPopover, protocolInfo } from '../components/ui/info-popover';
 import { InfoBanner } from '../components/InfoBanner';
@@ -19,6 +32,8 @@ const Vaults = () => {
     { id: 'governance', label: 'DAO', icon: Vote, path: '/governance' },
     { id: 'vaults', label: 'Vaults', icon: Zap, path: '/vaults' },
     { id: 'reserve', label: 'Reserve', icon: Database, path: '/reserve' },
+    { id: 'swap', label: 'Swap', icon: Repeat, path: '/swap' },
+    { id: 'bridge', label: 'Bridge', icon: Share2, path: '/bridge' },
   ];
 
   return (
@@ -58,8 +73,8 @@ const Vaults = () => {
       <div className="max-w-5xl mx-auto">
         <InfoBanner
           title="How AutoFi Vaults Work"
-          description="Deposit assets into any vault and your position automatically splits into Principal Tokens (PT) and Yield Tokens (YT) via our yield_vaults.move contract. PT represents your deposit, YT represents future earnings—both tradeable separately for maximum capital flexibility on Supra L1's high-speed infrastructure."
-          tip="Advanced strategy: Sell PT for instant liquidity while keeping YT for long-term yield. Supra's 500K+ TPS enables seamless PT/YT trading."
+          description="Deposit assets into any vault and your position automatically splits into Principal Tokens (PT) and Yield Tokens (YT). PT represents your deposit, YT represents future earnings—both tradeable separately for maximum capital flexibility."
+          tip="Advanced strategy: Sell PT for instant liquidity while keeping YT for long-term yield."
         />
       </div>
 
@@ -188,7 +203,7 @@ const Vaults = () => {
             </div>
           </div>
           <p className="text-xs text-muted-foreground italic border-t border-primary/20 pt-4">
-            <strong>Example:</strong> You deposit 10 SUPRA via yield_vaults.move contract. You receive PT (worth 10 SUPRA, tradeable on Supra L1) + YT (worth future yields). If yields = 2 SUPRA/year, sell PT for 10 cash while keeping YT to earn the 2 SUPRA yield through automated smart contract distributions.
+            <strong>Example:</strong> You deposit 10 SUPRA. You receive PT (worth 10 SUPRA, tradeable) + YT (worth future yields). If yields = 2 SUPRA/year, sell PT for 10 cash while keeping YT to earn the 2 SUPRA yield.
           </p>
         </div>
       </div>

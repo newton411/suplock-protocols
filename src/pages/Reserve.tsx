@@ -1,47 +1,18 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Database, Coins, ArrowDownToLine, RefreshCw, Globe, Lock, Vote, Zap, TrendingDown, Flame, Gift } from 'lucide-react';
+import { Database, Coins, ArrowDownCircle, Info, Globe, Lock, Vote, Zap, Repeat, Share2 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
-import { InfoBanner } from '../components/InfoBanner';
-import { useFloorStatus, useProjections, useMEVData } from '../hooks/useApi';
+import { InfoPopover, protocolInfo } from '../components/ui/info-popover';
 
 const Reserve = () => {
-  const { data: floorStatus, loading: floorLoading, error: floorError } = useFloorStatus();
-  const { data: projections, loading: projectionsLoading, error: projectionsError } = useProjections(12);
-  const { data: mevData, loading: mevLoading, error: mevError } = useMEVData();
-
-  if (floorLoading || projectionsLoading || mevLoading) {
-    return (
-      <div className="space-y-12 px-4">
-        <div className="animate-pulse space-y-6">
-          <div className="h-8 bg-primary/20 rounded w-1/3 mx-auto"></div>
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="h-64 bg-primary/20 rounded"></div>
-            <div className="space-y-6">
-              <div className="h-32 bg-primary/20 rounded"></div>
-              <div className="h-24 bg-primary/20 rounded"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (floorError || projectionsError || mevError) {
-    return (
-      <div className="space-y-12 px-4">
-        <div className="text-center text-red-400">
-          Failed to load reserve data: {floorError || projectionsError || mevError}
-        </div>
-      </div>
-    );
-  }
   const navItems = [
     { id: 'overview', label: 'Overview', icon: Globe, path: '/' },
     { id: 'lock', label: 'Lock', icon: Lock, path: '/locking' },
     { id: 'governance', label: 'DAO', icon: Vote, path: '/governance' },
     { id: 'vaults', label: 'Vaults', icon: Zap, path: '/vaults' },
     { id: 'reserve', label: 'Reserve', icon: Database, path: '/reserve' },
+    { id: 'swap', label: 'Swap', icon: Repeat, path: '/swap' },
+    { id: 'bridge', label: 'Bridge', icon: Share2, path: '/bridge' },
   ];
 
   return (
@@ -78,8 +49,8 @@ const Reserve = () => {
       <div className="max-w-4xl mx-auto">
         <InfoBanner
           title="What is SUPReserve?"
-          description="Every time someone uses SUPLOCK (swaps, stakes, or collects fees), the protocol automatically collects fees in USDC via our supreserve.move smart contract. SUPReserve distributes 100% of these profits back to veSUPRA holders through automated monthly distributions powered by Supra L1's native scheduling."
-          tip="Claim your rewards weekly to compound your gains. Every USDC claimed can be re-invested into vaults for higher yields. Supra's sub-second finality ensures instant claim processing."
+          description="Every time someone uses SUPLOCK (swaps, stakes, or collects fees), the protocol automatically collects a small fee in USDC. SUPReserve distributes 100% of these profits back to veSUPRA holders. This is passive income—you earn even when you sleep."
+          tip="Claim your rewards weekly to compound your gains. Every USDC claimed can be re-invested into vaults for higher yields."
         />
       </div>
 
@@ -120,10 +91,10 @@ const Reserve = () => {
 
             <div className="space-y-4">
               {[
-                { label: 'Total Fees Collected', value: `$${mevData?.mevCaptured || '0'}` },
-                { label: 'Distributed To veSUPRA', value: `$${Math.round(parseFloat(mevData?.mevCaptured || '0') * 0.5).toLocaleString()}` },
-                { label: 'Protocol Treasury', value: `$${Math.round(parseFloat(mevData?.mevCaptured || '0') * 0.25).toLocaleString()}` },
-                { label: 'Reserve Buybacks', value: `$${Math.round(parseFloat(mevData?.mevCaptured || '0') * 0.25).toLocaleString()}` },
+                { label: 'Total Fees Collected', value: '$842,910' },
+                { label: 'Distributed To veSUPRA', value: '$421,455' },
+                { label: 'Protocol Treasury', value: '$210,727' },
+                { label: 'Reserve Buybacks', value: '$210,727' },
               ].map((m, i) => (
                 <div key={i} className="flex justify-between items-center py-2 border-b border-primary/5">
                   <span className="text-xs text-primary/60 font-mono">{m.label}</span>
@@ -171,7 +142,7 @@ const Reserve = () => {
                 Based on current circulating supply vs. 10B floor target, fees are split automatically:
               </p>
               <ul className="text-xs text-muted-foreground mt-2 space-y-1 ml-4">
-                <li><strong className="text-accent">Pre-Floor (Circulating &gt; 10B):</strong> {floorStatus?.distribution?.buybackAndBurn || '50%'} burn, {floorStatus?.distribution?.dividends || '35%'} veSUPRA holders, {floorStatus?.distribution?.veRewards || '10%'} rewards, {floorStatus?.distribution?.treasury || '5%'} treasury</li>
+                <li><strong className="text-accent">Pre-Floor (Circulating &gt; 10B):</strong> 50% burn, 35% veSUPRA holders, 10% rewards, 5% treasury</li>
                 <li><strong className="text-accent">Post-Floor (Circulating ≤ 10B):</strong> 0% burn, 65% veSUPRA holders, 12.5% rewards, 12.5% treasury</li>
               </ul>
             </div>
@@ -199,9 +170,9 @@ const Reserve = () => {
                 <div>
                   <h4 className="font-bold text-primary text-sm mb-2 uppercase">Pre-Floor Mode (Right Now)</h4>
                   <p className="text-xs text-muted-foreground">
-                    Current supply is {(floorStatus?.circulatingSupply / 1_000_000_000).toFixed(1)}B. We're aggressively burning tokens to reach {(floorStatus?.floorThreshold / 1_000_000_000).toFixed(0)}B. You still earn {floorStatus?.distribution?.dividends || '35%'} of fees, but {floorStatus?.distribution?.buybackAndBurn || '50%'} goes to burns.
+                    Current supply is HIGH. We're aggressively burning tokens to reach 10B. You still earn 35% of fees, but 50% goes to burns.
                   </p>
-                <p className="text-accent/60 italic mt-2 font-mono\">Lower supply creates scarcity and increased price. Your veSUPRA appreciates accordingly.</p>
+                <p className="text-accent/60 italic mt-2 font-mono">Lower supply creates scarcity and increased price. Your veSUPRA appreciates accordingly.</p>
                 </div>
               </div>
             </div>

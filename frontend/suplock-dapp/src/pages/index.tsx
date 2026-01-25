@@ -8,7 +8,7 @@ import { GovernancePanel } from '@/components/GovernancePanel';
 import { VaultPanel } from '@/components/VaultPanel';
 import { DividendPanel } from '@/components/DividendPanel';
 
-type Tab = 'overview' | 'lock' | 'governance' | 'vaults' | 'dividends';
+type Tab = 'overview' | 'lock' | 'governance' | 'vaults' | 'dividends' | 'swap' | 'bridge';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>('overview');
@@ -45,14 +45,17 @@ const App: React.FC = () => {
         <nav className="border-b border-gold/30 sticky top-0 z-50 bg-dark/95 backdrop-blur">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
             <div className="flex items-center gap-2">
-              <img src="/suplock-logo.png" alt="SUPLOCK" className="w-8 h-8" />
-              <div>
-                <h1 className="text-2xl font-bold text-gold">SUPLOCK</h1>
-                <p className="text-xs text-gold/60">Burn to Floor. Yield Forever.</p>
+              <div className="w-8 h-8 border border-gold/30 overflow-hidden bg-black">
+                <img 
+                  src="https://i.ibb.co/KxfQ8rsK/Picsart-26-01-24-12-01-00-111.jpg" 
+                  alt="SUPLOCK Logo" 
+                  className="w-full h-full object-cover"
+                />
               </div>
+              <h1 className="text-2xl font-bold text-gold">SUPLOCK</h1>
             </div>
             <div className="hidden md:flex gap-6">
-              {(['overview', 'lock', 'governance', 'vaults', 'dividends'] as Tab[]).map((tab) => (
+              {(['overview', 'lock', 'governance', 'vaults', 'dividends', 'swap', 'bridge'] as Tab[]).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
@@ -96,15 +99,7 @@ const App: React.FC = () => {
                     rel="noopener noreferrer"
                     className="px-8 py-3 border-2 border-gold text-gold hover:bg-gold/10 font-bold rounded-lg transition"
                   >
-                    Phase 1 Whitepaper
-                  </a>
-                  <a
-                    href="https://gamma.app/docs/SUPLOCK-Phase-2-Autonomous-Yield-Engine-for-Supra-L1-esrcnhubfuncuq5"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-8 py-3 border-2 border-gold text-gold hover:bg-gold/10 font-bold rounded-lg transition"
-                  >
-                    Phase 2 Whitepaper
+                    View Whitepaper
                   </a>
                 </div>
               </div>
@@ -200,22 +195,75 @@ const App: React.FC = () => {
               </div>
             </div>
           )}
+
+          {/* Swap Tab */}
+          {activeTab === 'swap' && (
+            <div className="animate-fadeIn space-y-8">
+              <h2 className="text-4xl font-bold text-gold text-center">Token Swap</h2>
+              <div className="max-w-md mx-auto bg-darkGray border border-gold/30 rounded-lg p-6 space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm text-gray-400">From</label>
+                  <div className="bg-dark p-3 rounded border border-gold/20 flex justify-between">
+                    <input type="number" placeholder="0.0" className="bg-transparent focus:outline-none w-full" />
+                    <span className="font-bold text-gold">SUPRA</span>
+                  </div>
+                </div>
+                <div className="flex justify-center text-gold">↓</div>
+                <div className="space-y-2">
+                  <label className="text-sm text-gray-400">To</label>
+                  <div className="bg-dark p-3 rounded border border-gold/20 flex justify-between">
+                    <input type="number" placeholder="0.0" readOnly className="bg-transparent focus:outline-none w-full opacity-50" />
+                    <span className="font-bold text-gold">USDC</span>
+                  </div>
+                </div>
+                <button className="w-full bg-gold text-dark font-bold py-3 rounded-lg hover:bg-darkGold transition mt-4">
+                  Swap Tokens
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Bridge Tab */}
+          {activeTab === 'bridge' && (
+            <div className="animate-fadeIn space-y-8">
+              <h2 className="text-4xl font-bold text-gold text-center">Cross-Chain Bridge</h2>
+              <div className="max-w-md mx-auto bg-darkGray border border-gold/30 rounded-lg p-6 space-y-6">
+                <div className="space-y-2">
+                  <label className="text-sm text-gray-400">From Network</label>
+                  <div className="bg-dark p-3 rounded border border-gold/20 font-bold text-gold">Supra L1</div>
+                </div>
+                <div className="flex justify-center text-gold">→</div>
+                <div className="space-y-2">
+                  <label className="text-sm text-gray-400">To Network</label>
+                  <select className="w-full bg-dark p-3 rounded border border-gold/20 text-gold focus:outline-none">
+                    <option>Ethereum</option>
+                    <option>Arbitrum</option>
+                    <option>Solana</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm text-gray-400">Amount</label>
+                  <div className="bg-dark p-3 rounded border border-gold/20 flex justify-between">
+                    <input type="number" placeholder="0.0" className="bg-transparent focus:outline-none w-full" />
+                    <span className="font-bold text-gold">SUPRA</span>
+                  </div>
+                </div>
+                <button className="w-full bg-gold text-dark font-bold py-3 rounded-lg hover:bg-darkGold transition mt-4">
+                  Initiate Bridge
+                </button>
+              </div>
+            </div>
+          )}
         </main>
 
         {/* Footer */}
         <footer className="border-t border-gold/30 mt-20 py-8">
           <div className="container mx-auto px-4 text-center text-gray-400">
-            <p>SUPLOCK Protocol v1.0.4 • Built for Supra L1 • "Burn to Floor. Yield Forever."</p>
+            <p>SUPLOCK Protocol v0.1.0 • Built for Supra L1</p>
             <p className="mt-2 text-sm">
               <a href="https://gamma.app/docs/SUPLOCK-Protocol-n46yb80drrasx2f" target="_blank" rel="noopener noreferrer" className="text-gold hover:text-darkGold">
-                Phase 1 Whitepaper
+                Whitepaper
               </a>
-              {' '} • {' '}
-              <a href="https://gamma.app/docs/SUPLOCK-Phase-2-Autonomous-Yield-Engine-for-Supra-L1-esrcnhubfuncuq5" target="_blank" rel="noopener noreferrer" className="text-gold hover:text-darkGold">
-                Phase 2 Whitepaper
-              </a>
-              {' '} • {' '}
-              <a href="https://x.com/i/status/2015011212321309038" target="_blank" rel="noopener noreferrer" className="text-gold hover:text-darkGold">Official X</a>
               {' '} • {' '}
               <a href="#" className="text-gold hover:text-darkGold">GitHub</a>
               {' '} • {' '}

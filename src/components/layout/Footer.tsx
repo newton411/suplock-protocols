@@ -4,8 +4,7 @@ import { Github, Twitter, MessageSquare, ExternalLink, ShieldAlert, Award, Globe
 
 export function Footer() {
   const links = [
-    { label: 'Official X (Twitter)', icon: <Twitter className="w-4 h-4" />, href: 'https://x.com/i/status/2015011212321309038', color: 'hover:text-primary' },
-    { label: 'Founder X', icon: <Twitter className="w-4 h-4" />, href: 'https://x.com/Newton_crypt', color: 'hover:text-accent' },
+    { label: 'Twitter (X)', icon: <Twitter className="w-4 h-4" />, href: 'https://x.com/Newton_crypt', color: 'hover:text-primary' },
     { label: 'Discord', icon: <MessageSquare className="w-4 h-4" />, href: 'https://discord.gg/supralabs', color: 'hover:text-primary' },
     { label: 'GitHub', icon: <Github className="w-4 h-4" />, href: 'https://github.com/newton411/AI-solutions', color: 'hover:text-primary' }
   ];
@@ -17,15 +16,21 @@ export function Footer() {
           {/* Brand */}
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center gap-3 mb-4">
-              <img src="/suplock-logo.png" alt="SUPLOCK" className="w-8 h-8" />
+              <div className="w-10 h-10 border border-primary/30 overflow-hidden bg-black">
+                <img 
+                  src="https://i.ibb.co/KxfQ8rsK/Picsart-26-01-24-12-01-00-111.jpg" 
+                  alt="SUPLOCK Logo" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
               <h3 className="text-2xl font-bold text-primary tracking-tighter uppercase neon-text">SUPLOCK Protocol</h3>
             </div>
-            <p className="text-primary/80 font-bold mb-2 uppercase tracking-wide">
-              "Burn to Floor. Yield Forever."
-            </p>
-            <p className="text-muted-foreground max-w-sm text-sm leading-relaxed mb-6">
+            <p className="text-muted-foreground max-w-sm text-sm leading-relaxed mb-4">
               The premier deflationary engine and yield optimizer for the Supra ecosystem. 
-              Founded by @Newton_crypt.
+              Burn to Floor. Yield Forever. Founded by @Newton_crypt.
+            </p>
+            <p className="text-primary font-bold text-sm mb-6 tracking-widest uppercase">
+              "your bag = your voice"
             </p>
             <div className="flex gap-4">
               {links.map(link => (
@@ -46,7 +51,7 @@ export function Footer() {
           <div>
             <h4 className="text-xs font-bold uppercase tracking-widest text-primary mb-6">Resources</h4>
             <ul className="space-y-4 text-sm text-muted-foreground">
-              <li><a href="#" className="hover:text-primary transition-colors uppercase font-bold">Whitepaper</a></li>
+              <li><a href="https://gamma.app/docs/SUPLOCK-Protocol-n46yb80drrasx2f" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors uppercase font-bold">Whitepaper</a></li>
               <li><a href="#" className="hover:text-primary transition-colors uppercase font-bold">Documentation</a></li>
               <li><a href="#" className="hover:text-primary transition-colors uppercase font-bold">Security Audits</a></li>
               <li><a href="#" className="hover:text-primary transition-colors uppercase font-bold">Tokenomics</a></li>

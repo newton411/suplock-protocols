@@ -127,11 +127,4 @@ export const protocolInfo = {
     learnMore:
       "Supra's architecture enables SUPLOCK to offer MEV protection, instant transactions, and seamless cross-chain operations.",
   },
-  hypernova: {
-    title: "HyperNova Bridge & Swap",
-    content:
-      "HyperNova is Supra's native cross-chain infrastructure providing secure bridging and optimal swap routing. It aggregates liquidity across multiple DEXs and chains for best execution.",
-    learnMore:
-      "HyperNova's advanced routing finds the best prices across all available liquidity sources while maintaining security through multi-signature validation.",
-  },
 };

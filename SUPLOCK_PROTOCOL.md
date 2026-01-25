@@ -364,7 +364,8 @@ Response: {
 
 ## References
 
-- **Whitepaper**: [Sustainable DeFi Protocol](https://gamma.app/docs/Sustainable-DeFi-7jabltpt95th05k)
+- **Phase 1 Whitepaper**: [SUPLOCK Protocol](https://gamma.app/docs/SUPLOCK-Protocol-n46yb80drrasx2f)
+- **Phase 2 Whitepaper**: [Autonomous Yield Engine](https://gamma.app/docs/SUPLOCK-Phase-2-Autonomous-Yield-Engine-for-Supra-L1-esrcnhubfuncuq5)
 - **Supra L1**: [https://supraoracles.com/](https://supraoracles.com/)
 - **Move Language**: [https://move-language.github.io/](https://move-language.github.io/)
 - **Next.js**: [https://nextjs.org/](https://nextjs.org/)

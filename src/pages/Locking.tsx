@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { LockKeyhole, Activity, Globe, Lock, Vote, Zap, Database } from 'lucide-react';
+import { Share2, Repeat, Activity, Globe, Lock, Vote, Zap, Database } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { InfoPopover, protocolInfo } from '../components/ui/info-popover';
 import { InfoBanner } from '../components/InfoBanner';
@@ -19,6 +19,8 @@ const Locking = () => {
     { id: 'governance', label: 'DAO', icon: Vote, path: '/governance' },
     { id: 'vaults', label: 'Vaults', icon: Zap, path: '/vaults' },
     { id: 'reserve', label: 'Reserve', icon: Database, path: '/reserve' },
+    { id: 'swap', label: 'Swap', icon: Repeat, path: '/swap' },
+    { id: 'bridge', label: 'Bridge', icon: Share2, path: '/bridge' },
   ];
 
   return (
@@ -58,8 +60,8 @@ const Locking = () => {
 
       <InfoBanner
         title="Why Lock Your $SUPRA?"
-        description="Locking transforms your $SUPRA into veSUPRA NFTs via our suplock_core.move smart contract. Each lock creates a soulbound NFT (30-day transfer restriction) with boost multipliers from 1x to 2.5x based on duration. Supra L1's sub-second finality ensures instant lock confirmation."
-        tip="Lock for 48 months to maximize your boost multiplier (2.5x) and governance influence. The boost formula: 1 + (lock_months / 48) × 1.5"
+        description="Locking transforms your $SUPRA into veSUPRA, a vote-escrow token that grants you governance power, protocol revenue shares, and yield boosts up to 2.5x. The longer you lock, the greater your benefits."
+        tip="Lock for 48 months to maximize your boost multiplier and governance influence."
       />
 
       {/* Understanding Locking Section */}
@@ -67,20 +69,20 @@ const Locking = () => {
         <div className="matrix-card p-8 border-l-4 border-primary">
           <h3 className="text-lg font-bold text-primary mb-4 uppercase">What Does "Locking" Mean?</h3>
           <p className="text-muted-foreground text-sm leading-relaxed mb-4">
-            When you "lock" your $SUPRA tokens, you're depositing them into our suplock_core.move smart contract for a set period (3 to 48 months). The Move language's resource model ensures your tokens are secure and cannot be double-spent. During the lock period:
+            When you "lock" your $SUPRA tokens, you're voluntarily storing them in a smart contract for a set period (3 to 48 months). During this time, you cannot sell them. But here's what you gain:
           </p>
           <div className="grid md:grid-cols-3 gap-4">
             <div className="p-4 bg-primary/5 border border-primary/20">
-              <div className="font-bold text-primary mb-2 uppercase text-sm">✓ veSUPRA NFT Minted</div>
-              <p className="text-xs text-muted-foreground">Receive a soulbound NFT via vesupra.move contract. Transferable after 30 days. Each NFT represents your voting power.</p>
+              <div className="font-bold text-primary mb-2 uppercase text-sm">✓ Governance Votes</div>
+              <p className="text-xs text-muted-foreground">Every veSUPRA token = 1 vote in protocol decisions. Longer locks = more voting power.</p>
             </div>
             <div className="p-4 bg-primary/5 border border-primary/20">
-              <div className="font-bold text-primary mb-2 uppercase text-sm">✓ Yield Rewards (12-30% APY)</div>
-              <p className="text-xs text-muted-foreground">Base 12% APR multiplied by your boost (1x-2.5x). Calculated using Supra Oracle price feeds for accurate USDC conversions.</p>
+              <div className="font-bold text-primary mb-2 uppercase text-sm">✓ Yield Rewards</div>
+              <p className="text-xs text-muted-foreground">Earn 12-42% APY depending on lock duration. Longer locks = higher rewards.</p>
             </div>
             <div className="p-4 bg-primary/5 border border-primary/20">
-              <div className="font-bold text-primary mb-2 uppercase text-sm">✓ Protocol Fee Sharing</div>
-              <p className="text-xs text-muted-foreground">Earn 35% of all SUPReserve fees (pre-floor) or 65% (post-floor). Distributed monthly in USDC via automated smart contracts.</p>
+              <div className="font-bold text-primary mb-2 uppercase text-sm">✓ Fee Sharing</div>
+              <p className="text-xs text-muted-foreground">Share in 35% of all protocol fees paid in USDC. Forever.</p>
             </div>
           </div>
         </div>
@@ -109,7 +111,7 @@ const Locking = () => {
             </div>
           </div>
           <p className="text-xs text-accent/60 mt-4 italic">
-            <strong className="text-accent uppercase text-sm">Smart Contract Formula:</strong> The boost is calculated as <strong>1 + (lock_months / 48) × 1.5</strong> in our suplock_core.move contract. Supra L1's native aggregators ensure atomic boost calculations without race conditions.
+            <strong className="text-accent uppercase text-sm">Formula:</strong> The boost is calculated as <strong>1 + (lock_months / 48) × 1.5</strong>. Longer locks yield exponentially higher returns and voting power.
           </p>
         </div>
 
@@ -197,7 +199,7 @@ const Locking = () => {
 
         <div className="matrix-card p-8 relative overflow-hidden flex flex-col justify-between">
           <div className="absolute top-0 right-0 p-4">
-            <LockKeyhole className="w-20 h-20 text-primary/5 -rotate-12" />
+            <Lock className="w-20 h-20 text-primary/5 -rotate-12" />
           </div>
           
           <div className="space-y-8">

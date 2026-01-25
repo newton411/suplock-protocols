@@ -254,7 +254,7 @@ export function LearnDrawer({ isOpen, onClose }: LearnDrawerProps) {
                 </h4>
                 <div className="flex flex-wrap gap-2">
                   <a
-                    href="https://gamma.app/docs/AutoFi-The-Future-of-Self-Executing-DeFi-netu8419zs14xx8"
+                    href="https://gamma.app/docs/SUPLOCK-Protocol-n46yb80drrasx2f"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-1.5 text-[10px] px-3 py-1.5 bg-primary/10 border border-primary/30 hover:bg-primary/20 transition-colors uppercase font-bold"
@@ -263,7 +263,7 @@ export function LearnDrawer({ isOpen, onClose }: LearnDrawerProps) {
                     Phase 1 Whitepaper
                   </a>
                   <a
-                    href="https://gamma.app/docs/The-Future-of-DeFi-is-Autonomous-t8cilvep4vid95g"
+                    href="https://gamma.app/docs/SUPLOCK-Phase-2-Autonomous-Yield-Engine-for-Supra-L1-esrcnhubfuncuq5"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-1.5 text-[10px] px-3 py-1.5 bg-primary/10 border border-primary/30 hover:bg-primary/20 transition-colors uppercase font-bold"

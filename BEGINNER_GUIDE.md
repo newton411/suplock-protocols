@@ -173,8 +173,8 @@ A: The 10B floor gives you price protection. Even if protocol stops, your tokens
 
 ## Resources
 
-- **Phase 1 Whitepaper**: https://gamma.app/docs/AutoFi-The-Future-of-Self-Executing-DeFi-netu8419zs14xx8
-- **Phase 2 Whitepaper**: https://gamma.app/docs/The-Future-of-DeFi-is-Autonomous-t8cilvep4vid95g
+- **Phase 1 Whitepaper**: https://gamma.app/docs/SUPLOCK-Protocol-n46yb80drrasx2f
+- **Phase 2 Whitepaper**: https://gamma.app/docs/SUPLOCK-Phase-2-Autonomous-Yield-Engine-for-Supra-L1-esrcnhubfuncuq5
 - **Questions?**: Check each page's info popovers (ⓘ icons) for context
 
 ---

@@ -1,44 +1,16 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Vote, FileText, Users, TrendingUp, Globe, Lock, Zap, Database } from 'lucide-react';
+import { Gavel, Users, Info, Globe, Lock, Vote, Zap, Database, Repeat, Share2 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { InfoPopover, protocolInfo } from '../components/ui/info-popover';
 import { InfoBanner } from '../components/InfoBanner';
-import { useProposals, useGovernanceStats } from '../hooks/useApi';
 
 const Governance = () => {
-  const { data: proposals, loading: proposalsLoading, error: proposalsError } = useProposals();
-  const { data: govStats, loading: statsLoading, error: statsError } = useGovernanceStats();
-
-  if (proposalsLoading || statsLoading) {
-    return (
-      <div className="space-y-12 px-4">
-        <div className="animate-pulse space-y-6">
-          <div className="h-8 bg-primary/20 rounded w-1/3 mx-auto"></div>
-          <div className="grid md:grid-cols-3 gap-6">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-24 bg-primary/20 rounded"></div>
-            ))}
-          </div>
-          <div className="space-y-4">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-32 bg-primary/20 rounded"></div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (proposalsError || statsError) {
-    return (
-      <div className="space-y-12 px-4">
-        <div className="text-center text-red-400">
-          Failed to load governance data: {proposalsError || statsError}
-        </div>
-      </div>
-    );
-  }
+  const proposals = [
+    { id: 'SIP-004', title: 'Adjust Yield Vault Multipliers', status: 'Active', votes: '12.4M', endsIn: '2d 4h' },
+    { id: 'SIP-003', title: 'Enable veSUPRA Dividend Distribution', status: 'Passed', votes: '45.1M', endsIn: 'Ended' },
+    { id: 'SIP-002', title: 'Whitelist New Collateral Assets', status: 'Passed', votes: '38.9M', endsIn: 'Ended' },
+  ];
 
   const navItems = [
     { id: 'overview', label: 'Overview', icon: Globe, path: '/' },
@@ -46,6 +18,8 @@ const Governance = () => {
     { id: 'governance', label: 'DAO', icon: Vote, path: '/governance' },
     { id: 'vaults', label: 'Vaults', icon: Zap, path: '/vaults' },
     { id: 'reserve', label: 'Reserve', icon: Database, path: '/reserve' },
+    { id: 'swap', label: 'Swap', icon: Repeat, path: '/swap' },
+    { id: 'bridge', label: 'Bridge', icon: Share2, path: '/bridge' },
   ];
 
   return (
@@ -85,8 +59,8 @@ const Governance = () => {
       <div className="max-w-4xl mx-auto">
         <InfoBanner
           title="Community-Driven Protocol"
-          description="As a veSUPRA holder, you have real power over SUPLOCK through our vesupra.move governance contract. Vote on revenue distribution percentages, vault parameters, treasury allocations, and new feature proposals. Each veSUPRA NFT equals voting power based on your boost multiplier."
-          tip="Longer lock durations give you more veSUPRA voting power. The governance system uses a 7-day voting period followed by a 3-day timelock for security."
+          description="As a veSUPRA holder, you have real power over SUPLOCK. Vote on revenue distribution percentages, vault parameters, treasury allocations, and new feature proposals. One veSUPRA equals one vote."
+          tip="Longer lock durations give you more veSUPRA, which means more voting power."
         />
       </div>
 
@@ -100,10 +74,10 @@ const Governance = () => {
         >
           <h3 className="text-lg font-bold text-primary mb-4 uppercase">Why Governance Matters</h3>
           <p className="text-muted-foreground text-sm leading-relaxed mb-4">
-            In traditional finance, banks and fund managers decide everything. In SUPLOCK, <strong>YOU decide</strong> through our vesupra.move smart contract. Every veSUPRA NFT you hold represents voting power—a direct say in how protocol revenue flows and what features get built.
+            In traditional finance, banks and fund managers decide everything. In SUPLOCK, <strong>YOU decide</strong>. Every veSUPRA token you hold is a vote—a direct say in how protocol revenue flows and what features get built.
           </p>
           <p className="text-muted-foreground text-sm leading-relaxed">
-            This matters because protocol decisions directly affect your returns. Should we burn more tokens? Increase vault rewards? Distribute more fees? Your voice decides through on-chain governance powered by Supra L1's instant finality, not some centralized team.
+            This matters because protocol decisions directly affect your returns. Should we burn more tokens? Increase vault rewards? Distribute more fees? Your voice decides, not some centralized team.
           </p>
         </motion.div>
 
@@ -246,9 +220,9 @@ const Governance = () => {
 
       <div className="grid md:grid-cols-3 gap-6">
         {[
-          { label: 'Total Proposals', value: govStats?.totalProposals?.toString() || '0', icon: FileText },
-          { label: 'Active Voters', value: govStats?.uniqueVoters?.toLocaleString() || '0', icon: Users },
-          { label: 'Participation Rate', value: govStats?.averageTurnout || '0%', icon: TrendingUp },
+          { label: 'Total Proposals', value: '142', icon: FileText },
+          { label: 'Active Voters', value: '12.4K', icon: Users },
+          { label: 'Participation Rate', value: '68.4%', icon: TrendingUp },
         ].map((stat, i) => (
           <div key={i} className="matrix-card p-6 flex items-center gap-4">
             <div className="p-3 bg-primary/10 border border-primary/20">
@@ -269,49 +243,37 @@ const Governance = () => {
         </div>
 
         <div className="grid gap-4">
-          {proposals?.map((p, i) => {
-            const totalVotes = p.votesFor + p.votesAgainst;
-            const forPercentage = totalVotes > 0 ? (p.votesFor / totalVotes) * 100 : 0;
-            
-            return (
-              <motion.div
-                key={p.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.1 }}
-                className="matrix-card p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 group"
-              >
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-primary px-2 py-0.5 border border-primary/30 bg-primary/5 uppercase">#{p.id}</span>
-                    <span className={`text-[10px] uppercase font-bold ${
-                      p.status === 'active' ? 'text-accent animate-pulse' : 
-                      p.status === 'passed' ? 'text-green-400' :
-                      p.status === 'executed' ? 'text-blue-400' :
-                      'text-primary/40'
-                    }`}>
-                      [{p.status.toUpperCase()}]
-                    </span>
-                  </div>
-                  <h4 className="text-lg font-bold group-hover:text-primary transition-colors">{p.title}</h4>
-                  <p className="text-sm text-primary/60">{p.description}</p>
+          {proposals.map((p, i) => (
+            <motion.div
+              key={p.id}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: i * 0.1 }}
+              className="matrix-card p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 group"
+            >
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-primary px-2 py-0.5 border border-primary/30 bg-primary/5 uppercase">{p.id}</span>
+                  <span className={`text-[10px] uppercase font-bold ${p.status === 'Active' ? 'text-accent animate-pulse' : 'text-primary/40'}`}>
+                    [{p.status}]
+                  </span>
                 </div>
+                <h4 className="text-lg font-bold group-hover:text-primary transition-colors">{p.title}</h4>
+              </div>
 
-                <div className="flex items-center gap-8 w-full md:w-auto justify-between md:justify-start">
-                  <div className="text-right">
-                    <div className="text-[10px] text-primary/40 uppercase">For/Against</div>
-                    <div className="text-sm font-bold">{(p.votesFor / 1000000).toFixed(1)}M / {(p.votesAgainst / 1000000).toFixed(1)}M</div>
-                    <div className="text-xs text-green-400">{forPercentage.toFixed(1)}% approval</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-[10px] text-primary/40 uppercase">Ends</div>
-                    <div className="text-sm font-bold text-primary">{new Date(p.votingEndsAt).toLocaleDateString()}</div>
-                  </div>
-                  <button className="matrix-btn-primary px-6 py-2 text-xs">View_Details</button>
+              <div className="flex items-center gap-8 w-full md:w-auto justify-between md:justify-start">
+                <div className="text-right">
+                  <div className="text-[10px] text-primary/40 uppercase">Total Votes</div>
+                  <div className="text-sm font-bold">{p.votes} veSUPRA</div>
                 </div>
-              </motion.div>
-            );
-          })}
+                <div className="text-right">
+                  <div className="text-[10px] text-primary/40 uppercase">Time Remaining</div>
+                  <div className="text-sm font-bold text-primary">{p.endsIn}</div>
+                </div>
+                <button className="matrix-btn-primary px-6 py-2 text-xs">View_Details</button>
+              </div>
+            </motion.div>
+          ))}
         </div>
       </div>
     </motion.div>
