@@ -84,7 +84,7 @@ const Restake = () => {
             className="matrix-card p-8 border-l-4 border-primary"
           >
             <div className="flex items-start gap-4 mb-6">
-              <p className="text-2xl font-bold text-primary capitalize">{p.name}</p>
+              <h3 className="text-2xl font-bold text-primary capitalize">{p.name}</h3>
             </div>
             <p className="text-sm text-muted-foreground mb-4">{p.description}</p>
             <button className="matrix-btn-primary w-full h-12 flex items-center justify-center gap-2">

@@ -12,8 +12,9 @@ describe('Restake page', () => {
     );
 
     expect(screen.getByText(/Cross‑Protocol Restaking/i)).toBeInTheDocument();
-    expect(screen.getByText(/Supralend/i)).toBeInTheDocument();
-    expect(screen.getByText(/Solido Money/i)).toBeInTheDocument();
-    expect(screen.getByText(/Atmos Protocol/i)).toBeInTheDocument();
+    // look for heading-level names to avoid matching descriptions
+    expect(screen.getByRole('heading', { level: 3, name: /Supralend/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 3, name: /Solido Money/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 3, name: /Atmos Protocol/i })).toBeInTheDocument();
   });
 });
