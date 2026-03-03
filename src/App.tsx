@@ -13,6 +13,7 @@ import Locking from './pages/Locking';
 import Governance from './pages/Governance';
 import Vaults from './pages/Vaults';
 import Reserve from './pages/Reserve';
+import { Nfts } from './pages/Nfts';
 
 function App() {
   const [connected, setConnected] = useState(false);
@@ -91,6 +92,7 @@ function App() {
             <Route path="/governance" element={<Governance />} />
             <Route path="/vaults" element={<Vaults />} />
             <Route path="/reserve" element={<Reserve />} />
+            <Route path="/nfts" element={<Nfts />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
