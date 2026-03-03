@@ -8,6 +8,7 @@ import { Footer } from './components/layout/Footer';
 import { LearnDrawer } from './components/LearnDrawer';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { WalletProvider } from './contexts/WalletContext';
 
 // Pages - Lazy loaded
 const Home = React.lazy(() => import('./pages/Home').then(m => ({ default: m.Home })));
@@ -18,20 +19,13 @@ const Reserve = React.lazy(() => import('./pages/Reserve'));
 const Nfts = React.lazy(() => import('./pages/Nfts').then(m => ({ default: m.Nfts })));
 
 function App() {
-  const [connected, setConnected] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [account, setAccount] = useState('');
   const [learnDrawerOpen, setLearnDrawerOpen] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 2000);
     return () => clearTimeout(timer);
   }, []);
-
-  const connectWallet = () => {
-    setAccount('0x7a...f2e1');
-    setConnected(true);
-  };
 
   // Fallback component for lazy-loaded routes
   const PageLoader = () => (
@@ -46,8 +40,9 @@ function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider>
-        <Router>
-          <div className="min-h-screen relative flex flex-col selection:bg-primary/30 selection:text-primary overflow-x-hidden">
+        <WalletProvider>
+          <Router>
+            <div className="min-h-screen relative flex flex-col selection:bg-primary/30 selection:text-primary overflow-x-hidden">
             <AnimatePresence>
               {loading && (
                 <motion.div
@@ -96,7 +91,7 @@ function App() {
               </motion.div>
             </div>
 
-            <Navbar connected={connected} account={account} connectWallet={connectWallet} onOpenLearn={() => setLearnDrawerOpen(true)} />
+            <Navbar onOpenLearn={() => setLearnDrawerOpen(true)} />
             <LearnDrawer isOpen={learnDrawerOpen} onClose={() => setLearnDrawerOpen(false)} />
 
             <main className="flex-1 relative z-10">
@@ -116,6 +111,7 @@ function App() {
             <Footer />
           </div>
         </Router>
+        </WalletProvider>
       </ThemeProvider>
     </ErrorBoundary>
   );

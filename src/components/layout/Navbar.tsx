@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Terminal, Wallet, Globe, Lock, Vote, Zap, Database, BookOpen, Sparkles, Menu } from 'lucide-react';
+import { Terminal, Wallet, Globe, Lock, Vote, Zap, Database, BookOpen, Sparkles, Menu, LogOut } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useWallet } from '@/contexts/WalletContext';
 
-  const Navbar = ({ connected, account, connectWallet, onOpenLearn }: { connected: boolean, account: string, connectWallet: () => void, onOpenLearn?: () => void }) => {
+const Navbar = ({ onOpenLearn }: { onOpenLearn?: () => void }) => {
+  const { connected, account, loading, error, connect, disconnect } = useWallet();
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
 
@@ -120,15 +122,33 @@ import { motion, AnimatePresence } from 'framer-motion';
         )}
       </AnimatePresence>
 
-      <button
-        onClick={connectWallet}
-        className="matrix-btn-primary flex items-center gap-2 group min-w-[160px] justify-center"
-      >
-        <Wallet className="w-4 h-4 group-hover:animate-pulse" />
-        <span className="text-xs">
-          {connected ? account : 'INITIALIZE_WALLET'}
-        </span>
-      </button>
+      <div className="flex items-center gap-2">
+        {error && (
+          <div className="hidden sm:block text-xs text-destructive font-mono bg-destructive/10 px-2 py-1 rounded border border-destructive/30">
+            {error}
+          </div>
+        )}
+        
+        <button
+          onClick={connected ? disconnect : connect}
+          disabled={loading}
+          className={`matrix-btn-primary flex items-center gap-2 group min-w-[160px] justify-center transition-all ${
+            loading ? 'opacity-50 cursor-wait' : ''
+          }`}
+        >
+          {connected ? (
+            <>
+              <LogOut className="w-4 h-4" />
+              <span className="text-xs">{account?.slice(0, 6)}...{account?.slice(-4)}</span>
+            </>
+          ) : (
+            <>
+              <Wallet className={`w-4 h-4 ${loading ? 'animate-spin' : 'group-hover:animate-pulse'}`} />
+              <span className="text-xs">{loading ? 'CONNECTING...' : 'INITIALIZE_WALLET'}</span>
+            </>
+          )}
+        </button>
+      </div>
     </nav>
   );
 };

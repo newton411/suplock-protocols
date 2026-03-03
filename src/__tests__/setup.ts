@@ -1,5 +1,6 @@
 import { expect, afterEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
+import '@testing-library/jest-dom';
 
 // Cleanup after every test
 afterEach(() => {
@@ -20,3 +21,4 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: vi.fn(),
   })),
 });
+
