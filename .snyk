@@ -1,0 +1,17 @@
+{
+  "version": "1.0.0",
+  "cli": {
+    "monitor": {
+      "public": false
+    }
+  },
+  "vulnerabilityThreshold": "medium",
+  "patch": true,
+  "failOn": "all",
+  "ignore": {},
+  "exclude": {
+    "node_modules": true,
+    "dist": true,
+    "coverage": true
+  }
+}

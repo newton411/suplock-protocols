@@ -14,5 +14,8 @@ export default defineConfig({
     strictPort: true,
     host: true,
     allowedHosts: true,
-  }
+  },
+  define: {
+    __VERSION__: JSON.stringify(process.env.npm_package_version),
+  },
 });
