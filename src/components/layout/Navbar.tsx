@@ -1,5 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Terminal, Wallet, Globe, Lock, Vote, Zap, Database, BookOpen, Sparkles, Menu, LogOut } from 'lucide-react';
+import {
+  Terminal,
+  Wallet,
+  Globe,
+  Lock,
+  Vote,
+  Zap,
+  Database,
+  BookOpen,
+  Sparkles,
+  Menu,
+  LogOut,
+  RefreshCw,
+} from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWallet } from '@/contexts/WalletContext';
@@ -21,6 +34,7 @@ const Navbar = ({ onOpenLearn }: { onOpenLearn?: () => void }) => {
     { id: 'governance', label: 'DAO', icon: Vote, path: '/governance' },
     { id: 'vaults', label: 'Vaults', icon: Zap, path: '/vaults' },
     { id: 'reserve', label: 'Reserve', icon: Database, path: '/reserve' },
+    { id: 'restake', label: 'Restake', icon: RefreshCw, path: '/restake' },
   ];
 
   const anchorLinks = [
@@ -38,15 +52,19 @@ const Navbar = ({ onOpenLearn }: { onOpenLearn?: () => void }) => {
             <Terminal className="w-6 h-6" />
           </div>
           <div className="hidden sm:block">
-            <h1 className="text-xl font-bold tracking-tighter neon-text leading-none uppercase">SUPLOCK</h1>
-            <span className="text-[10px] text-primary/60 font-mono tracking-widest uppercase">your bag = your voice</span>
+            <h1 className="text-xl font-bold tracking-tighter neon-text leading-none uppercase">
+              SUPLOCK
+            </h1>
+            <span className="text-[10px] text-primary/60 font-mono tracking-widest uppercase">
+              your bag = your voice
+            </span>
           </div>
         </NavLink>
 
         <div className="hidden xl:flex items-center gap-6">
           {anchorLinks.map((link) => (
-            <a 
-              key={link.label} 
+            <a
+              key={link.label}
               href={link.href}
               className="text-[10px] font-bold uppercase tracking-widest text-primary/40 hover:text-primary transition-colors"
             >
@@ -128,7 +146,7 @@ const Navbar = ({ onOpenLearn }: { onOpenLearn?: () => void }) => {
             {error}
           </div>
         )}
-        
+
         <button
           onClick={connected ? disconnect : connect}
           disabled={loading}
@@ -139,11 +157,15 @@ const Navbar = ({ onOpenLearn }: { onOpenLearn?: () => void }) => {
           {connected ? (
             <>
               <LogOut className="w-4 h-4" />
-              <span className="text-xs">{account?.slice(0, 6)}...{account?.slice(-4)}</span>
+              <span className="text-xs">
+                {account?.slice(0, 6)}...{account?.slice(-4)}
+              </span>
             </>
           ) : (
             <>
-              <Wallet className={`w-4 h-4 ${loading ? 'animate-spin' : 'group-hover:animate-pulse'}`} />
+              <Wallet
+                className={`w-4 h-4 ${loading ? 'animate-spin' : 'group-hover:animate-pulse'}`}
+              />
               <span className="text-xs">{loading ? 'CONNECTING...' : 'INITIALIZE_WALLET'}</span>
             </>
           )}
