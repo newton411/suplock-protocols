@@ -1,12 +1,20 @@
-import React from 'react';
-import { Terminal, Wallet, Globe, Lock, Vote, Zap, Database, BookOpen, Sparkles } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Terminal, Wallet, Globe, Lock, Vote, Zap, Database, BookOpen, Sparkles, Menu } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const Navbar = ({ connected, account, connectWallet, onOpenLearn }: { connected: boolean, account: string, connectWallet: () => void, onOpenLearn?: () => void }) => {
+  const Navbar = ({ connected, account, connectWallet, onOpenLearn }: { connected: boolean, account: string, connectWallet: () => void, onOpenLearn?: () => void }) => {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const location = useLocation();
+
+  // close mobile menu when navigation occurs
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location]);
+
   const navItems = [
-    { id: 'overview', label: 'Overview', icon: Globe, path: '/' },
     { id: 'nfts', label: 'NFTs', icon: Sparkles, path: '/nfts' },
+    { id: 'overview', label: 'Overview', icon: Globe, path: '/' },
     { id: 'lock', label: 'Lock', icon: Lock, path: '/locking' },
     { id: 'governance', label: 'DAO', icon: Vote, path: '/governance' },
     { id: 'vaults', label: 'Vaults', icon: Zap, path: '/vaults' },
@@ -55,6 +63,7 @@ const Navbar = ({ connected, account, connectWallet, onOpenLearn }: { connected:
         </div>
       </div>
 
+      {/* desktop nav items */}
       <div className="hidden lg:flex items-center gap-1">
         {navItems.map((item) => (
           <NavLink
@@ -80,6 +89,36 @@ const Navbar = ({ connected, account, connectWallet, onOpenLearn }: { connected:
           </NavLink>
         ))}
       </div>
+
+      {/* mobile menu toggle */}
+      <div className="lg:hidden flex items-center">
+        <button onClick={() => setMobileOpen((o) => !o)} className="p-2">
+          <Menu className="w-6 h-6 text-primary/60" />
+        </button>
+      </div>
+
+      {/* mobile dropdown */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute top-20 left-0 right-0 bg-black/90 flex flex-col items-center py-4 space-y-2 z-50 lg:hidden"
+          >
+            {navItems.map((item) => (
+              <NavLink
+                key={item.id}
+                to={item.path}
+                onClick={() => setMobileOpen(false)}
+                className="text-primary/80 hover:text-primary px-4 py-2 w-full text-center"
+              >
+                {item.label}
+              </NavLink>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <button
         onClick={connectWallet}
