@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
+import { WalletProvider } from '@/contexts/WalletContext';
 
 describe('Navbar', () => {
   const mockConnectWallet = vi.fn();
@@ -18,16 +19,19 @@ describe('Navbar', () => {
 
     return render(
       <BrowserRouter>
-        <Navbar {...defaultProps} />
+        <WalletProvider>
+          <Navbar {...defaultProps} />
+        </WalletProvider>
       </BrowserRouter>
     );
   };
 
   it('renders navigation items', () => {
     renderNavbar();
-    expect(screen.getByText(/overview/i)).toBeInTheDocument();
-    expect(screen.getByText(/nfts/i)).toBeInTheDocument();
-    expect(screen.getByText(/lock/i)).toBeInTheDocument();
+    // use role queries to avoid matching other text like SUPLOCK
+    expect(screen.getByRole('link', { name: /overview/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /nfts/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /^lock$/i })).toBeInTheDocument();
   });
 
   it('displays wallet button with correct text when not connected', () => {

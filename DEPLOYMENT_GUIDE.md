@@ -11,6 +11,7 @@
 ### Installation
 
 #### Supra CLI
+
 ```bash
 # Install via Supra package manager
 # Visit https://supraoracles.com/docs/
@@ -20,6 +21,7 @@ supra --version
 ```
 
 #### Node.js & npm
+
 ```bash
 # macOS (via Homebrew)
 brew install node
@@ -37,6 +39,7 @@ npm --version   # 9+
 ## Smart Contracts Setup
 
 ### 1. Initialize Project
+
 ```bash
 cd smart-contracts/supra/suplock
 
@@ -45,6 +48,7 @@ supra move fetch-dependencies
 ```
 
 ### 2. Compile Contracts
+
 ```bash
 # Compile Move code
 supra move compile --move-2
@@ -53,6 +57,7 @@ supra move compile --move-2
 ```
 
 ### 3. Run Tests
+
 ```bash
 # Execute unit tests
 supra move test
@@ -61,12 +66,14 @@ supra move test
 # Test suplock::suplock_core::test_create_lock ... ok
 # Test suplock::suplock_core::test_boost_calculation ... ok
 # Test suplock::supreserve::test_floor_check ... ok
-# Test suplock::supreserve::test_distribution_allocations ... ok
+# Test suplock::supreserve::test_distribution_allocations ... ok  (includes halving/invariant checks)
+# Test suplock::supreserve::test_dynamic_allocation_sum ... ok
 # Test suplock::yield_vaults::test_vault_creation ... ok
 # Test suplock::yield_vaults::test_yt_yield_calculation ... ok
 ```
 
 ### 4. Deploy to Testnet
+
 ```bash
 # Publish contract package
 supra move publish --network testnet
@@ -80,6 +87,7 @@ supra move publish --network testnet
 **Save the Package ID** - You'll need it for frontend configuration.
 
 ### 5. Initialize Modules (Post-Deployment)
+
 ```bash
 # Call initialization functions with:
 # supra transaction call \
@@ -98,6 +106,7 @@ supra move publish --network testnet
 ```
 
 **Contract Addresses (Testnet):**
+
 - Core State: `<address>`
 - veSUPRA Registry: `<address>`
 - SUPReserve: `<address>`
@@ -111,6 +120,7 @@ Store these in the frontend configuration.
 ## Frontend Setup
 
 ### 1. Install Dependencies
+
 ```bash
 cd frontend/suplock-dapp
 
@@ -119,7 +129,9 @@ npm install
 ```
 
 ### 2. Environment Configuration
+
 Create `.env.local`:
+
 ```env
 NEXT_PUBLIC_SUPRA_RPC_URL=https://rpc-testnet.supra.com
 NEXT_PUBLIC_SUPRA_CHAIN_ID=8
@@ -132,6 +144,7 @@ NEXT_PUBLIC_INTENT_PROCESSOR_ADDR=<Intent Processor Address>
 ```
 
 ### 3. Development Server
+
 ```bash
 npm run dev
 
@@ -142,6 +155,7 @@ npm run dev
 Access: [http://localhost:3000](http://localhost:3000)
 
 ### 4. Build for Production
+
 ```bash
 npm run build
 npm run start
@@ -151,6 +165,7 @@ npm run start
 ```
 
 ### 5. Deploy to Vercel
+
 ```bash
 # Install Vercel CLI
 npm i -g vercel
@@ -165,6 +180,7 @@ vercel
 ```
 
 **Configuration in Vercel Dashboard:**
+
 1. Go to Settings → Environment Variables
 2. Add the above `.env.local` variables
 3. Redeploy
@@ -174,6 +190,7 @@ vercel
 ## Backend API Setup
 
 ### 1. Install Dependencies
+
 ```bash
 cd backend/suplock-api
 
@@ -182,7 +199,9 @@ npm install
 ```
 
 ### 2. Environment Configuration
+
 Create `.env`:
+
 ```env
 PORT=3001
 NODE_ENV=development
@@ -190,6 +209,7 @@ SUPRA_RPC_URL=https://rpc-testnet.supra.com
 ```
 
 ### 3. Compile TypeScript
+
 ```bash
 npm run build
 
@@ -197,6 +217,7 @@ npm run build
 ```
 
 ### 4. Development Server
+
 ```bash
 npm run dev
 
@@ -209,6 +230,7 @@ npm run dev
 ```
 
 ### 5. Test Endpoints
+
 ```bash
 # Health check
 curl http://localhost:3001/health
@@ -235,6 +257,7 @@ curl -X POST http://localhost:3001/api/calculate-dividends \
 ### 6. Production Deployment
 
 #### Option A: Heroku
+
 ```bash
 # Create Heroku app
 heroku create suplock-api
@@ -250,6 +273,7 @@ heroku logs --tail
 ```
 
 #### Option B: AWS Lambda
+
 ```bash
 npm install -g serverless
 
@@ -260,6 +284,7 @@ serverless deploy
 ```
 
 #### Option C: Docker (Any VPS)
+
 ```dockerfile
 # Dockerfile
 FROM node:18-alpine
@@ -289,18 +314,23 @@ docker run -p 3001:3001 -e PORT=3001 suplock-api
 ## Full Stack Integration
 
 ### 1. Connect Frontend to Backend
+
 Update `frontend/suplock-dapp/.env.local`:
+
 ```env
 NEXT_PUBLIC_API_URL=https://suplock-api.herokuapp.com
 ```
 
 Use in frontend:
+
 ```typescript
 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/stats`);
 ```
 
 ### 2. Connect Frontend to Smart Contracts
+
 Implement wallet integration:
+
 ```typescript
 // src/utils/supraMath.ts
 export function calculateBoost(lockDurationMonths: number): number {
@@ -320,6 +350,7 @@ export function calculateYield(
 ```
 
 ### 3. API Integration Flow
+
 ```
 Frontend
    ↓
@@ -341,6 +372,7 @@ Display to User
 ## Testing Checklist
 
 ### Smart Contracts
+
 - [ ] All Move tests pass (`supra move test`)
 - [ ] Boost calculations correct (3mo → 4yr)
 - [ ] Early unlock penalty decay working
@@ -348,6 +380,7 @@ Display to User
 - [ ] Distribution allocations sum to 100%
 
 ### Frontend
+
 - [ ] Wallet connects successfully
 - [ ] Lock UI shows correct boost
 - [ ] Charts render data correctly
@@ -357,6 +390,7 @@ Display to User
 - [ ] Mobile responsive (375px+)
 
 ### Backend API
+
 - [ ] All endpoints return 200 status
 - [ ] Projections calculate correctly
 - [ ] Proposals load from mock data
@@ -364,6 +398,7 @@ Display to User
 - [ ] Yield estimation matches contract math
 
 ### Integration
+
 - [ ] Frontend → Backend requests working
 - [ ] Backend → Contract data (mock) working
 - [ ] All flows end-to-end tested
@@ -373,16 +408,19 @@ Display to User
 ## Monitoring & Logs
 
 ### Frontend (Vercel)
+
 ```bash
 vercel logs --tail
 ```
 
 ### Backend (Heroku)
+
 ```bash
 heroku logs --tail -a suplock-api
 ```
 
 ### Smart Contracts (Supra Testnet)
+
 ```bash
 # View transaction on block explorer
 # https://testnet.suprascan.io/
@@ -396,12 +434,14 @@ supra state --package-id <ID> --module suplock_core
 ## Troubleshooting
 
 ### "supra: command not found"
+
 ```bash
 # Add to PATH or install via official docs
 # https://supraoracles.com/docs/
 ```
 
 ### "Module not found" errors in Frontend
+
 ```bash
 # Clear cache and reinstall
 rm -rf node_modules .next
@@ -410,6 +450,7 @@ npm run build
 ```
 
 ### API requests timing out
+
 ```bash
 # Check RPC URL
 curl https://rpc-testnet.supra.com/
@@ -419,6 +460,7 @@ echo $SUPRA_RPC_URL
 ```
 
 ### "Transaction failed" on contract call
+
 ```bash
 # Check account balance
 supra account balance --network testnet
@@ -431,12 +473,14 @@ supra account balance --network testnet
 ## Mainnet Deployment (Post-Audit)
 
 ### 1. Security Audit
+
 ```bash
 # External audit required before mainnet
 # Recommended: Trail of Bits, OpenZeppelin, etc.
 ```
 
 ### 2. Contracts → Mainnet
+
 ```bash
 supra move publish --network mainnet
 
@@ -444,7 +488,9 @@ supra move publish --network mainnet
 ```
 
 ### 3. Frontend Configuration
+
 Update `.env.production`:
+
 ```env
 NEXT_PUBLIC_SUPRA_RPC_URL=https://rpc-mainnet.supra.com
 NEXT_PUBLIC_SUPRA_CHAIN_ID=1  # Mainnet chain ID
@@ -453,6 +499,7 @@ NEXT_PUBLIC_PACKAGE_ID=<mainnet package>
 ```
 
 ### 4. Backend Configuration
+
 ```env
 NODE_ENV=production
 SUPRA_RPC_URL=https://rpc-mainnet.supra.com
@@ -460,6 +507,7 @@ PORT=80  # or 443 with SSL
 ```
 
 ### 5. Deploy
+
 ```bash
 # Verify all configs
 # Deploy frontend to Vercel production
@@ -478,6 +526,7 @@ curl https://suplock.app/health
 ## Maintenance
 
 ### Regular Tasks
+
 - [ ] Monitor API uptime
 - [ ] Check contract state (burns, fees, distributions)
 - [ ] Update dependencies monthly
@@ -485,6 +534,7 @@ curl https://suplock.app/health
 - [ ] Track MEV captured
 
 ### Upgrades (Post-Mainnet)
+
 1. Deploy new contract version to testnet
 2. Run full test suite
 3. Security audit

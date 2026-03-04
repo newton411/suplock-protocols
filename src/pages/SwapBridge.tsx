@@ -1,6 +1,18 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowUpDown, Bridge, Zap, Globe, Lock, Vote, Database, ArrowRight, RefreshCw, Shield, AlertTriangle } from 'lucide-react';
+import {
+  ArrowUpDown,
+  Share2,
+  Zap,
+  Globe,
+  Lock,
+  Vote,
+  Database,
+  ArrowRight,
+  RefreshCw,
+  Shield,
+  AlertTriangle,
+} from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { InfoPopover, protocolInfo } from '../components/ui/info-popover';
 import { InfoBanner } from '../components/InfoBanner';
@@ -48,9 +60,10 @@ const SwapBridge = () => {
             to={item.path}
             className={({ isActive }) => `
               relative px-4 py-2 flex items-center gap-2 transition-all border
-              ${isActive 
-                ? 'bg-primary/20 border-primary text-primary neon-border' 
-                : 'bg-primary/5 border-primary/20 text-primary/60 hover:bg-primary/10 hover:text-primary hover:border-primary/40'
+              ${
+                isActive
+                  ? 'bg-primary/20 border-primary text-primary neon-border'
+                  : 'bg-primary/5 border-primary/20 text-primary/60 hover:bg-primary/10 hover:text-primary hover:border-primary/40'
               }
             `}
           >
@@ -65,13 +78,12 @@ const SwapBridge = () => {
           <h2 className="text-3xl sm:text-5xl font-bold neon-text tracking-tighter uppercase">
             {activeTab === 'swap' ? 'Token_Exchange_Interface' : 'Cross_Chain_Bridge'}
           </h2>
-          <InfoPopover {...protocolInfo.hypernova} />
+          <InfoPopover {...protocolInfo.supraL1} />
         </div>
         <p className="text-primary/60 font-mono text-sm">
-          {activeTab === 'swap' 
-            ? 'Swap tokens with zero slippage using HyperNova routing.' 
-            : 'Bridge assets across chains with HyperNova security.'
-          }
+          {activeTab === 'swap'
+            ? 'Swap tokens with zero slippage using HyperNova routing.'
+            : 'Bridge assets across chains with HyperNova security.'}
         </p>
       </div>
 
@@ -97,21 +109,23 @@ const SwapBridge = () => {
                 : 'text-primary/60 hover:text-primary hover:bg-primary/5'
             }`}
           >
-            <Bridge className="w-4 h-4" />
+            <Share2 className="w-4 h-4" />
             <span className="text-sm font-bold uppercase">BRIDGE</span>
           </button>
         </div>
       </div>
 
       <InfoBanner
-        title={activeTab === 'swap' ? "Why Use SUPLOCK Swap?" : "Why Use SUPLOCK Bridge?"}
-        description={activeTab === 'swap' 
-          ? "Our swap uses HyperNova's advanced routing to find the best prices across all DEXs. Zero slippage on most trades, MEV protection, and automatic yield optimization for your swapped tokens."
-          : "Bridge assets securely using HyperNova's cross-chain infrastructure. All bridged assets can be automatically deposited into yield vaults for immediate earning potential."
+        title={activeTab === 'swap' ? 'Why Use SUPLOCK Swap?' : 'Why Use SUPLOCK Bridge?'}
+        description={
+          activeTab === 'swap'
+            ? "Our swap uses HyperNova's advanced routing to find the best prices across all DEXs. Zero slippage on most trades, MEV protection, and automatic yield optimization for your swapped tokens."
+            : "Bridge assets securely using HyperNova's cross-chain infrastructure. All bridged assets can be automatically deposited into yield vaults for immediate earning potential."
         }
-        tip={activeTab === 'swap' 
-          ? "Large swaps are automatically routed through multiple DEXs for optimal pricing."
-          : "Bridge directly into vaults to start earning yields immediately on arrival."
+        tip={
+          activeTab === 'swap'
+            ? 'Large swaps are automatically routed through multiple DEXs for optimal pricing.'
+            : 'Bridge directly into vaults to start earning yields immediately on arrival.'
         }
       />
 
@@ -136,8 +150,10 @@ const SwapBridge = () => {
                   onChange={(e) => setFromToken(e.target.value)}
                   className="absolute right-2 top-1/2 -translate-y-1/2 bg-primary/10 border border-primary/30 px-3 py-1 text-sm font-bold uppercase focus:outline-none focus:border-primary"
                 >
-                  {tokens.map(token => (
-                    <option key={token} value={token}>{token}</option>
+                  {tokens.map((token) => (
+                    <option key={token} value={token}>
+                      {token}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -170,8 +186,10 @@ const SwapBridge = () => {
                   onChange={(e) => setToToken(e.target.value)}
                   className="absolute right-2 top-1/2 -translate-y-1/2 bg-primary/10 border border-primary/30 px-3 py-1 text-sm font-bold uppercase focus:outline-none focus:border-primary"
                 >
-                  {tokens.map(token => (
-                    <option key={token} value={token}>{token}</option>
+                  {tokens.map((token) => (
+                    <option key={token} value={token}>
+                      {token}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -180,7 +198,9 @@ const SwapBridge = () => {
             <div className="p-4 bg-primary/5 border border-primary/20 space-y-2">
               <div className="flex justify-between text-xs">
                 <span className="text-primary/60">Exchange Rate</span>
-                <span className="text-primary font-bold">1 {fromToken} = 0.85 {toToken}</span>
+                <span className="text-primary font-bold">
+                  1 {fromToken} = 0.85 {toToken}
+                </span>
               </div>
               <div className="flex justify-between text-xs">
                 <span className="text-primary/60">Price Impact</span>
@@ -192,26 +212,28 @@ const SwapBridge = () => {
               </div>
             </div>
 
-            <button className="matrix-btn-primary w-full h-16 text-xl">
-              EXECUTE_SWAP_ORDER
-            </button>
+            <button className="matrix-btn-primary w-full h-16 text-xl">EXECUTE_SWAP_ORDER</button>
           </div>
 
           <div className="matrix-card p-8 relative overflow-hidden flex flex-col justify-between">
             <div className="absolute top-0 right-0 p-4">
-              <ArrowUpDown className="w-20 h-20 text-primary/5 -rotate-12" />
+              <Share2 className="w-20 h-20 text-primary/5 -rotate-12" />
             </div>
-            
+
             <div className="space-y-8">
               <div className="space-y-2">
-                <h3 className="text-sm font-bold uppercase tracking-widest opacity-40">Swap_Metrics</h3>
+                <h3 className="text-sm font-bold uppercase tracking-widest opacity-40">
+                  Swap_Metrics
+                </h3>
                 <div className="space-y-4">
                   <div className="p-4 border border-primary/10 bg-primary/5">
                     <div className="text-[10px] text-primary/40 uppercase mb-1">24h Volume</div>
                     <div className="text-3xl font-bold tracking-tighter neon-text">$2.4M</div>
                   </div>
                   <div className="p-4 border border-primary/10 bg-primary/5">
-                    <div className="text-[10px] text-primary/40 uppercase mb-1">Total Liquidity</div>
+                    <div className="text-[10px] text-primary/40 uppercase mb-1">
+                      Total Liquidity
+                    </div>
                     <div className="text-3xl font-bold tracking-tighter neon-text">$18.7M</div>
                   </div>
                 </div>
@@ -224,7 +246,7 @@ const SwapBridge = () => {
                     'Zero slippage routing',
                     'MEV protection enabled',
                     'Auto-compound option',
-                    'Cross-DEX aggregation'
+                    'Cross-DEX aggregation',
                   ].map((feature, i) => (
                     <li key={i} className="flex items-center gap-2 text-xs text-primary/60">
                       <div className="w-1 h-1 bg-primary rotate-45" />
@@ -251,8 +273,10 @@ const SwapBridge = () => {
                 onChange={(e) => setFromChain(e.target.value)}
                 className="w-full h-12 bg-primary/5 border border-primary/30 px-4 text-lg font-bold focus:outline-none focus:border-primary transition-colors text-primary uppercase"
               >
-                {chains.map(chain => (
-                  <option key={chain} value={chain}>{chain}</option>
+                {chains.map((chain) => (
+                  <option key={chain} value={chain}>
+                    {chain}
+                  </option>
                 ))}
               </select>
             </div>
@@ -275,8 +299,10 @@ const SwapBridge = () => {
                   onChange={(e) => setFromToken(e.target.value)}
                   className="absolute right-2 top-1/2 -translate-y-1/2 bg-primary/10 border border-primary/30 px-3 py-1 text-sm font-bold uppercase focus:outline-none focus:border-primary"
                 >
-                  {tokens.map(token => (
-                    <option key={token} value={token}>{token}</option>
+                  {tokens.map((token) => (
+                    <option key={token} value={token}>
+                      {token}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -298,8 +324,10 @@ const SwapBridge = () => {
                 onChange={(e) => setToChain(e.target.value)}
                 className="w-full h-12 bg-primary/5 border border-primary/30 px-4 text-lg font-bold focus:outline-none focus:border-primary transition-colors text-primary uppercase"
               >
-                {chains.map(chain => (
-                  <option key={chain} value={chain}>{chain}</option>
+                {chains.map((chain) => (
+                  <option key={chain} value={chain}>
+                    {chain}
+                  </option>
                 ))}
               </select>
             </div>
@@ -329,15 +357,19 @@ const SwapBridge = () => {
 
           <div className="matrix-card p-8 relative overflow-hidden flex flex-col justify-between">
             <div className="absolute top-0 right-0 p-4">
-              <Bridge className="w-20 h-20 text-primary/5 -rotate-12" />
+              <Share2 className="w-20 h-20 text-primary/5 -rotate-12" />
             </div>
-            
+
             <div className="space-y-8">
               <div className="space-y-2">
-                <h3 className="text-sm font-bold uppercase tracking-widest opacity-40">Bridge_Stats</h3>
+                <h3 className="text-sm font-bold uppercase tracking-widest opacity-40">
+                  Bridge_Stats
+                </h3>
                 <div className="space-y-4">
                   <div className="p-4 border border-primary/10 bg-primary/5">
-                    <div className="text-[10px] text-primary/40 uppercase mb-1">24h Bridge Volume</div>
+                    <div className="text-[10px] text-primary/40 uppercase mb-1">
+                      24h Bridge Volume
+                    </div>
                     <div className="text-3xl font-bold tracking-tighter neon-text">$8.9M</div>
                   </div>
                   <div className="p-4 border border-primary/10 bg-primary/5">
@@ -354,7 +386,7 @@ const SwapBridge = () => {
                     'HyperNova validation',
                     'Multi-sig security',
                     'Instant finality',
-                    'Auto-vault deposit'
+                    'Auto-vault deposit',
                   ].map((feature, i) => (
                     <li key={i} className="flex items-center gap-2 text-xs text-primary/60">
                       <div className="w-1 h-1 bg-primary rotate-45" />
@@ -375,11 +407,10 @@ const SwapBridge = () => {
           <div>
             <h4 className="font-bold text-destructive mb-2 uppercase text-sm">Security Notice</h4>
             <p className="text-sm text-muted-foreground">
-              Always verify recipient addresses and chain selections before confirming transactions. 
-              {activeTab === 'bridge' 
-                ? ' Cross-chain bridges are irreversible once confirmed.' 
-                : ' Large swaps may experience temporary price impact.'
-              }
+              Always verify recipient addresses and chain selections before confirming transactions.
+              {activeTab === 'bridge'
+                ? ' Cross-chain bridges are irreversible once confirmed.'
+                : ' Large swaps may experience temporary price impact.'}
             </p>
           </div>
         </div>

@@ -17,6 +17,7 @@ This repository contains the complete stack: Move smart contracts, React/Next.js
 ## Quick Start
 
 ### Smart Contracts
+
 ```bash
 cd smart-contracts/supra/suplock
 supra move compile
@@ -25,6 +26,7 @@ supra move publish --network testnet
 ```
 
 ### Frontend
+
 ```bash
 cd frontend/suplock-dapp
 npm install
@@ -33,6 +35,7 @@ npm run dev
 ```
 
 ### Backend API
+
 ```bash
 cd backend/suplock-api
 npm install
@@ -72,30 +75,37 @@ npm run dev
 ## Smart Contracts Overview
 
 ### suplock_core.move
+
 - **Locking**: 3-48 month locks with yield boost
 - **Boost Formula**: `1 + (lock_time / max_time) * 1.5` (max 2.5x)
 - **Early Unlock**: Penalty decay based on time remaining
 - **Base APR**: 12%
 
 ### vesupra.move
+
 - **veSUPRA NFTs**: Soulbound for 30 days, then transferable
 - **Governance DAO**: 7-day voting, 3-day timelock
 - **Proposals**: Revenue split, vault fees, locking tiers, treasury
 
 ### supreserve.move
+
 - **Fee Aggregation**: USDC receiver for all protocol fees
 - **Pre-Floor Distribution** (circulating > 10B):
-  - 50% buyback & burn
-  - 35% dividends
-  - 10% veSUPRA rewards
+  - 40% buyback & burn
+  - 30% dividends
+  - 15% veSUPRA rewards
+  - 10% reinvestment pool
   - 5% treasury
 - **Post-Floor Distribution** (circulating ≤ 10B):
   - 0% buyback
-  - 65% dividends
-  - 12.5% veSUPRA rewards
-  - 12.5% treasury
+  - 50% dividends
+  - 20% veSUPRA rewards
+  - 20% reinvestment pool
+  - 10% treasury
+- **Adaptive Reinvestment**: reinvestment allocation halves every year (12 distribution cycles) down to a 1% floor, inspired by Bitcoin's halving schedule
 
 ### yield_vaults.move
+
 - **PT/YT Split**: Deposits split into Principal & Yield tokens
 - **Restaking**: EigenLayer (stETH → rstSUPRA) & Symbiotic (SUPRA → symSUPRA)
 - **LP Vacuum**: Encrypted intents prevent MEV, capture internally
@@ -106,12 +116,14 @@ npm run dev
 ## Frontend Features
 
 ### Dark Futuristic UI
+
 - Black (#000) / Dark Gray (#111) backgrounds
 - Gold (#FFD700) accents
 - Responsive, animated components
 - Mobile-optimized
 
 ### Components
+
 - **WalletConnectButton**: Supra L1 wallet integration
 - **LockUI**: Create locks with boost preview
 - **TokenomicsCharts**: Supply & revenue distribution
@@ -120,6 +132,7 @@ npm run dev
 - **DividendPanel**: Claim dividends, history
 
 ### Pages
+
 - **Overview**: Hero, stats, features, charts
 - **Lock**: Lock SUPRA with boost calculation
 - **Governance**: Submit & vote on proposals
@@ -133,29 +146,34 @@ npm run dev
 ### Key Endpoints
 
 **Projections** (24-month supply decay & revenue forecast)
+
 ```
 GET /api/projections?months=24
 ```
 
 **Governance**
+
 ```
 GET /api/proposals
 GET /api/governance/stats
 ```
 
 **Protocol Stats**
+
 ```
 GET /api/stats
 GET /api/floor-status
 ```
 
 **Calculations**
+
 ```
 POST /api/calculate-dividends
 POST /api/estimate-yield
 ```
 
 **Privacy** (MEV captured by LP Vacuum)
+
 ```
 GET /api/privacy/mev-captured
 ```
@@ -165,6 +183,7 @@ GET /api/privacy/mev-captured
 ## Deployment
 
 ### Testnet
+
 ```bash
 supra move publish --network testnet
 # Frontend: vercel deploy
@@ -172,6 +191,7 @@ supra move publish --network testnet
 ```
 
 ### Mainnet (Post-Audit)
+
 ```bash
 supra move publish --network mainnet
 ```
@@ -181,18 +201,23 @@ supra move publish --network mainnet
 ## Math Implementations
 
 ### Boost Multiplier
+
 Boost = 1 + (lock_time / max_lock_time) × 1.5 (max 2.5x)
 
 ### Early Unlock Penalty (Decay)
+
 Penalty% = 10% × (time_remaining / total_lock_time)
 
 ### Yield Calculation
+
 Total Yield = Amount × Base APR × Years × Boost
 
 ### Supply Decay Model
+
 S(t) = S_0 - b × (R/P) × t
 
 ### Revenue Distribution
+
 - **Pre-Floor**: 50% burn, 35% dividends, 10% ve, 5% treasury
 - **Post-Floor**: 0% burn, 65% dividends, 12.5% ve, 12.5% treasury
 
@@ -205,7 +230,7 @@ S(t) = S_0 - b × (R/P) × t
 ✅ Access control (signer verification)  
 ✅ Event logging (audit trail)  
 ✅ Timelock governance  
-✅ Encrypted intents (MEV prevention)  
+✅ Encrypted intents (MEV prevention)
 
 **Pre-Mainnet**: External security audit required
 
@@ -216,12 +241,14 @@ S(t) = S_0 - b × (R/P) × t
 ### Endpoints
 
 #### Health Check
+
 ```
 GET /health
 Response: { status: "healthy", timestamp: "..." }
 ```
 
 #### Revenue Projections
+
 ```
 GET /api/projections?months=24
 Response: [
@@ -241,6 +268,7 @@ Response: [
 ```
 
 #### Governance Proposals
+
 ```
 GET /api/proposals?status=active
 Response: [
@@ -258,6 +286,7 @@ Response: [
 ```
 
 #### Governance Stats
+
 ```
 GET /api/governance/stats
 Response: {
@@ -270,6 +299,7 @@ Response: {
 ```
 
 #### Protocol Stats
+
 ```
 GET /api/stats
 Response: {
@@ -283,6 +313,7 @@ Response: {
 ```
 
 #### Floor Status
+
 ```
 GET /api/floor-status
 Response: {
@@ -295,6 +326,7 @@ Response: {
 ```
 
 #### Calculate Dividends
+
 ```
 POST /api/calculate-dividends
 Body: {
@@ -309,6 +341,7 @@ Response: {
 ```
 
 #### Estimate Yield
+
 ```
 POST /api/estimate-yield
 Body: {
@@ -328,6 +361,7 @@ Response: {
 ## Contract Functions
 
 ### suplock_core
+
 - `initialize()` - Initialize global state
 - `create_lock()` - Lock SUPRA and create position
 - `calculate_boost_multiplier()` - Get yield boost
@@ -335,6 +369,7 @@ Response: {
 - `early_unlock()` - Unlock early with penalty
 
 ### vesupra
+
 - `initialize_ve_registry()` - Setup veSUPRA system
 - `initialize_governance_dao()` - Setup DAO
 - `mint_ve_nft()` - Create veSUPRA NFT
@@ -344,12 +379,14 @@ Response: {
 - `execute_proposal()` - Execute passed proposal
 
 ### supreserve
+
 - `initialize_supreserve()` - Setup fee system
 - `accumulate_fees()` - Add fees from protocol
 - `execute_distribution()` - Run monthly distribution
 - `claim_dividends()` - Claim user dividends
 
 ### yield_vaults
+
 - `initialize_vault_registry()` - Setup vaults
 - `initialize_intent_processor()` - Setup LP Vacuum
 - `create_vault()` - Create new vault

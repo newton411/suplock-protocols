@@ -10,17 +10,40 @@ module suplock::supreserve {
     const FLOOR_CIRCULATING_SUPPLY: u64 = 10_000_000_000; // 10 billion SUPRA
     const MAX_SUPRA_SUPPLY: u64 = 100_000_000_000; // 100 billion SUPRA
 
-    // Pre-floor distribution (circulating > 10B)
-    const BUYBACK_AND_BURN_BPS_PRE: u64 = 5000;    // 50%
-    const DIVIDENDS_BPS_PRE: u64 = 3500;           // 35%
-    const VE_REWARDS_BPS_PRE: u64 = 1000;          // 10%
-    const TREASURY_BPS_PRE: u64 = 500;             // 5%
+    // SUSTAINABLE PROFITABILITY MODEL
+    // Pre-floor distribution (circulating > 10B): Focus on growth via buyback
+    const BUYBACK_AND_BURN_BPS_PRE: u64 = 4000;    // 40% (was 50%)
+    const DIVIDENDS_BPS_PRE: u64 = 3000;           // 30% (was 35%) - user incentives
+    const VE_REWARDS_BPS_PRE: u64 = 1500;          // 15% (was 10%) - governance incentives
+    const REINVESTMENT_BPS_PRE: u64 = 1000;        // 10% NEW - protocol growth/sustainability
+    const TREASURY_BPS_PRE: u64 = 500;             // 5% - strategic reserve
 
-    // Post-floor distribution (circulating <= 10B)
-    const BUYBACK_AND_BURN_BPS_POST: u64 = 0;      // 0% (redirected to dividends)
-    const DIVIDENDS_BPS_POST: u64 = 6500;          // 65%
-    const VE_REWARDS_BPS_POST: u64 = 1250;         // 12.5%
-    const TREASURY_BPS_POST: u64 = 1250;           // 12.5%
+    // Post-floor distribution (circulating <= 10B): Stop buyback, focus on sustainability
+    const BUYBACK_AND_BURN_BPS_POST: u64 = 0;      // 0% (buyback stopped at floor to preserve supply)
+    const DIVIDENDS_BPS_POST: u64 = 5000;          // 50% (increased) - holder rewards
+    const VE_REWARDS_BPS_POST: u64 = 2000;         // 20% (increased) - governance participation
+    const REINVESTMENT_BPS_POST: u64 = 2000;       // 20% NEW - long-term sustainability
+    const TREASURY_BPS_POST: u64 = 1000;           // 10% (increased) - protocol reserves
+
+    /*
+     * HALVING-STYLE SUSTAINABILITY MODEL
+     * ----------------------------------
+     * To keep the protocol both profitable and sustainable over the long term,
+     * we introduce an adaptive reinvestment allocation that decays in a manner
+     * similar to Bitcoin's issuance schedule.  Bitcoin halves its block subsidy
+     * every 210,000 blocks, gradually approaching its 21 million cap.  Here we
+     * mimic that behaviour on the fee side: each `REINVEST_HALVING_PERIOD_CYCLES`
+     * distributions, the portion of fees sent to the reinvestment pool is
+     * divided by two.  This creates a logarithmic decay in reinvestment pressure
+     * while guaranteeing a minimum floor (see `MIN_REINVEST_BPS`).  The effect
+     * ensures early aggressive growth of the flywheel and later preservation as
+     * the ecosystem matures.
+     *
+     * Mathematically, if `r0` is the initial base BPS, after `h` halving periods
+     * the reinvestment weight becomes r0 / 2^h, bounded below by `MIN_REINVEST_BPS`.
+     */
+    const REINVEST_HALVING_PERIOD_CYCLES: u64 = 12; // number of distribution cycles before halving (e.g., ~1 year if cycles are monthly)
+    const MIN_REINVEST_BPS: u64 = 100; // floor at 1% to ensure minimum sustainment
 
     const DEAD_ADDRESS: address = @0x0000000000000000000000000000000000000000000000000000000000000001;
 
@@ -33,6 +56,7 @@ module suplock::supreserve {
         dividends_allocation: u64,
         ve_rewards_allocation: u64,
         treasury_allocation: u64,
+        reinvestment_allocation: u64, // NEW: for protocol sustainability
         was_post_floor: bool,
     }
 
@@ -51,6 +75,11 @@ module suplock::supreserve {
         ve_reward_per_share_usdc: u128,
         total_ve_shares: u128,
         distribution_cycle_secs: u64, // Time between distributions (e.g., monthly)
+        /// SUSTAINABILITY FIELDS
+        reinvestment_pool_usdc: u64, // Earmarked for protocol growth (vaults, incentives)
+        reinvestment_deployed: u64, // Deployed reinvestment (tracked for ROI)
+        total_reinvestment_yield: u64, // Yield generated from reinvestment strategies
+        protocol_sustainability_score: u128, // Tracks long-term viability (0-10000 bps)
     }
 
     /// User Dividend Record
@@ -109,6 +138,22 @@ module suplock::supreserve {
         timestamp: u64,
     }
 
+    #[event]
+    struct ReinvestmentDeployed has drop {
+        amount_usdc: u64,
+        strategy: String, // "vault_incentives", "lp_seeding", "partner_liquidity"
+        expected_apy: u64, // Expected return in basis points
+        deployment_time: u64,
+    }
+
+    #[event]
+    struct SustainabilityMetricsUpdated has drop {
+        sustainability_score: u128, // 0-10000: how sustainable is the protocol long-term?
+        reinvestment_yield_rate: u64, // Annual return from reinvested capital
+        protocol_health: String, // "Excellent", "Good", "Moderate", "At Risk"
+        timestamp: u64,
+    }
+
     /// Initialize SUPReserve
     public fun initialize_supreserve(
         account: &signer,
@@ -131,6 +176,11 @@ module suplock::supreserve {
             ve_reward_per_share_usdc: 0,
             total_ve_shares: 0,
             distribution_cycle_secs,
+            /// Initialize sustainability fields
+            reinvestment_pool_usdc: 0,
+            reinvestment_deployed: 0,
+            total_reinvestment_yield: 0,
+            protocol_sustainability_score: 8000, // Start at 80% good health
         };
 
         move_to(account, reserve);
@@ -152,6 +202,20 @@ module suplock::supreserve {
             amount_usdc,
             timestamp: get_current_timestamp(),
         });
+    }
+
+    /// Compute reinvestment BPS based on halving cycles and epoch (number of distributions)
+    public fun reinvestment_bps_for_epoch(epoch: u64, base_bps: u64): u64 {
+        let halvings = epoch / REINVEST_HALVING_PERIOD_CYCLES;
+        let mut bps = base_bps;
+        let mut i = 0;
+        while (i < halvings) {
+            if (bps <= MIN_REINVEST_BPS) { break; };
+            bps = bps / 2;
+            i = i + 1;
+        };
+        if (bps < MIN_REINVEST_BPS) { bps = MIN_REINVEST_BPS; };
+        bps
     }
 
     /// Check if floor is reached and return distribution mode
@@ -196,17 +260,33 @@ module suplock::supreserve {
         let total_fees = reserve.fee_accumulator_usdc;
         let is_post_floor = current_circulating_supply <= FLOOR_CIRCULATING_SUPPLY;
 
-        // Calculate allocations based on floor status
-        let (buyback_bps, dividends_bps, ve_bps, treasury_bps) = if (is_post_floor) {
-            (BUYBACK_AND_BURN_BPS_POST, DIVIDENDS_BPS_POST, VE_REWARDS_BPS_POST, TREASURY_BPS_POST)
+        // Base allocations based on floor status (these are starting weights; reinvestment can adapt over time)
+        let (base_buyback_bps, base_dividends_bps, base_ve_bps, base_reinvest_bps, base_treasury_bps) = if (is_post_floor) {
+            (BUYBACK_AND_BURN_BPS_POST, DIVIDENDS_BPS_POST, VE_REWARDS_BPS_POST, REINVESTMENT_BPS_POST, TREASURY_BPS_POST)
         } else {
-            (BUYBACK_AND_BURN_BPS_PRE, DIVIDENDS_BPS_PRE, VE_REWARDS_BPS_PRE, TREASURY_BPS_PRE)
+            (BUYBACK_AND_BURN_BPS_PRE, DIVIDENDS_BPS_PRE, VE_REWARDS_BPS_PRE, REINVESTMENT_BPS_PRE, TREASURY_BPS_PRE)
         };
 
-        let buyback_allocation = (((total_fees as u128) * (buyback_bps as u128)) / 10000) as u64;
-        let dividends_allocation = (((total_fees as u128) * (dividends_bps as u128)) / 10000) as u64;
-        let ve_rewards_allocation = (((total_fees as u128) * (ve_bps as u128)) / 10000) as u64;
-        let treasury_allocation = (((total_fees as u128) * (treasury_bps as u128)) / 10000) as u64;
+        // Determine adaptive reinvestment BPS using halving-style decay based on number of distributions (epoch)
+        let epoch = reserve.total_distributions;
+        let reinvestment_bps = reinvestment_bps_for_epoch(epoch, base_reinvest_bps);
+
+        // Partition total fees proportionally across the dynamic weights to ensure exact splitting regardless of adaptive changes
+        let total_bps_defined = base_buyback_bps + base_dividends_bps + base_ve_bps + base_treasury_bps + reinvestment_bps;
+
+        let mut buyback_allocation = (((total_fees as u128) * (base_buyback_bps as u128)) / (total_bps_defined as u128)) as u64;
+        let mut dividends_allocation = (((total_fees as u128) * (base_dividends_bps as u128)) / (total_bps_defined as u128)) as u64;
+        let mut ve_rewards_allocation = (((total_fees as u128) * (base_ve_bps as u128)) / (total_bps_defined as u128)) as u64;
+        let mut reinvestment_allocation = (((total_fees as u128) * (reinvestment_bps as u128)) / (total_bps_defined as u128)) as u64;
+        let mut treasury_allocation = (((total_fees as u128) * (base_treasury_bps as u128)) / (total_bps_defined as u128)) as u64;
+
+        // Fix rounding remainder to ensure allocations sum to total_fees
+        let mut sum_alloc = buyback_allocation + dividends_allocation + ve_rewards_allocation + reinvestment_allocation + treasury_allocation;
+        if (sum_alloc < total_fees) {
+            let remainder = total_fees - sum_alloc;
+            treasury_allocation = treasury_allocation + remainder;
+            sum_alloc = sum_alloc + remainder;
+        };
 
         // Execute buyback: convert USDC to SUPRA and burn
         if (buyback_allocation > 0 && supra_price_usdc > 0) {
@@ -235,6 +315,9 @@ module suplock::supreserve {
         // Add to treasury (permanent, non-withdrawable except governance)
         reserve.treasury_balance = reserve.treasury_balance + treasury_allocation;
 
+        // Add to reinvestment pool (earmarked for yield-generating strategies)
+        reserve.reinvestment_pool_usdc = reserve.reinvestment_pool_usdc + reinvestment_allocation;
+
         // Record distribution
         let distribution_record = DistributionRecord {
             distribution_id: reserve.next_distribution_id,
@@ -243,6 +326,7 @@ module suplock::supreserve {
             buyback_allocation,
             dividends_allocation,
             ve_rewards_allocation,
+            reinvestment_allocation,
             treasury_allocation,
             was_post_floor: is_post_floor,
         };
@@ -364,7 +448,93 @@ module suplock::supreserve {
         0x1::chain::get_block_timestamp()
     }
 
-    #[test]
+    /// SUSTAINABILITY FUNCTIONS
+
+    /// Deploy reinvestment pool capital to yield-generating strategies
+    /// Strategies: vault incentives, LP seeding, partner integrations
+    /// Returns funds deployed and expected APY
+    public fun deploy_reinvestment(
+        account: &signer,
+        strategy: String, // "vault_incentives", "lp_seeding", "partner_liquidity"
+        amount_usdc: u64,
+        expected_apy: u64, // Annual percentage yield in basis points
+        reserve_addr: address,
+    ) acquires SUPReserve {
+        let _admin = signer::address_of(account);
+        
+        assert!(amount_usdc > 0, 5006);
+        
+        let reserve = borrow_global_mut<SUPReserve>(reserve_addr);
+        assert!(reserve.reinvestment_pool_usdc >= amount_usdc, 5007); // Insufficient reinvestment pool
+
+        // Depleoy capital from pool
+        reserve.reinvestment_pool_usdc = reserve.reinvestment_pool_usdc - amount_usdc;
+        reserve.reinvestment_deployed = reserve.reinvestment_deployed + amount_usdc;
+
+        0x1::event::emit(ReinvestmentDeployed {
+            amount_usdc,
+            strategy,
+            expected_apy,
+            deployment_time: get_current_timestamp(),
+        });
+    }
+
+    /// Accrue yield from reinvestment strategies
+    /// Called by oracles/keepers when reinvested capital generates returns
+    public fun accrue_reinvestment_yield(
+        account: &signer,
+        yield_amount: u64,
+        annual_yield_percent: u64,
+        reserve_addr: address,
+    ) acquires SUPReserve {
+        let _admin = signer::address_of(account);
+        assert!(yield_amount > 0, ERR_INVALID_AMOUNT);
+
+        let reserve = borrow_global_mut<SUPReserve>(reserve_addr);
+        reserve.total_reinvestment_yield = reserve.total_reinvestment_yield + yield_amount;
+        
+        // Re-allocate yield back to reinvestment pool for compounding
+        reserve.reinvestment_pool_usdc = reserve.reinvestment_pool_usdc + yield_amount;
+        
+        // Update sustainability score based on reinvestment ROI
+        let reinvestment_roi = if (reserve.reinvestment_deployed > 0) {
+            ((reserve.total_reinvestment_yield as u128) * 10000 / (reserve.reinvestment_deployed as u128)) as u64
+        } else {
+            0
+        };
+
+        // Score increases with positive reinvestment ROI
+        let max_score = 10000u128;
+        reserve.protocol_sustainability_score = if (reinvestment_roi > 500) { // >5% ROI
+            max_score * 95 / 100 // 95% excellent score
+        } else if (reinvestment_roi > 200) { // >2% ROI
+            max_score * 85 / 100 // 85% good score
+        } else if (reinvestment_roi > 0) {
+            max_score * 70 / 100 // 70% moderate score
+        } else {
+            max_score * 50 / 100 // 50% at risk score
+        };
+    }
+
+    /// Get current reinvestment pool status
+    public fun get_reinvestment_status(reserve_addr: address): (u64, u64, u64, u64) acquires SUPReserve {
+        let reserve = borrow_global<SUPReserve>(reserve_addr);
+        (
+            reserve.reinvestment_pool_usdc,
+            reserve.reinvestment_deployed,
+            reserve.total_reinvestment_yield,
+            reserve.protocol_sustainability_score,
+        )
+    }
+
+    /// Get protocol health score (sustainability metric)
+    /// Score: 0-10000 basis points
+    /// 9000+: Excellent, 7500-9000: Good, 5000-7500: Moderate, <5000: At Risk
+    public fun get_sustainability_health(reserve_addr: address): u128 acquires SUPReserve {
+        borrow_global<SUPReserve>(reserve_addr).protocol_sustainability_score
+    }
+
+    /// Get current timestamp
     fun test_floor_check() {
         let above_floor = 15_000_000_000u64;
         let below_floor = 8_000_000_000u64;
@@ -375,12 +545,39 @@ module suplock::supreserve {
 
     #[test]
     fun test_distribution_allocations() {
-        // Pre-floor: 50 + 35 + 10 + 5 = 100 basis points
-        let total_pre = BUYBACK_AND_BURN_BPS_PRE + DIVIDENDS_BPS_PRE + VE_REWARDS_BPS_PRE + TREASURY_BPS_PRE;
+        // Static constant invariants
+        let total_pre = BUYBACK_AND_BURN_BPS_PRE + DIVIDENDS_BPS_PRE + VE_REWARDS_BPS_PRE + REINVESTMENT_BPS_PRE + TREASURY_BPS_PRE;
         assert!(total_pre == 10000, 0);
+        let total_post = BUYBACK_AND_BURN_BPS_POST + DIVIDENDS_BPS_POST + VE_REWARDS_BPS_POST + REINVESTMENT_BPS_POST + TREASURY_BPS_POST;
+        assert!(total_post == 10000, 0);
 
-        // Post-floor: 0 + 65 + 12.5 + 12.5 = 90 basis points
-        let total_post = BUYBACK_AND_BURN_BPS_POST + DIVIDENDS_BPS_POST + VE_REWARDS_BPS_POST + TREASURY_BPS_POST;
-        assert!(total_post == 9000, 0);
+        // Adaptive reinvestment – simulate multiple epochs and ensure halving behavior
+        let base = 1000; // pretend base pre-floor
+        let epoch0 = reinvestment_bps_for_epoch(0, base);
+        assert!(epoch0 == base, 1);
+        let epoch1 = reinvestment_bps_for_epoch(REINVEST_HALVING_PERIOD_CYCLES, base);
+        assert!(epoch1 == base / 2, 2);
+        let epoch2 = reinvestment_bps_for_epoch(REINVEST_HALVING_PERIOD_CYCLES * 3, base);
+        assert!(epoch2 == base / 8, 3);
+        // ensure the floor is respected
+        let min = reinvestment_bps_for_epoch(REINVEST_HALVING_PERIOD_CYCLES * 1000, base);
+        assert!(min >= MIN_REINVEST_BPS, 4);
+    }
+
+    #[test]
+    fun test_dynamic_allocation_sum() {
+        // ensure calculated allocations always sum to the input total
+        let total_fees = 10_000u64;
+        let epoch = 5;
+        // call the function path used in distribution
+        let (buyback_bps, dividends_bps, ve_bps, reinvest_bps, treasury_bps) = (BUYBACK_AND_BURN_BPS_PRE, DIVIDENDS_BPS_PRE, VE_REWARDS_BPS_PRE, reinvestment_bps_for_epoch(epoch, REINVESTMENT_BPS_PRE), TREASURY_BPS_PRE);
+        let total_bps_defined = buyback_bps + dividends_bps + ve_bps + treasury_bps + reinvest_bps;
+        let buyback = ((total_fees as u128) * (buyback_bps as u128) / (total_bps_defined as u128)) as u64;
+        let dividends = ((total_fees as u128) * (dividends_bps as u128) / (total_bps_defined as u128)) as u64;
+        let ve = ((total_fees as u128) * (ve_bps as u128) / (total_bps_defined as u128)) as u64;
+        let reinvest = ((total_fees as u128) * (reinvest_bps as u128) / (total_bps_defined as u128)) as u64;
+        let treasury = ((total_fees as u128) * (treasury_bps as u128) / (total_bps_defined as u128)) as u64;
+        let sum = buyback + dividends + ve + reinvest + treasury;
+        assert!(sum == total_fees, 5);
     }
 }

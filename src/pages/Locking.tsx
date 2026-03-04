@@ -4,6 +4,12 @@ import { LockKeyhole, Activity, Globe, Lock, Vote, Zap, Database } from 'lucide-
 import { NavLink } from 'react-router-dom';
 import { InfoPopover, protocolInfo } from '../components/ui/info-popover';
 import { InfoBanner } from '../components/InfoBanner';
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from '../components/ui/accordion';
 
 const Locking = () => {
   const [lockAmount, setLockAmount] = useState('');
@@ -36,9 +42,10 @@ const Locking = () => {
             to={item.path}
             className={({ isActive }) => `
               relative px-4 py-2 flex items-center gap-2 transition-all border
-              ${isActive 
-                ? 'bg-primary/20 border-primary text-primary neon-border' 
-                : 'bg-primary/5 border-primary/20 text-primary/60 hover:bg-primary/10 hover:text-primary hover:border-primary/40'
+              ${
+                isActive
+                  ? 'bg-primary/20 border-primary text-primary neon-border'
+                  : 'bg-primary/5 border-primary/20 text-primary/60 hover:bg-primary/10 hover:text-primary hover:border-primary/40'
               }
             `}
           >
@@ -50,10 +57,14 @@ const Locking = () => {
 
       <div className="text-center space-y-4 mb-8">
         <div className="flex items-center justify-center gap-2">
-          <h2 className="text-3xl sm:text-5xl font-bold neon-text tracking-tighter uppercase">Token_Locking_Interface</h2>
+          <h2 className="text-3xl sm:text-5xl font-bold neon-text tracking-tighter uppercase">
+            Token_Locking_Interface
+          </h2>
           <InfoPopover {...protocolInfo.veSupra} />
         </div>
-        <p className="text-primary/60 font-mono text-sm">Convert your SUPRA to veSUPRA for governance and yield rewards.</p>
+        <p className="text-primary/60 font-mono text-sm">
+          Convert your SUPRA to veSUPRA for governance and yield rewards.
+        </p>
       </div>
 
       <InfoBanner
@@ -62,75 +73,114 @@ const Locking = () => {
         tip="Lock for 48 months to maximize your boost multiplier and governance influence."
       />
 
-      {/* Understanding Locking Section */}
-      <div className="max-w-4xl mx-auto space-y-6 mb-8">
-        <div className="matrix-card p-8 border-l-4 border-primary">
-          <h3 className="text-lg font-bold text-primary mb-4 uppercase">What Does "Locking" Mean?</h3>
-          <p className="text-muted-foreground text-sm leading-relaxed mb-4">
-            When you "lock" your $SUPRA tokens, you're voluntarily storing them in a smart contract for a set period (3 to 48 months). During this time, you cannot sell them. But here's what you gain:
-          </p>
-          <div className="grid md:grid-cols-3 gap-4">
-            <div className="p-4 bg-primary/5 border border-primary/20">
-              <div className="font-bold text-primary mb-2 uppercase text-sm">✓ Governance Votes</div>
-              <p className="text-xs text-muted-foreground">Every veSUPRA token = 1 vote in protocol decisions. Longer locks = more voting power.</p>
-            </div>
-            <div className="p-4 bg-primary/5 border border-primary/20">
-              <div className="font-bold text-primary mb-2 uppercase text-sm">✓ Yield Rewards</div>
-              <p className="text-xs text-muted-foreground">Earn 12-42% APY depending on lock duration. Longer locks = higher rewards.</p>
-            </div>
-            <div className="p-4 bg-primary/5 border border-primary/20">
-              <div className="font-bold text-primary mb-2 uppercase text-sm">✓ Fee Sharing</div>
-              <p className="text-xs text-muted-foreground">Share in 35% of all protocol fees paid in USDC. Forever.</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="matrix-card p-8 border-l-4 border-accent">
-          <h3 className="text-lg font-bold text-accent mb-4 uppercase">The Boost Multiplier Explained</h3>
-          <p className="text-muted-foreground text-sm leading-relaxed mb-4">
-            Your boost multiplier ranges from 1.0x (3-month lock) to 2.5x (48-month lock). This multiplies your rewards:
-          </p>
-          <div className="space-y-3">
-            <div className="flex justify-between items-center p-3 bg-accent/5 border border-accent/20">
-              <span className="text-sm">3-Month Lock</span>
-              <span className="font-bold text-accent">1.0x = 12% APY</span>
-            </div>
-            <div className="flex justify-between items-center p-3 bg-accent/5 border border-accent/20">
-              <span className="text-sm">12-Month Lock</span>
-              <span className="font-bold text-accent">1.375x = 16.5% APY</span>
-            </div>
-            <div className="flex justify-between items-center p-3 bg-accent/5 border border-accent/20">
-              <span className="text-sm">24-Month Lock</span>
-              <span className="font-bold text-accent">1.75x = 21% APY</span>
-            </div>
-            <div className="flex justify-between items-center p-3 bg-accent/5 border border-accent/20">
-              <span className="text-sm">48-Month Lock (Maximum)</span>
-              <span className="font-bold text-accent">2.5x = 30% APY</span>
-            </div>
-          </div>
-          <p className="text-xs text-accent/60 mt-4 italic">
-            <strong className="text-accent uppercase text-sm">Formula:</strong> The boost is calculated as <strong>1 + (lock_months / 48) × 1.5</strong>. Longer locks yield exponentially higher returns and voting power.
-          </p>
-        </div>
-
-        <div className="matrix-card p-8 bg-gradient-to-r from-primary/10 to-accent/10 border-2 border-primary/30">
-          <h3 className="text-lg font-bold mb-4 uppercase">Real-World Example</h3>
-          <div className="space-y-4 text-sm">
-            <div className="p-4 border border-primary/20 bg-background/50">
-              <p className="font-bold mb-2">Scenario: You lock 100,000 $SUPRA for 24 months</p>
-              <ul className="space-y-2 text-xs text-muted-foreground">
-                <li>✓ Boost Multiplier: 1.75x</li>
-                <li>✓ Annual Yield: 100,000 × 21% = <strong>21,000 $SUPRA/year</strong></li>
-                <li>✓ Your voting power: 175,000 veSUPRA (100,000 × 1.75)</li>
-                <li>✓ Protocol fees: If protocol earns $100K/month, you get: 175,000 / 84.2M × 35% = <strong>~0.73 USDC/month</strong></li>
-              </ul>
-            </div>
-            <p className="text-xs text-muted-foreground italic">
-              That's in addition to your 21,000 $SUPRA/year in yields, AND you're helping strengthen the 10B supply floor by participating.
+      {/* Information Sections - Collapsible */}
+      <Accordion type="single" collapsible className="max-w-4xl mx-auto mb-8 space-y-3">
+        <AccordionItem value="what-is-locking" className="matrix-card border-l-4 border-primary">
+          <AccordionTrigger className="px-8 py-4 hover:bg-primary/5 transition-colors">
+            <span className="text-lg font-bold text-primary uppercase">
+              What Does &quot;Locking&quot; Mean?
+            </span>
+          </AccordionTrigger>
+          <AccordionContent className="px-8">
+            <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+              When you &quot;lock&quot; your $SUPRA tokens, you&rsquo;re voluntarily storing them in
+              a smart contract for a set period (3 to 48 months). During this time, you cannot sell
+              them. But here&rsquo;s what you gain:
             </p>
-          </div>
-        </div>
-      </div>
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className="p-4 bg-primary/5 border border-primary/20">
+                <div className="font-bold text-primary mb-2 uppercase text-sm">
+                  ✓ Governance Votes
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Every veSUPRA token = 1 vote in protocol decisions. Longer locks = more voting
+                  power.
+                </p>
+              </div>
+              <div className="p-4 bg-primary/5 border border-primary/20">
+                <div className="font-bold text-primary mb-2 uppercase text-sm">✓ Yield Rewards</div>
+                <p className="text-xs text-muted-foreground">
+                  Earn 12-42% APY depending on lock duration. Longer locks = higher rewards.
+                </p>
+              </div>
+              <div className="p-4 bg-primary/5 border border-primary/20">
+                <div className="font-bold text-primary mb-2 uppercase text-sm">✓ Fee Sharing</div>
+                <p className="text-xs text-muted-foreground">
+                  Share in 30% of all protocol fees paid in USDC. Forever.
+                </p>
+              </div>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+
+        <AccordionItem value="boost-multiplier" className="matrix-card border-l-4 border-accent">
+          <AccordionTrigger className="px-8 py-4 hover:bg-accent/5 transition-colors">
+            <span className="text-lg font-bold text-accent uppercase">
+              The Boost Multiplier Explained
+            </span>
+          </AccordionTrigger>
+          <AccordionContent className="px-8">
+            <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+              Your boost multiplier ranges from 1.0x (3-month lock) to 2.5x (48-month lock). This
+              multiplies your rewards:
+            </p>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center p-3 bg-accent/5 border border-accent/20">
+                <span className="text-sm">3-Month Lock</span>
+                <span className="font-bold text-accent">1.0x = 12% APY</span>
+              </div>
+              <div className="flex justify-between items-center p-3 bg-accent/5 border border-accent/20">
+                <span className="text-sm">12-Month Lock</span>
+                <span className="font-bold text-accent">1.375x = 16.5% APY</span>
+              </div>
+              <div className="flex justify-between items-center p-3 bg-accent/5 border border-accent/20">
+                <span className="text-sm">24-Month Lock</span>
+                <span className="font-bold text-accent">1.75x = 21% APY</span>
+              </div>
+              <div className="flex justify-between items-center p-3 bg-accent/5 border border-accent/20">
+                <span className="text-sm">48-Month Lock (Maximum)</span>
+                <span className="font-bold text-accent">2.5x = 30% APY</span>
+              </div>
+            </div>
+            <p className="text-xs text-accent/60 mt-4 italic">
+              <strong className="text-accent uppercase text-sm">Formula:</strong> The boost is
+              calculated as <strong>1 + (lock_months / 48) &times; 1.5</strong>. Longer locks yield
+              exponentially higher returns and voting power.
+            </p>
+          </AccordionContent>
+        </AccordionItem>
+
+        <AccordionItem
+          value="example"
+          className="matrix-card bg-gradient-to-r from-primary/10 to-accent/10 border-2 border-primary/30"
+        >
+          <AccordionTrigger className="px-8 py-4 hover:bg-primary/5 transition-colors">
+            <span className="text-lg font-bold uppercase">Real-World Example</span>
+          </AccordionTrigger>
+          <AccordionContent className="px-8">
+            <div className="space-y-4 text-sm">
+              <div className="p-4 border border-primary/20 bg-background/50">
+                <p className="font-bold mb-2">Scenario: You lock 100,000 $SUPRA for 24 months</p>
+                <ul className="space-y-2 text-xs text-muted-foreground">
+                  <li>✓ Boost Multiplier: 1.75x</li>
+                  <li>
+                    ✓ Annual Yield: 100,000 × 21% = <strong>21,000 $SUPRA/year</strong>
+                  </li>
+                  <li>✓ Your voting power: 175,000 veSUPRA (100,000 × 1.75)</li>
+                  <li>
+                    ✓ Protocol fees: If protocol earns $100K/month, you get: 175,000 / 84.2M × 30% ={' '}
+                    <strong>~0.62 USDC/month</strong>
+                  </li>
+                </ul>
+              </div>
+              <p className="text-xs text-muted-foreground italic">
+                That&rsquo;s in addition to your 21,000 $SUPRA/year in yields, AND you&rsquo;re
+                helping strengthen the 10B supply floor by participating.
+              </p>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
 
       <div className="grid md:grid-cols-2 gap-8">
         <div className="matrix-card p-8 space-y-8">
@@ -147,7 +197,9 @@ const Locking = () => {
                 className="w-full h-16 bg-primary/5 border border-primary/30 px-6 text-2xl font-bold focus:outline-none focus:border-primary transition-colors text-primary"
                 placeholder="0.00"
               />
-              <span className="absolute right-6 top-1/2 -translate-y-1/2 text-sm font-bold opacity-40 uppercase">SUPRA</span>
+              <span className="absolute right-6 top-1/2 -translate-y-1/2 text-sm font-bold opacity-40 uppercase">
+                SUPRA
+              </span>
             </div>
           </div>
 
@@ -180,32 +232,40 @@ const Locking = () => {
                 Estimated Boost
                 <InfoPopover {...protocolInfo.boostMultiplier} className="scale-90" />
               </span>
-              <span className="text-primary font-bold tracking-tighter">{calculateBoost(lockDuration)}x</span>
+              <span className="text-primary font-bold tracking-tighter">
+                {calculateBoost(lockDuration)}x
+              </span>
             </div>
             <div className="flex justify-between text-xs">
               <span className="text-primary/60">Power Score</span>
               <span className="text-primary font-bold tracking-tighter">
-                {lockAmount ? (parseFloat(lockAmount) * parseFloat(calculateBoost(lockDuration))).toLocaleString() : '0'}
+                {lockAmount
+                  ? (
+                      parseFloat(lockAmount) * parseFloat(calculateBoost(lockDuration))
+                    ).toLocaleString()
+                  : '0'}
               </span>
             </div>
           </div>
 
-          <button className="matrix-btn-primary w-full h-16 text-xl">
-            EXECUTE_LOCK_CONTRACT
-          </button>
+          <button className="matrix-btn-primary w-full h-16 text-xl">EXECUTE_LOCK_CONTRACT</button>
         </div>
 
         <div className="matrix-card p-8 relative overflow-hidden flex flex-col justify-between">
           <div className="absolute top-0 right-0 p-4">
             <LockKeyhole className="w-20 h-20 text-primary/5 -rotate-12" />
           </div>
-          
+
           <div className="space-y-8">
             <div className="space-y-2">
-              <h3 className="text-sm font-bold uppercase tracking-widest opacity-40">System_Metrics</h3>
+              <h3 className="text-sm font-bold uppercase tracking-widest opacity-40">
+                System_Metrics
+              </h3>
               <div className="space-y-4">
                 <div className="p-4 border border-primary/10 bg-primary/5">
-                  <div className="text-[10px] text-primary/40 uppercase mb-1">Total veSUPRA Power</div>
+                  <div className="text-[10px] text-primary/40 uppercase mb-1">
+                    Total veSUPRA Power
+                  </div>
                   <div className="text-3xl font-bold tracking-tighter neon-text">84.2M</div>
                 </div>
                 <div className="p-4 border border-primary/10 bg-primary/5">
@@ -222,7 +282,7 @@ const Locking = () => {
                   'Governance voting rights',
                   'Protocol revenue share',
                   'Priority vault access',
-                  'veSUPRA NFT minting'
+                  'veSUPRA NFT minting',
                 ].map((benefit, i) => (
                   <li key={i} className="flex items-center gap-2 text-xs text-primary/60">
                     <div className="w-1 h-1 bg-primary rotate-45" />
@@ -238,7 +298,9 @@ const Locking = () => {
               <Activity className="w-4 h-4 text-primary animate-pulse" />
               <span className="text-[10px] uppercase font-mono">Real-time Feed</span>
             </div>
-            <span className="text-[10px] uppercase font-mono opacity-40 italic">Block #829102...</span>
+            <span className="text-[10px] uppercase font-mono opacity-40 italic">
+              Block #829102...
+            </span>
           </div>
         </div>
       </div>

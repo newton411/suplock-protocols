@@ -21,6 +21,14 @@ module suplock::suplock_core {
     const EARLY_UNLOCK_PENALTY_BPS: u64 = 1000; // 10% base penalty (basis points)
     const BASE_APR_BPS: u64 = 1200; // 12% base APR (basis points)
     const MAX_SUPRA_SUPPLY: u128 = 100_000_000_000_000_000; // 100B SUPRA with decimals
+    
+    /// SUSTAINABILITY MECHANICS
+    /// Restaking yield amplification (EigenLayer + Symbiotic integration)
+    const RESTAKING_YIELD_AMPLIFIER_BPS: u64 = 2500; // 25% additional yield from restaking
+    /// Compounding frequency for auto-renewal incentives
+    const COMPOUND_REWARD_BPS: u64 = 300; // 3% bonus for locking yield alongside principal
+    /// Protocol partnership value-sharing (Solido, Supralend, Atmos integration)
+    const PARTNERSHIP_VALUE_SHARE_BPS: u64 = 500; // 5% of partner-generated value flows to SUPLOCK
 
     /// Error codes
     const ERR_ALREADY_INITIALIZED: u64 = 1001;
@@ -73,6 +81,39 @@ module suplock::suplock_core {
         timestamp: u64,
     }
 
+    /// SUSTAINABILITY EVENTS
+    #[event]
+    struct YieldCompounded has drop {
+        user: address,
+        lock_id: u64,
+        principal_at_lock: u64,
+        compounded_yield: u64,
+        new_unlock_time: u64,
+        compound_count: u64,
+        compounding_bonus: u64, // 3% bonus earned
+        timestamp: u64,
+    }
+
+    #[event]
+    struct RestakingYieldAccrued has drop {
+        user: address,
+        lock_id: u64,
+        protocol: String, // "EigenLayer" or "Symbiotic"
+        yield_amount: u64,
+        apy: u64,
+        timestamp: u64,
+    }
+
+    #[event]
+    struct PartnerValueShareDistributed has drop {
+        user: address,
+        lock_id: u64,
+        partner_protocol: String,
+        value_amount: u64,
+        percentage_of_partner_value: u64,
+        timestamp: u64,
+    }
+
     /// Lock Record: User-owned resource (moved to user's account)
     /// No longer stored in global vector - eliminates append bottleneck
     struct LockPosition has key {
@@ -83,6 +124,12 @@ module suplock::suplock_core {
         yield_earned: u64,
         is_unlocked: bool,
         penalty_paid: u64,
+        /// Sustainability fields
+        compounded_times: u64, // Number of times yield was locked again (compounding count)
+        restaking_yield_earned: u64, // Yield from EigenLayer/Symbiotic integration
+        partner_value_accrued: u64, // Value accrued from protocol partnerships
+        is_compounding_opted_in: bool, // User explicitly opted into auto-compounding
+        last_compound_time: u64, // Timestamp of last compounding
     }
 
     /// Global Lock State: Parameters and metrics ONLY
@@ -99,6 +146,13 @@ module suplock::suplock_core {
         
         // ID counter for lock generation
         next_lock_id: u64,
+        
+        /// SUSTAINABILITY TRACKING
+        total_compounded_yield: u128, // Cumulative yield locked again
+        total_restaking_yield_distributed: u128, // From EigenLayer/Symbiotic
+        total_partner_value_distributed: u128, // From protocol partnerships
+        active_compounding_locks: u64, // Count of locks with compounding enabled
+        restaking_partner_count: u64, // Number of active restaking partners
     }
 
     /// Initialize global state (call once at deployment)
@@ -121,6 +175,12 @@ module suplock::suplock_core {
             early_unlock_penalty_bps: EARLY_UNLOCK_PENALTY_BPS,
             total_locked_aggregator,
             next_lock_id: 1,
+            /// Initialize sustainability trackers
+            total_compounded_yield: 0,
+            total_restaking_yield_distributed: 0,
+            total_partner_value_distributed: 0,
+            active_compounding_locks: 0,
+            restaking_partner_count: 0,
         };
 
         move_to(account, global_state);
@@ -172,6 +232,12 @@ module suplock::suplock_core {
             yield_earned: 0,
             is_unlocked: false,
             penalty_paid: 0,
+            /// Initialize sustainability fields
+            compounded_times: 0,
+            restaking_yield_earned: 0,
+            partner_value_accrued: 0,
+            is_compounding_opted_in: false,
+            last_compound_time: 0,
         };
 
         // Move lock directly to user's account (O(1) operation)
@@ -343,6 +409,171 @@ module suplock::suplock_core {
             state.max_lock_duration_secs,
             state.base_apr_bps,
             state.early_unlock_penalty_bps,
+        )
+    }
+
+    /// SUSTAINABILITY FUNCTIONS
+
+    /// Opt into yield compounding: When yield matures, auto-lock it for another cycle
+    /// Provides 3% bonus for each compounding (incentivizes long-term holding)
+    public fun opt_into_yield_compounding(
+        account: &signer,
+        global_state_addr: address,
+    ) acquires LockPosition, GlobalLockState {
+        let user_addr = signer::address_of(account);
+        assert!(exists<LockPosition>(user_addr), ERR_NO_LOCKS);
+
+        let lock = borrow_global_mut<LockPosition>(user_addr);
+        assert!(!lock.is_compounding_opted_in, 1009); // Already opted in
+        
+        lock.is_compounding_opted_in = true;
+        
+        let global_state = borrow_global_mut<GlobalLockState>(global_state_addr);
+        global_state.active_compounding_locks = global_state.active_compounding_locks + 1;
+    }
+
+    /// Compound yield: Lock earned yield as new principal, extend unlock time
+    /// User gets 3% bonus for compounding, and yield accelerates (e.g., 12% becomes 15.6%)
+    /// This increases TVL and reduces sell pressure on harvested yield
+    public fun compound_yield(
+        account: &signer,
+        global_state_addr: address,
+    ) acquires LockPosition, GlobalLockState {
+        let user_addr = signer::address_of(account);
+        let current_time = get_current_timestamp();
+
+        assert!(exists<LockPosition>(user_addr), ERR_NO_LOCKS);
+
+        let lock = borrow_global_mut<LockPosition>(user_addr);
+        assert!(lock.is_compounding_opted_in, 1010); // Not opted in
+        assert!(!lock.is_unlocked, ERR_ALREADY_UNLOCKED);
+        
+        // Can only compound after lock expires
+        assert!(current_time >= lock.unlock_time, 1011); // Lock not yet matured
+
+        let original_yield = calculate_yield(lock.amount, lock.unlock_time - lock.lock_start_time, global_state_addr);
+        
+        // Calculate compounding bonus: 3% per compounding event
+        let bonus_bps = COMPOUND_REWARD_BPS;
+        let bonus_amount = ((original_yield as u128) * (bonus_bps as u128) / 10000) as u64;
+        let total_to_lock = original_yield + bonus_amount;
+
+        // New principal = old principal + compounded yield
+        lock.amount = lock.amount + total_to_lock;
+        lock.compounded_times = lock.compounded_times + 1;
+        lock.last_compound_time = current_time;
+        
+        // Extend unlock time by another lock period (match original duration)
+        let original_duration = lock.unlock_time - lock.lock_start_time;
+        let new_unlock_time = current_time + original_duration;
+        lock.unlock_time = new_unlock_time;
+
+        let global_state = borrow_global_mut<GlobalLockState>(global_state_addr);
+        global_state.total_compounded_yield = global_state.total_compounded_yield + (total_to_lock as u128);
+        aggregator::add(&mut global_state.total_locked_aggregator, total_to_lock as u128);
+
+        0x1::event::emit(YieldCompounded {
+            user: user_addr,
+            lock_id: lock.lock_id,
+            principal_at_lock: lock.amount - total_to_lock,
+            compounded_yield: original_yield,
+            new_unlock_time,
+            compound_count: lock.compounded_times,
+            compounding_bonus: bonus_amount,
+            timestamp: current_time,
+        });
+    }
+
+    /// RESTAKING YIELD: Called by restaking oracle/keeper
+    /// EigenLayer and Symbiotic generate extra yields that flow to SUPLOCK locks
+    /// These yields come from validator/operator rewards and are distributed pro-rata
+    public fun accrue_restaking_yield(
+        account: &signer,
+        user_addr: address,
+        yield_amount: u64,
+        protocol: String, // "EigenLayer" or "Symbiotic"
+        apy: u64,
+        global_state_addr: address,
+    ) acquires LockPosition, GlobalLockState {
+        let _admin = signer::address_of(account);
+        
+        assert!(yield_amount > 0, ERR_INVALID_AMOUNT);
+        assert!(exists<LockPosition>(user_addr), ERR_NO_LOCKS);
+
+        let lock = borrow_global_mut<LockPosition>(user_addr);
+        lock.restaking_yield_earned = lock.restaking_yield_earned + yield_amount;
+
+        let global_state = borrow_global_mut<GlobalLockState>(global_state_addr);
+        global_state.total_restaking_yield_distributed = global_state.total_restaking_yield_distributed + (yield_amount as u128);
+
+        0x1::event::emit(RestakingYieldAccrued {
+            user: user_addr,
+            lock_id: lock.lock_id,
+            protocol,
+            yield_amount,
+            apy,
+            timestamp: get_current_timestamp(),
+        });
+    }
+
+    /// PARTNERSHIP VALUE: Called by partner protocols (Solido, Supralend, Atmos)
+    /// When partners generate value (protocol fees, liquidations, etc.), 5% flows to SUPLOCK
+    /// This creates a permanent economic relationship that sustains yield
+    public fun distribute_partner_value(
+        account: &signer,
+        user_addr: address,
+        value_amount: u64,
+        partner_protocol: String,
+        percentage_of_partner_value: u64,
+        global_state_addr: address,
+    ) acquires LockPosition, GlobalLockState {
+        let _partner_admin = signer::address_of(account);
+        
+        assert!(value_amount > 0, ERR_INVALID_AMOUNT);
+        assert!(exists<LockPosition>(user_addr), ERR_NO_LOCKS);
+
+        let lock = borrow_global_mut<LockPosition>(user_addr);
+        lock.partner_value_accrued = lock.partner_value_accrued + value_amount;
+
+        let global_state = borrow_global_mut<GlobalLockState>(global_state_addr);
+        global_state.total_partner_value_distributed = global_state.total_partner_value_distributed + (value_amount as u128);
+
+        0x1::event::emit(PartnerValueShareDistributed {
+            user: user_addr,
+            lock_id: lock.lock_id,
+            partner_protocol,
+            value_amount,
+            percentage_of_partner_value,
+            timestamp: get_current_timestamp(),
+        });
+    }
+
+    /// View: Get lock details including sustainability metrics
+    public fun get_lock_details(user_addr: address): (u64, u64, u64, u64, u64, u64) acquires LockPosition {
+        if (exists<LockPosition>(user_addr)) {
+            let lock = borrow_global<LockPosition>(user_addr);
+            (
+                lock.amount,
+                lock.unlock_time,
+                lock.yield_earned,
+                lock.compounded_times,
+                lock.restaking_yield_earned,
+                lock.partner_value_accrued,
+            )
+        } else {
+            (0, 0, 0, 0, 0, 0)
+        }
+    }
+
+    /// View: Get sustainability metrics
+    public fun get_sustainability_metrics(global_addr: address): (u128, u128, u128, u64, u64) acquires GlobalLockState {
+        let state = borrow_global<GlobalLockState>(global_addr);
+        (
+            state.total_compounded_yield,
+            state.total_restaking_yield_distributed,
+            state.total_partner_value_distributed,
+            state.active_compounding_locks,
+            state.restaking_partner_count,
         )
     }
 
