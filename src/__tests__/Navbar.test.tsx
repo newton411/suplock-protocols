@@ -30,8 +30,11 @@ describe('Navbar', () => {
     renderNavbar();
     // use role queries to avoid matching other text like SUPLOCK
     expect(screen.getByRole('link', { name: /overview/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /thesis/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /nfts/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /^lock$/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /swap/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /bridge/i })).toBeInTheDocument();
   });
 
   it('displays wallet button with correct text when not connected', () => {

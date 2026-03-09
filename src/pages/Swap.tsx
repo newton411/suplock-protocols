@@ -1,7 +1,19 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowDownUp, Settings, Info, Globe, Lock, Vote, Zap, Database, Repeat, Share2, ArrowLeftRight, Network, RefreshCw } from 'lucide-react';
+import {
+  ArrowDownUp,
+  Settings,
+  Info,
+  Globe,
+  Lock,
+  Vote,
+  Zap,
+  Database,
+  Repeat,
+  Share2,
+} from 'lucide-react';
 import { NavLink } from 'react-router-dom';
+// imports kept for potential future use
 import { InfoPopover, protocolInfo } from '../components/ui/info-popover';
 
 const Swap = () => {
@@ -14,8 +26,8 @@ const Swap = () => {
     { id: 'governance', label: 'DAO', icon: Vote, path: '/governance' },
     { id: 'vaults', label: 'Vaults', icon: Zap, path: '/vaults' },
     { id: 'reserve', label: 'Reserve', icon: Database, path: '/reserve' },
-    { id: 'swap', label: 'Swap', icon: ArrowLeftRight, path: '/swap' },
-    { id: 'bridge', label: 'Bridge', icon: Network, path: '/bridge' },
+    { id: 'swap', label: 'Swap', icon: Repeat, path: '/swap' },
+    { id: 'bridge', label: 'Bridge', icon: Share2, path: '/bridge' },
     { id: 'restake', label: 'Restake', icon: RefreshCw, path: '/restake' },
   ];
 
@@ -34,9 +46,10 @@ const Swap = () => {
             to={item.path}
             className={({ isActive }) => `
               relative px-4 py-2 flex items-center gap-2 transition-all border
-              ${isActive 
-                ? 'bg-primary/20 border-primary text-primary neon-border' 
-                : 'bg-primary/5 border-primary/20 text-primary/60 hover:bg-primary/10 hover:text-primary hover:border-primary/40'
+              ${
+                isActive
+                  ? 'bg-primary/20 border-primary text-primary neon-border'
+                  : 'bg-primary/5 border-primary/20 text-primary/60 hover:bg-primary/10 hover:text-primary hover:border-primary/40'
               }
             `}
           >
@@ -47,8 +60,12 @@ const Swap = () => {
       </div>
 
       <div className="text-center space-y-4 mb-8">
-        <h2 className="text-3xl sm:text-5xl font-bold neon-text tracking-tighter uppercase">Swap_Interface</h2>
-        <p className="text-primary/60 font-mono text-sm">Instant token swaps powered by Supra L1 DEX engine.</p>
+        <h2 className="text-3xl sm:text-5xl font-bold neon-text tracking-tighter uppercase">
+          Swap Interface
+        </h2>
+        <p className="text-primary/60 font-mono text-sm">
+          Instant token swaps powered by the Supra L1 DEX engine.
+        </p>
       </div>
 
       <div className="max-w-md mx-auto">
@@ -117,15 +134,14 @@ const Swap = () => {
             </div>
           </div>
 
-          <button className="matrix-btn-primary w-full py-4 text-lg mt-4">
-            CONFIRM_SWAP
-          </button>
+          <button className="matrix-btn-primary w-full py-4 text-lg mt-4">Confirm Swap</button>
         </div>
 
         <div className="mt-6 p-4 bg-primary/5 border border-primary/20 flex items-start gap-3">
           <Info className="w-5 h-5 text-primary shrink-0 mt-0.5" />
           <p className="text-[10px] text-muted-foreground leading-relaxed">
-            All swaps are executed via the Supra L1 native DEX protocol. SUPLOCK maintains its supply floor by capturing a 0.1% fee from every swap to fund the BurnVault.
+            All swaps are executed via the Supra L1 native DEX protocol. SUPLOCK maintains its
+            supply floor by capturing a 0.1% fee from every swap to fund the BurnVault.
           </p>
         </div>
       </div>

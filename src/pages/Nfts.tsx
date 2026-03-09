@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Flame, 
-  Zap, 
-  Shield, 
-  Cpu, 
-  TrendingUp, 
-  Gavel, 
-  Lock, 
+import {
+  Flame,
+  Zap,
+  Shield,
+  Cpu,
+  TrendingUp,
+  Gavel,
+  Lock,
   RefreshCw,
-  ExternalLink,
   Info,
   Play,
   X,
@@ -18,10 +17,6 @@ import {
   Database,
   Eye,
   Activity,
-  Globe,
-  Vote,
-  ArrowLeftRight,
-  Network
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { Button } from '../components/ui/button';
@@ -43,13 +38,32 @@ const NFT_COLLECTION = [
     maxSupply: 66,
     traits: [
       { icon: Zap, label: 'APY Boost', value: '+35%', detail: 'Stacks with PoEL + AutoFi' },
-      { icon: Database, label: 'Dividend Share', value: '1%', detail: 'Post-floor treasury revenue' },
-      { icon: Shield, label: 'Exclusive Vault', value: 'Mythic', detail: 'Private LiquidityHub access' },
-      { icon: Gavel, label: 'Gov Power', value: '4×', detail: 'Voting multiplier + priority queue' }
+      {
+        icon: Database,
+        label: 'Dividend Share',
+        value: '1%',
+        detail: 'Post-floor treasury revenue',
+      },
+      {
+        icon: Shield,
+        label: 'Exclusive Vault',
+        value: 'Mythic',
+        detail: 'Private LiquidityHub access',
+      },
+      {
+        icon: Gavel,
+        label: 'Gov Power',
+        value: '4×',
+        detail: 'Voting multiplier + priority queue',
+      },
     ],
     mechanics: [
-      { label: 'Evolve Mechanic', description: 'Stake 90+ days to unlock "Immortal Thesis" trait (+5% permanent burn contribution)' }
-    ]
+      {
+        label: 'Evolve Mechanic',
+        description:
+          'Stake 90+ days to unlock "Immortal Thesis" trait (+5% permanent burn contribution)',
+      },
+    ],
   },
   {
     id: 'legendary',
@@ -61,14 +75,24 @@ const NFT_COLLECTION = [
     description: 'The master of efficiency and risk mitigation in the SUPLOCK ecosystem.',
     maxSupply: 200,
     traits: [
-      { icon: Cpu, label: 'AutoFi Efficiency', value: '+25%', detail: 'Faster rebalancing + MEV capture' },
+      {
+        icon: Cpu,
+        label: 'AutoFi Efficiency',
+        value: '+25%',
+        detail: 'Faster rebalancing + MEV capture',
+      },
       { icon: Shield, label: 'Risk Shield', value: 'Priority', detail: 'Auto-hedge on volatility' },
-      { icon: TrendingUp, label: 'Treasury Share', value: '0.5%', detail: 'Share from AutoFi profits' },
-      { icon: Gavel, label: 'Gov Power', value: '2.5×', detail: 'Early strategy template access' }
+      {
+        icon: TrendingUp,
+        label: 'Treasury Share',
+        value: '0.5%',
+        detail: 'Share from AutoFi profits',
+      },
+      { icon: Gavel, label: 'Gov Power', value: '2.5×', detail: 'Early strategy template access' },
     ],
     mechanics: [
-      { label: 'Yield Bonus', description: '+10% yield bonus on degen loops when staked' }
-    ]
+      { label: 'Yield Bonus', description: '+10% yield bonus on degen loops when staked' },
+    ],
   },
   {
     id: 'rare',
@@ -83,12 +107,20 @@ const NFT_COLLECTION = [
       { icon: Flame, label: 'Burn Rate', value: '+8%', detail: 'Personal burn on deposits' },
       { icon: TrendingUp, label: 'Revenue Share', value: '3%', detail: 'Bonus $SUPRA pre-floor' },
       { icon: Gavel, label: 'Gov Power', value: '1.5×', detail: 'Governance weight boost' },
-      { icon: Activity, label: 'Passive Yield', value: '2-5%', detail: 'From protocol burn events' }
+      {
+        icon: Activity,
+        label: 'Passive Yield',
+        value: '2-5%',
+        detail: 'From protocol burn events',
+      },
     ],
     mechanics: [
-      { label: 'Evolution Path', description: 'Burn extra $SUPRA to evolve to Legendary (limited path)' }
-    ]
-  }
+      {
+        label: 'Evolution Path',
+        description: 'Burn extra $SUPRA to evolve to Legendary (limited path)',
+      },
+    ],
+  },
 ];
 
 const VideoModal = ({ url, onClose }: { url: string; onClose: () => void }) => {
@@ -111,7 +143,7 @@ const VideoModal = ({ url, onClose }: { url: string; onClose: () => void }) => {
         className="w-full max-w-4xl aspect-video bg-black border border-primary/30 relative overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        <button 
+        <button
           onClick={onClose}
           className="absolute top-4 right-4 z-10 p-2 bg-black/50 border border-white/10 text-white hover:bg-primary hover:text-black transition-colors"
         >
@@ -147,9 +179,7 @@ export const Nfts = () => {
   return (
     <div className="container mx-auto px-6 py-12 relative">
       <AnimatePresence>
-        {selectedVideo && (
-          <VideoModal url={selectedVideo} onClose={() => setSelectedVideo(null)} />
-        )}
+        {selectedVideo && <VideoModal url={selectedVideo} onClose={() => setSelectedVideo(null)} />}
       </AnimatePresence>
 
       {/* Page Navigation */}
@@ -179,17 +209,33 @@ export const Nfts = () => {
       >
         <div className="flex items-center gap-2 text-primary">
           <Sparkles className="w-5 h-5" />
-          <span className="text-[10px] font-bold uppercase tracking-[0.3em]">Genesis Collection</span>
+          <span className="text-[10px] font-bold uppercase tracking-[0.3em]">
+            Genesis Collection
+          </span>
         </div>
         <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter italic">
           SUPLOCK <span className="text-primary neon-text">Genesis</span> NFTs
         </h1>
         <p className="text-primary/60 max-w-2xl text-sm leading-relaxed uppercase tracking-wider font-medium">
-          The ultimate utility layer for the SUPLOCK Protocol. Genesis NFTs provide permanent yield boosts, governance multipliers, and exclusive access to the vault privacy layer.
+          The ultimate utility layer for the SUPLOCK Protocol. Genesis NFTs provide permanent yield
+          boosts, governance multipliers, and exclusive access to the vault privacy layer.
         </p>
+
+        {/* secondary nav */}
+        <div className="flex justify-center gap-6 mt-6">
+          <a href="#collection" className="text-sm uppercase neon-text hover:underline">
+            Collection
+          </a>
+          <a href="#mechanics" className="text-sm uppercase neon-text hover:underline">
+            Mechanics
+          </a>
+          <a href="#evolve" className="text-sm uppercase neon-text hover:underline">
+            Evolve
+          </a>
+        </div>
       </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div id="collection" className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {NFT_COLLECTION.map((nft, index) => (
           <motion.div
             key={nft.id}
@@ -199,7 +245,7 @@ export const Nfts = () => {
             className="group relative"
           >
             {/* Background Glow */}
-            <div 
+            <div
               className="absolute inset-0 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
               style={{ backgroundColor: nft.bgGlow }}
             />
@@ -210,10 +256,10 @@ export const Nfts = () => {
                 <div className="absolute inset-0 flex items-center justify-center">
                   <Activity className="w-24 h-24 text-primary/10 animate-pulse" />
                 </div>
-                
+
                 {/* Rarity Badge */}
                 <div className="absolute top-4 left-4">
-                  <Badge 
+                  <Badge
                     className="px-3 py-1 font-black text-[10px] uppercase tracking-widest border-none"
                     style={{ backgroundColor: nft.color, color: '#000' }}
                   >
@@ -230,7 +276,7 @@ export const Nfts = () => {
                     <Play className="w-6 h-6 text-white group-hover/play:text-black fill-current" />
                   </div>
                 </button>
-                
+
                 <div className="absolute bottom-4 right-4 flex gap-2">
                   <TooltipProvider>
                     <Tooltip>
@@ -259,13 +305,20 @@ export const Nfts = () => {
               <CardContent className="flex-1 flex flex-col gap-4">
                 <div className="grid grid-cols-2 gap-3">
                   {nft.traits.map((trait, i) => (
-                    <div key={i} className="p-3 border border-primary/10 bg-primary/5 flex flex-col gap-1">
+                    <div
+                      key={i}
+                      className="p-3 border border-primary/10 bg-primary/5 flex flex-col gap-1"
+                    >
                       <div className="flex items-center gap-1.5">
                         <trait.icon className="w-3 h-3 text-primary" />
-                        <span className="text-[8px] font-bold text-primary/60 uppercase">{trait.label}</span>
+                        <span className="text-[8px] font-bold text-primary/60 uppercase">
+                          {trait.label}
+                        </span>
                       </div>
                       <div className="text-sm font-bold text-white">{trait.value}</div>
-                      <div className="text-[8px] font-medium text-primary/40 uppercase leading-tight">{trait.detail}</div>
+                      <div className="text-[8px] font-medium text-primary/40 uppercase leading-tight">
+                        {trait.detail}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -275,7 +328,9 @@ export const Nfts = () => {
                     <div key={i} className="p-3 border border-dashed border-primary/20 bg-black/20">
                       <div className="flex items-center gap-2 mb-1">
                         <RefreshCw className="w-3 h-3 text-primary animate-spin-slow" />
-                        <span className="text-[10px] font-black text-primary uppercase">{mech.label}</span>
+                        <span className="text-[10px] font-black text-primary uppercase">
+                          {mech.label}
+                        </span>
                       </div>
                       <p className="text-[9px] text-primary/60 uppercase leading-relaxed">
                         {mech.description}
@@ -302,14 +357,18 @@ export const Nfts = () => {
       >
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div className="space-y-6">
-            <Badge variant="outline" className="text-primary border-primary/50 uppercase tracking-[0.2em] px-4 py-1">
+            <Badge
+              variant="outline"
+              className="text-primary border-primary/50 uppercase tracking-[0.2em] px-4 py-1"
+            >
               NFT Staking
             </Badge>
             <h2 className="text-3xl font-black uppercase italic">
               Maximize Your <span className="text-primary">Yields</span>
             </h2>
             <p className="text-primary/60 text-sm leading-relaxed uppercase">
-              Stake your Genesis NFTs to activate their permanent traits. Staked NFTs provide active boosts to your $SUPRA yields and voting power within the SUPLOCK DAO.
+              Stake your Genesis NFTs to activate their permanent traits. Staked NFTs provide active
+              boosts to your $SUPRA yields and voting power within the SUPLOCK DAO.
             </p>
             <div className="space-y-4">
               <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
@@ -318,7 +377,10 @@ export const Nfts = () => {
               </div>
               <Progress value={65} className="h-1 bg-primary/20" />
             </div>
-            <Button variant="outline" className="border-primary/30 text-primary hover:bg-primary hover:text-black h-12 uppercase tracking-widest text-xs font-bold w-full md:w-auto px-8">
+            <Button
+              variant="outline"
+              className="border-primary/30 text-primary hover:bg-primary hover:text-black h-12 uppercase tracking-widest text-xs font-bold w-full md:w-auto px-8"
+            >
               Explore Staking Pools
             </Button>
           </div>

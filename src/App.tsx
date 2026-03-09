@@ -19,7 +19,8 @@ const Reserve = React.lazy(() => import('./pages/Reserve'));
 const Nfts = React.lazy(() => import('./pages/Nfts').then((m) => ({ default: m.Nfts })));
 const Restake = React.lazy(() => import('./pages/Restake'));
 const Swap = React.lazy(() => import('./pages/Swap'));
-const Bridge = React.lazy(() => import('./pages/Bridge'));
+const SwapBridge = React.lazy(() => import('./pages/SwapBridge'));
+const StablecoinThesis = React.lazy(() => import('./pages/StablecoinThesis'));
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -149,7 +150,8 @@ function App() {
                     <Route path="/nfts" element={<Nfts />} />
                     <Route path="/restake" element={<Restake />} />
                     <Route path="/swap" element={<Swap />} />
-                    <Route path="/bridge" element={<Bridge />} />
+                    <Route path="/bridge" element={<SwapBridge />} />
+                    <Route path="/thesis" element={<StablecoinThesis />} />
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>
                 </Suspense>

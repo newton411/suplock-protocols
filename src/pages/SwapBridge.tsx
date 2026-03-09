@@ -12,8 +12,6 @@ import {
   RefreshCw,
   Shield,
   AlertTriangle,
-  ArrowLeftRight,
-  Network,
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { InfoPopover, protocolInfo } from '../components/ui/info-popover';
@@ -37,8 +35,8 @@ const SwapBridge = () => {
     { id: 'governance', label: 'DAO', icon: Vote, path: '/governance' },
     { id: 'vaults', label: 'Vaults', icon: Zap, path: '/vaults' },
     { id: 'reserve', label: 'Reserve', icon: Database, path: '/reserve' },
-    { id: 'swap', label: 'Swap', icon: ArrowLeftRight, path: '/swap' },
-    { id: 'bridge', label: 'Bridge', icon: Network, path: '/bridge' },
+    { id: 'swap', label: 'Swap', icon: Repeat, path: '/swap' },
+    { id: 'bridge', label: 'Bridge', icon: Share2, path: '/bridge' },
     { id: 'restake', label: 'Restake', icon: RefreshCw, path: '/restake' },
   ];
 
@@ -80,7 +78,7 @@ const SwapBridge = () => {
       <div className="text-center space-y-4 mb-8">
         <div className="flex items-center justify-center gap-2">
           <h2 className="text-3xl sm:text-5xl font-bold neon-text tracking-tighter uppercase">
-            {activeTab === 'swap' ? 'Token_Exchange_Interface' : 'Cross_Chain_Bridge'}
+            {activeTab === 'swap' ? 'Token Exchange' : 'Cross-Chain Bridge'}
           </h2>
           <InfoPopover {...protocolInfo.supraL1} />
         </div>
@@ -138,7 +136,7 @@ const SwapBridge = () => {
           <div className="matrix-card p-8 space-y-8">
             <div className="space-y-4">
               <div className="flex justify-between text-[10px] uppercase tracking-widest">
-                <span>From_Token</span>
+                <span>From Token</span>
                 <span>Balance: 1,000,000 {fromToken}</span>
               </div>
               <div className="relative">
@@ -174,7 +172,7 @@ const SwapBridge = () => {
 
             <div className="space-y-4">
               <div className="flex justify-between text-[10px] uppercase tracking-widest">
-                <span>To_Token</span>
+                <span>To Token</span>
                 <span>Balance: 0 {toToken}</span>
               </div>
               <div className="relative">
@@ -216,7 +214,7 @@ const SwapBridge = () => {
               </div>
             </div>
 
-            <button className="matrix-btn-primary w-full h-16 text-xl">EXECUTE_SWAP_ORDER</button>
+            <button className="matrix-btn-primary w-full h-16 text-xl">Execute Swap</button>
           </div>
 
           <div className="matrix-card p-8 relative overflow-hidden flex flex-col justify-between">
@@ -227,7 +225,7 @@ const SwapBridge = () => {
             <div className="space-y-8">
               <div className="space-y-2">
                 <h3 className="text-sm font-bold uppercase tracking-widest opacity-40">
-                  Swap_Metrics
+                  Swap Metrics
                 </h3>
                 <div className="space-y-4">
                   <div className="p-4 border border-primary/10 bg-primary/5">
@@ -269,7 +267,7 @@ const SwapBridge = () => {
           <div className="matrix-card p-8 space-y-8">
             <div className="space-y-4">
               <div className="flex justify-between text-[10px] uppercase tracking-widest">
-                <span>From_Chain</span>
+                <span>From Chain</span>
                 <span>Network: {fromChain}</span>
               </div>
               <select
@@ -287,7 +285,7 @@ const SwapBridge = () => {
 
             <div className="space-y-4">
               <div className="flex justify-between text-[10px] uppercase tracking-widest">
-                <span>Asset_Amount</span>
+                <span>Asset Amount</span>
                 <span>Balance: 1,000,000 {fromToken}</span>
               </div>
               <div className="relative">
@@ -320,7 +318,7 @@ const SwapBridge = () => {
 
             <div className="space-y-4">
               <div className="flex justify-between text-[10px] uppercase tracking-widest">
-                <span>To_Chain</span>
+                <span>To Chain</span>
                 <span>Network: {toChain}</span>
               </div>
               <select
@@ -354,9 +352,7 @@ const SwapBridge = () => {
               </div>
             </div>
 
-            <button className="matrix-btn-primary w-full h-16 text-xl">
-              INITIATE_BRIDGE_TRANSFER
-            </button>
+            <button className="matrix-btn-primary w-full h-16 text-xl">Initiate Bridge</button>
           </div>
 
           <div className="matrix-card p-8 relative overflow-hidden flex flex-col justify-between">
@@ -367,7 +363,7 @@ const SwapBridge = () => {
             <div className="space-y-8">
               <div className="space-y-2">
                 <h3 className="text-sm font-bold uppercase tracking-widest opacity-40">
-                  Bridge_Stats
+                  Bridge Stats
                 </h3>
                 <div className="space-y-4">
                   <div className="p-4 border border-primary/10 bg-primary/5">
