@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link as LinkIcon } from 'lucide-react';
 
@@ -105,6 +105,38 @@ const utilities = [
 ];
 
 export const StablecoinThesis = () => {
+  // helper formats animated numbers back into original string with suffix
+  const formatAnimated = (orig: string, anim: number) => {
+    if (orig.includes('M')) return `$${anim.toFixed(1)}M`;
+    if (orig.includes('k')) return `${anim.toFixed(0)}k+`;
+    if (orig.includes('%')) return `${anim.toFixed(1)}%`;
+    return orig;
+  };
+
+  // state used for simple count-up animation on stats
+  const [animatedStats, setAnimatedStats] = useState<number[]>(stats.map(() => 0));
+
+  useEffect(() => {
+    // simple linear animation for numeric components
+    stats.forEach((s, i) => {
+      const digits = parseFloat(s.value.replace(/[^0-9\.]/g, '')) || 0;
+      let current = 0;
+      const step = Math.max(1, digits / 60);
+      const interval = setInterval(() => {
+        current += step;
+        if (current >= digits) {
+          current = digits;
+          clearInterval(interval);
+        }
+        setAnimatedStats((prev) => {
+          const next = [...prev];
+          next[i] = current;
+          return next;
+        });
+      }, 30);
+    });
+  }, []);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -147,24 +179,35 @@ export const StablecoinThesis = () => {
             locking, yield optimization, and on‑chain burns that support a 10B floor for $SUPRA.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-            {stats.map((s) => (
-              <div
+            {stats.map((s, i) => (
+              <motion.div
                 key={s.label}
-                className="matrix-card p-6 text-center neon-border hover:neon-border-lg transition-all"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+                className="matrix-card p-6 text-center neon-border hover:neon-border-lg transition-all hover:scale-105"
               >
-                <div className="text-primary/60 text-sm uppercase tracking-widest">{s.label}</div>
-                <div className="text-2xl font-bold neon-text mt-2">{s.value}</div>
-              </div>
+                <div className="text-primary/60 text-sm uppercase tracking-widest">
+                  {s.label}
+                </div>
+                <div className="text-2xl font-bold neon-text mt-2">
+                  {formatAnimated(s.value, animatedStats[i])}
+                </div>
+              </motion.div>
             ))}
           </div>
         </div>
 
         {/* optimizations */}
         <div className="space-y-12">
-          {optimizations.map((opt) => (
-            <div
+          {optimizations.map((opt, idx) => (
+            <motion.div
               key={opt.title}
-              className="matrix-card p-8 flex flex-col md:flex-row items-start gap-6"
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: idx * 0.15 }}
+              className="matrix-card p-8 flex flex-col md:flex-row items-start gap-6 hover:scale-105 hover:neon-border-lg transition-transform"
             >
               <LinkIcon className="w-8 h-8 text-primary/40" />
               <div>
@@ -175,7 +218,7 @@ export const StablecoinThesis = () => {
                   ))}
                 </ul>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
 
@@ -185,15 +228,21 @@ export const StablecoinThesis = () => {
             Smart Contract Utilities
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {utilities.map((u) => (
-              <div key={u.name} className="matrix-card p-6 hover:neon-border transition-all">
+            {utilities.map((u, idx) => (
+              <motion.div
+                key={u.name}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.1 }}
+                className="matrix-card p-6 hover:neon-border transition-all hover:scale-105"
+              >
                 <h4 className="text-lg font-bold neon-text mb-2">{u.name}</h4>
                 <ul className="list-disc list-inside text-primary/60 space-y-1">
                   {u.bullets.map((b, i) => (
                     <li key={i}>{b}</li>
                   ))}
                 </ul>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
