@@ -31,6 +31,7 @@ const SwapBridge = () => {
 
   const navItems = [
     { id: 'overview', label: 'Overview', icon: Globe, path: '/' },
+    { id: 'thesis', label: 'Thesis', icon: BookOpen, path: '/thesis' },
     { id: 'lock', label: 'Lock', icon: Lock, path: '/locking' },
     { id: 'governance', label: 'DAO', icon: Vote, path: '/governance' },
     { id: 'vaults', label: 'Vaults', icon: Zap, path: '/vaults' },

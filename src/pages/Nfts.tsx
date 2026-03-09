@@ -17,6 +17,9 @@ import {
   Database,
   Eye,
   Activity,
+  Repeat,
+  Share2,
+  BookOpen,
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { Button } from '../components/ui/button';
@@ -166,13 +169,14 @@ export const Nfts = () => {
 
   const navItems = [
     { id: 'overview', label: 'Overview', icon: Globe, path: '/' },
+    { id: 'thesis', label: 'Thesis', icon: BookOpen, path: '/thesis' },
     { id: 'nfts', label: 'NFTs', icon: Sparkles, path: '/nfts' },
     { id: 'lock', label: 'Lock', icon: Lock, path: '/locking' },
     { id: 'governance', label: 'DAO', icon: Vote, path: '/governance' },
     { id: 'vaults', label: 'Vaults', icon: Zap, path: '/vaults' },
     { id: 'reserve', label: 'Reserve', icon: Database, path: '/reserve' },
-    { id: 'swap', label: 'Swap', icon: ArrowLeftRight, path: '/swap' },
-    { id: 'bridge', label: 'Bridge', icon: Network, path: '/bridge' },
+    { id: 'swap', label: 'Swap', icon: Repeat, path: '/swap' },
+    { id: 'bridge', label: 'Bridge', icon: Share2, path: '/bridge' },
     { id: 'restake', label: 'Restake', icon: RefreshCw, path: '/restake' },
   ];
 
