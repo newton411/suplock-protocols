@@ -18,6 +18,8 @@ const Vaults = React.lazy(() => import('./pages/Vaults'));
 const Reserve = React.lazy(() => import('./pages/Reserve'));
 const Nfts = React.lazy(() => import('./pages/Nfts').then((m) => ({ default: m.Nfts })));
 const Restake = React.lazy(() => import('./pages/Restake'));
+const Swap = React.lazy(() => import('./pages/Swap'));
+const Bridge = React.lazy(() => import('./pages/Bridge'));
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -146,6 +148,8 @@ function App() {
                     <Route path="/reserve" element={<Reserve />} />
                     <Route path="/nfts" element={<Nfts />} />
                     <Route path="/restake" element={<Restake />} />
+                    <Route path="/swap" element={<Swap />} />
+                    <Route path="/bridge" element={<Bridge />} />
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>
                 </Suspense>

@@ -17,8 +17,13 @@ import {
   ChevronRight,
   Database,
   Eye,
-  Activity
+  Activity,
+  Globe,
+  Vote,
+  ArrowLeftRight,
+  Network
 } from 'lucide-react';
+import { NavLink } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
@@ -127,6 +132,18 @@ const VideoModal = ({ url, onClose }: { url: string; onClose: () => void }) => {
 export const Nfts = () => {
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
 
+  const navItems = [
+    { id: 'overview', label: 'Overview', icon: Globe, path: '/' },
+    { id: 'nfts', label: 'NFTs', icon: Sparkles, path: '/nfts' },
+    { id: 'lock', label: 'Lock', icon: Lock, path: '/locking' },
+    { id: 'governance', label: 'DAO', icon: Vote, path: '/governance' },
+    { id: 'vaults', label: 'Vaults', icon: Zap, path: '/vaults' },
+    { id: 'reserve', label: 'Reserve', icon: Database, path: '/reserve' },
+    { id: 'swap', label: 'Swap', icon: ArrowLeftRight, path: '/swap' },
+    { id: 'bridge', label: 'Bridge', icon: Network, path: '/bridge' },
+    { id: 'restake', label: 'Restake', icon: RefreshCw, path: '/restake' },
+  ];
+
   return (
     <div className="container mx-auto px-6 py-12 relative">
       <AnimatePresence>
@@ -134,6 +151,26 @@ export const Nfts = () => {
           <VideoModal url={selectedVideo} onClose={() => setSelectedVideo(null)} />
         )}
       </AnimatePresence>
+
+      {/* Page Navigation */}
+      <div className="flex flex-wrap items-center justify-center gap-2 py-4 border-b border-primary/20 mb-8">
+        {navItems.map((item) => (
+          <NavLink
+            key={item.id}
+            to={item.path}
+            className={({ isActive }) => `
+              relative px-4 py-2 flex items-center gap-2 transition-all border
+              ${isActive 
+                ? 'bg-primary/20 border-primary text-primary neon-border' 
+                : 'bg-primary/5 border-primary/20 text-primary/60 hover:bg-primary/10 hover:text-primary hover:border-primary/40'
+              }
+            `}
+          >
+            <item.icon className="w-4 h-4" />
+            <span className="text-xs font-bold uppercase tracking-widest">{item.label}</span>
+          </NavLink>
+        ))}
+      </div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}

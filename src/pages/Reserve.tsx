@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Database, Coins, ArrowDownToLine, RefreshCw, Globe, Lock, Vote, Zap, TrendingDown, Flame, Gift } from 'lucide-react';
+import { Database, Coins, ArrowDownToLine, RefreshCw, Globe, Lock, Vote, Zap, TrendingDown, Flame, Gift, ArrowLeftRight, Network } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { InfoBanner } from '../components/InfoBanner';
 
@@ -11,6 +11,9 @@ const Reserve = () => {
     { id: 'governance', label: 'DAO', icon: Vote, path: '/governance' },
     { id: 'vaults', label: 'Vaults', icon: Zap, path: '/vaults' },
     { id: 'reserve', label: 'Reserve', icon: Database, path: '/reserve' },
+    { id: 'swap', label: 'Swap', icon: ArrowLeftRight, path: '/swap' },
+    { id: 'bridge', label: 'Bridge', icon: Network, path: '/bridge' },
+    { id: 'restake', label: 'Restake', icon: RefreshCw, path: '/restake' },
   ];
 
   return (

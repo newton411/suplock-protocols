@@ -12,6 +12,8 @@ import {
   RefreshCw,
   Shield,
   AlertTriangle,
+  ArrowLeftRight,
+  Network,
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { InfoPopover, protocolInfo } from '../components/ui/info-popover';
@@ -34,8 +36,10 @@ const SwapBridge = () => {
     { id: 'lock', label: 'Lock', icon: Lock, path: '/locking' },
     { id: 'governance', label: 'DAO', icon: Vote, path: '/governance' },
     { id: 'vaults', label: 'Vaults', icon: Zap, path: '/vaults' },
-    { id: 'swap', label: 'Swap', icon: ArrowUpDown, path: '/swap' },
     { id: 'reserve', label: 'Reserve', icon: Database, path: '/reserve' },
+    { id: 'swap', label: 'Swap', icon: ArrowLeftRight, path: '/swap' },
+    { id: 'bridge', label: 'Bridge', icon: Network, path: '/bridge' },
+    { id: 'restake', label: 'Restake', icon: RefreshCw, path: '/restake' },
   ];
 
   const swapTokens = () => {
