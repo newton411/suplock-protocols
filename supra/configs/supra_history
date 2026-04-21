@@ -1,0 +1,24 @@
+Local: (2026-04-10 21:49:11.099213756 +00:00)	 Utc: (2026-04-10 21:49:11.099305507 UTC)
+
+CMD:
+Compile
+Output:
+General: {
+  "Error": "Move compilation failed: Unable to find package manifest in '/workspaces/suplock-protocol/smart-contracts/supra/suplock' or in its parents"
+}
+Local: (2026-04-10 22:16:49.256827155 +00:00)	 Utc: (2026-04-10 22:16:49.256869314 UTC)
+
+CMD:
+Compile
+Output:
+General: {
+  "Error": "Move compilation failed: Unable to resolve packages for package 'suplock': While resolving dependency 'Stdlib' in package 'suplock': While processing dependency 'Stdlib': Unable to find package manifest for 'Stdlib' at \"/root/.move/https___github_com_SupraOracles_supra-move-stdlib_git_main/\""
+}
+Local: (2026-04-10 22:55:26.765777464 +00:00)	 Utc: (2026-04-10 22:55:26.765811477 UTC)
+
+CMD:
+Compile
+Output:
+General: {
+  "Error": "Move compilation failed: Unable to resolve packages for package 'suplock': While resolving dependency 'Stdlib' in package 'suplock': While processing dependency 'Stdlib': Unable to find package manifest for 'Stdlib' at \"/root/.move/https___github_com_SupraOracles_supra-move-stdlib_git_main/\""
+}
