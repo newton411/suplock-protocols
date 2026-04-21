@@ -14,9 +14,9 @@ module suplock::stablecoin {
     use std::signer;
     use std::vector;
     use std::option::{Self, Option};
-    use supra_framework::coin;
-    use supra_framework::event;
-    use supra_framework::address;
+    use aptos_framework::coin;
+    use aptos_framework::event;
+    use aptos_framework::address;
 
     /// Constants and parameters
     const STABLECOIN_DECIMALS: u8 = 6;
@@ -80,5 +80,5 @@ module suplock::stablecoin {
 
     /// Compatibility/helper for existing SUPLOCK modules
     // uses or exposes types/functions from suplock_core
-    use 0x0::suplock_core;
+    use 0x1::suplock_core;
 }

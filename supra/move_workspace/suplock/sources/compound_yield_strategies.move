@@ -1,18 +1,18 @@
-// Compound Yield Strategies Module for Sustainable Profitability
-//
-// This module orchestrates multiple yield-generation mechanisms:
-// 1. Lock-based staking yields (12% APR base + boost multipliers + compounding)
-// 2. Restaking integration yields (EigenLayer + Symbiotic protocols)
-// 3. Protocol partnership value sharing (Solido, Supralend, Atmos)
-// 4. Treasury reinvestment strategies (vault incentives, LP seeding)
-// 5. Cross-protocol yield aggregation and auto-compounding
-//
-// The sustainability model ensures:
-// - Profitability: 40-50% of fees buyback/burn, 30-50% dividends to holders
-// - Sustainability: 10-20% reinvested into yield-generating strategies
-// - Compounding: Automatic reinvestment of yield for exponential growth
-// - Diversification: Income from multiple sources reduces single-point failure
-// - Economic security: Revenue generated regardless of token price movements
+/// Compound Yield Strategies Module for Sustainable Profitability
+/// 
+/// This module orchestrates multiple yield-generation mechanisms:
+/// 1. Lock-based staking yields (12% APR base + boost multipliers + compounding)
+/// 2. Restaking integration yields (EigenLayer + Symbiotic protocols)
+/// 3. Protocol partnership value sharing (Solido, Supralend, Atmos)
+/// 4. Treasury reinvestment strategies (vault incentives, LP seeding)
+/// 5. Cross-protocol yield aggregation and auto-compounding
+///
+/// The sustainability model ensures:
+/// - Profitability: 40-50% of fees buyback/burn, 30-50% dividends to holders
+/// - Sustainability: 10-20% reinvested into yield-generating strategies
+/// - Compounding: Automatic reinvestment of yield for exponential growth
+/// - Diversification: Income from multiple sources reduces single-point failure
+/// - Economic security: Revenue generated regardless of token price movements
 
 module suplock::compound_yield_strategies {
     use std::signer;

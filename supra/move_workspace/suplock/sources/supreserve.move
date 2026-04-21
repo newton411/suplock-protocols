@@ -1,5 +1,5 @@
-// SUPReserve Module for Supra L1
-// Central fee aggregation and automated distribution flywheel
+/// SUPReserve Module for Supra L1
+/// Central fee aggregation and automated distribution flywheel
 
 module suplock::supreserve {
     use std::signer;
@@ -9,8 +9,6 @@ module suplock::supreserve {
     const SUPRA_DECIMALS: u64 = 8;
     const FLOOR_CIRCULATING_SUPPLY: u64 = 10_000_000_000; // 10 billion SUPRA
     const MAX_SUPRA_SUPPLY: u64 = 100_000_000_000; // 100 billion SUPRA
-    const ERR_INVALID_AMOUNT: u64 = 5008;
-    const ERR_TEST_ASSERTION: u64 = 5010;
 
     // SUSTAINABLE PROFITABILITY MODEL
     // Pre-floor distribution (circulating > 10B): Focus on growth via buyback
@@ -225,7 +223,7 @@ module suplock::supreserve {
     public fun check_floor(
         current_circulating_supply: u64,
         reserve_addr: address,
-    ): (bool, u64) acquires SUPReserve {
+    ) acquires SUPReserve {
         let is_post_floor = current_circulating_supply <= FLOOR_CIRCULATING_SUPPLY;
 
         let _reserve = borrow_global<SUPReserve>(reserve_addr);
@@ -235,8 +233,6 @@ module suplock::supreserve {
             is_post_floor,
             timestamp: get_current_timestamp(),
         });
-
-        (is_post_floor, current_circulating_supply)
     }
 
     /// Execute automated distribution (called monthly or by keeper)
@@ -543,17 +539,17 @@ module suplock::supreserve {
         let above_floor = 15_000_000_000u64;
         let below_floor = 8_000_000_000u64;
 
-        assert!(above_floor > FLOOR_CIRCULATING_SUPPLY, ERR_TEST_ASSERTION);
-        assert!(below_floor <= FLOOR_CIRCULATING_SUPPLY, ERR_TEST_ASSERTION);
+        assert!(above_floor > FLOOR_CIRCULATING_SUPPLY, 0);
+        assert!(below_floor <= FLOOR_CIRCULATING_SUPPLY, 0);
     }
 
     #[test]
     fun test_distribution_allocations() {
         // Static constant invariants
         let total_pre = BUYBACK_AND_BURN_BPS_PRE + DIVIDENDS_BPS_PRE + VE_REWARDS_BPS_PRE + REINVESTMENT_BPS_PRE + TREASURY_BPS_PRE;
-        assert!(total_pre == 10000, ERR_TEST_ASSERTION);
+        assert!(total_pre == 10000, 0);
         let total_post = BUYBACK_AND_BURN_BPS_POST + DIVIDENDS_BPS_POST + VE_REWARDS_BPS_POST + REINVESTMENT_BPS_POST + TREASURY_BPS_POST;
-        assert!(total_post == 10000, ERR_TEST_ASSERTION);
+        assert!(total_post == 10000, 0);
 
         // Adaptive reinvestment – simulate multiple epochs and ensure halving behavior
         let base = 1000; // pretend base pre-floor

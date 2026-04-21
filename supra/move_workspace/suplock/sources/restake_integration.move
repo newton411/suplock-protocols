@@ -1,13 +1,13 @@
-// Restake Integration Module for SUPLOCK
-// Manages cross-protocol restaking with partner protocols (Supralend, Solido, Atmos)
-// Integrates with EigenLayer and Symbiotic for dual restaking
-//
-// Features:
-// - Restake SUPRA from partner protocols
-// - Track yield from EigenLayer + Symbiotic
-// - Distribute partner protocol value back to SUPLOCK locks
-// - Adaptive reinvestment similar to supreserve flywheel
-// - Sustainability metrics and governance
+/// Restake Integration Module for SUPLOCK
+/// Manages cross-protocol restaking with partner protocols (Supralend, Solido, Atmos)
+/// Integrates with EigenLayer and Symbiotic for dual restaking
+///
+/// Features:
+/// - Restake SUPRA from partner protocols
+/// - Track yield from EigenLayer + Symbiotic
+/// - Distribute partner protocol value back to SUPLOCK locks
+/// - Adaptive reinvestment similar to supreserve flywheel
+/// - Sustainability metrics and governance
 
 module suplock::restake_integration {
     use std::signer;

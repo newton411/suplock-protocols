@@ -1,12 +1,12 @@
-// Supra DVRF Integration Module
-// Provides verifiable randomness for fair governance distributions
-// Uses Supra's Distributed VRF for unbiasable randomness on-chain
-//
-// Use Cases:
-// - Fair selection of governance committee members
-// - Random audit triggers for treasury
-// - Fair distribution in vault lottery systems
-// - Randomized reward order to prevent MEV
+/// Supra DVRF Integration Module
+/// Provides verifiable randomness for fair governance distributions
+/// Uses Supra's Distributed VRF for unbiasable randomness on-chain
+/// 
+/// Use Cases:
+/// - Fair selection of governance committee members
+/// - Random audit triggers for treasury
+/// - Fair distribution in vault lottery systems
+/// - Randomized reward order to prevent MEV
 
 module suplock::dvrf_integration {
     use std::signer;

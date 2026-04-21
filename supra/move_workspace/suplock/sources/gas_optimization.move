@@ -1,11 +1,11 @@
-// Gas Optimization Module for SUPLOCK
-// Implements best practices for Move storage efficiency
-// - Batch operations to reduce transaction overhead
-// - Vector-based over map-based storage
-// - Efficient iterator patterns
-// - State pruning for expired locks
-//
-// Gas Savings Target: 40-60% reduction through batching
+/// Gas Optimization Module for SUPLOCK
+/// Implements best practices for Move storage efficiency
+/// - Batch operations to reduce transaction overhead
+/// - Vector-based over map-based storage
+/// - Efficient iterator patterns
+/// - State pruning for expired locks
+/// 
+/// Gas Savings Target: 40-60% reduction through batching
 
 module suplock::gas_optimization {
     use std::signer;
@@ -15,8 +15,6 @@ module suplock::gas_optimization {
     const ERR_EMPTY_BATCH: u64 = 5001;
     const ERR_BATCH_TOO_LARGE: u64 = 5002;
     const ERR_INVALID_INDEX: u64 = 5003;
-    const ERR_BATCH_LENGTH_MISMATCH: u64 = 5004;
-    const ERR_UNAUTHORIZED: u64 = 5005;
 
     /// Max batch size (prevents memory issues)
     const MAX_BATCH_SIZE: u64 = 100;
@@ -99,7 +97,7 @@ module suplock::gas_optimization {
         let count = vector::length(&amounts);
         assert!(count > 0, ERR_EMPTY_BATCH);
         assert!(count <= MAX_BATCH_SIZE, ERR_BATCH_TOO_LARGE);
-        assert!(vector::length(&durations) == count, ERR_BATCH_LENGTH_MISMATCH);
+        assert!(vector::length(&durations) == count, 5004);
 
         let timestamps = vector::empty();
         let i = 0;
@@ -161,7 +159,7 @@ module suplock::gas_optimization {
         let count = vector::length(&users);
         assert!(count > 0, ERR_EMPTY_BATCH);
         assert!(count <= MAX_BATCH_SIZE, ERR_BATCH_TOO_LARGE);
-        assert!(vector::length(&amounts) == count, ERR_BATCH_LENGTH_MISMATCH);
+        assert!(vector::length(&amounts) == count, 5004);
 
         DividendBatchRequest { users, amounts }
     }
@@ -224,7 +222,7 @@ module suplock::gas_optimization {
         global_state_addr: address,
     ) {
         let user_addr = signer::address_of(account);
-        assert!(user_addr == batch.user_addr, ERR_UNAUTHORIZED);
+        assert!(user_addr == batch.user_addr, 5005);
 
         let count = vector::length(&batch.lock_ids);
         assert!(count > 0, ERR_EMPTY_BATCH);
@@ -263,8 +261,8 @@ module suplock::gas_optimization {
         let count = vector::length(&voter_addresses);
         assert!(count > 0, ERR_EMPTY_BATCH);
         assert!(count <= MAX_BATCH_SIZE, ERR_BATCH_TOO_LARGE);
-        assert!(vector::length(&ve_balances) == count, ERR_BATCH_LENGTH_MISMATCH);
-        assert!(vector::length(&vote_directions) == count, ERR_BATCH_LENGTH_MISMATCH);
+        assert!(vector::length(&ve_balances) == count, 5004);
+        assert!(vector::length(&vote_directions) == count, 5004);
 
         ProposalBatchVote {
             proposal_id,

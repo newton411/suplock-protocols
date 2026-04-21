@@ -1,5 +1,5 @@
-// veSUPRA Vote-Escrow Module for Supra L1
-// Implements soulbound veSUPRA NFTs for governance and yield boosting
+/// veSUPRA Vote-Escrow Module for Supra L1
+/// Implements soulbound veSUPRA NFTs for governance and yield boosting
 
 module suplock::vesupra {
     use std::signer;

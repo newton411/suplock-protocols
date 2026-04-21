@@ -1,5 +1,5 @@
-// Yield & Restaking Vaults Module for Supra L1
-// PT/YT splitting, dual restaking (EigenLayer + Symbiotic), LP Vacuum privacy
+/// Yield & Restaking Vaults Module for Supra L1
+/// PT/YT splitting, dual restaking (EigenLayer + Symbiotic), LP Vacuum privacy
 
 module suplock::yield_vaults {
     use std::signer;
@@ -10,7 +10,6 @@ module suplock::yield_vaults {
     const VAULT_FEE_BPS: u64 = 100; // 1% performance fee
     const REINVEST_THRESHOLD: u64 = 50_000_000; // Reinvest if accumulated > 50 USDC
     const USDC_DECIMALS: u64 = 6;
-    const ERR_TEST_ASSERTION: u64 = 4016;
 
     /// Vault Types
     const VAULT_TYPE_EIGENLAYER: u8 = 1;
@@ -553,7 +552,7 @@ module suplock::yield_vaults {
     #[test]
     fun test_vault_creation() {
         let amount = 1_000_000u64; // 1 USDC
-        assert!(amount >= MIN_DEPOSIT_USDC, ERR_TEST_ASSERTION);
+        assert!(amount >= MIN_DEPOSIT_USDC, 0);
     }
 
     #[test]
@@ -561,6 +560,6 @@ module suplock::yield_vaults {
         let principal = 1_000_000u64;
         let apy_bps = 1200; // 12% APY
         let yearly_yield = ((principal as u128) * (apy_bps as u128)) / 10000;
-        assert!(yearly_yield > 0, ERR_TEST_ASSERTION);
+        assert!(yearly_yield > 0, 0);
     }
 }

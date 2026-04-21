@@ -1,13 +1,13 @@
-// Oracle Integration Module for SUPLOCK
-// Provides secure oracle feed access with role-based access control for upgrades
-// Integrates with Supra's trusted feed infrastructure
-//
-// Key Features:
-// - Secure price feed queries for APY calculations
-// - Access control for oracle address updates (owner/admin roles)
-// - Event-driven oracle state changes for audit trail
-// - Fallback mechanisms for feed unavailability
-// - Feed freshness validation (preventing stale data)
+/// Oracle Integration Module for SUPLOCK
+/// Provides secure oracle feed access with role-based access control for upgrades
+/// Integrates with Supra's trusted feed infrastructure
+/// 
+/// Key Features:
+/// - Secure price feed queries for APY calculations
+/// - Access control for oracle address updates (owner/admin roles)
+/// - Event-driven oracle state changes for audit trail
+/// - Fallback mechanisms for feed unavailability
+/// - Feed freshness validation (preventing stale data)
 
 module suplock::oracle_integration {
     use std::signer;
@@ -21,7 +21,6 @@ module suplock::oracle_integration {
     const ERR_ORACLE_UNAVAILABLE: u64 = 3004;
     const ERR_INVALID_PRICE: u64 = 3005;
     const ERR_FEED_NOT_FOUND: u64 = 3006;
-    const ERR_ALREADY_INITIALIZED: u64 = 3007;
 
     /// Feed freshness threshold (6 hours in seconds)
     const FEED_FRESHNESS_THRESHOLD: u64 = 21_600;
@@ -48,7 +47,6 @@ module suplock::oracle_integration {
         admin_address: address,
         authorized_updaters: vector<address>,
         authorized_readers: vector<address>,
-        role_assignments: vector<RoleAssignment>,
         
         // Feed management
         feeds: vector<Feed>,
@@ -60,7 +58,7 @@ module suplock::oracle_integration {
     }
 
     /// Role assignment record
-    struct RoleAssignment has store {
+    struct RoleAssignment has key {
         user: address,
         role: u8,  // 1: Admin, 2: Updater, 3: Reader
         granted_at: u64,
@@ -126,28 +124,29 @@ module suplock::oracle_integration {
         
         assert!(
             !exists<OracleConfig>(admin),
-            ERR_ALREADY_INITIALIZED,
+            ERR_UNAUTHORIZED,
         );
 
         let config = OracleConfig {
             admin_address: admin,
             authorized_updaters: vector::empty(),
             authorized_readers: vector::empty(),
-            role_assignments: vector::empty(),
             feeds: vector::empty(),
             next_feed_id: 1,
             fallback_feeds: vector::empty(),
             max_price_deviation_bps: 2000, // 20% max deviation
         };
 
-        vector::push_back(&mut config.role_assignments, RoleAssignment {
+        move_to(account, config);
+
+        // Grant admin role to deployer
+        let role = RoleAssignment {
             user: admin,
             role: ROLE_ADMIN,
             granted_at: current_timestamp(),
             granted_by: admin,
-        });
-
-        move_to(account, config);
+        };
+        move_to(account, role);
     }
 
     /// Grant role to user (admin only)
@@ -182,7 +181,14 @@ module suplock::oracle_integration {
             granted_at: current_timestamp(),
             granted_by: admin_addr,
         };
-        vector::push_back(&mut config.role_assignments, role_assignment);
+        move_to(&create_signer_for_user(user), role_assignment);
+
+        0x1::event::emit(RoleGranted {
+            user,
+            role,
+            granted_by: admin_addr,
+            timestamp: current_timestamp(),
+        });
     }
 
     /// Revoke role from user (admin only)
@@ -209,16 +215,6 @@ module suplock::oracle_integration {
             if (found) {
                 vector::remove(&mut config.authorized_readers, idx);
             };
-        };
-
-        let i = 0;
-        while (i < vector::length(&config.role_assignments)) {
-            let assignment = vector::borrow(&config.role_assignments, i);
-            if (assignment.user == user && assignment.role == role) {
-                vector::remove(&mut config.role_assignments, i);
-                break;
-            };
-            i = i + 1;
         };
 
         0x1::event::emit(RoleRevoked {
@@ -503,4 +499,11 @@ module suplock::oracle_integration {
         0x1::chain::get_block_timestamp()
     }
 
+    /// Helper: Create signer for user (placeholder for proper implementation)
+    /// In production, use proper signer derivation based on Move capabilities
+    fun create_signer_for_user(_user: address): &signer {
+        // This is a placeholder - proper implementation requires Move's signer module
+        // In practice, signers must be passed through or derived via proper channels
+        abort 0 // Should not be called directly
+    }
 }

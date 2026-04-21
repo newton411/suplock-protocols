@@ -1,11 +1,11 @@
-// Move Prover Specifications for SUPLOCK Critical Paths
-// Formal verification of invariants for:
-// - Governance voting integrity
-// - Fee distribution correctness
-// - Lock state consistency
-// - veSUPRA supply accounting
-//
-// Usage: move prove --dependencies=framework [source files]
+/// Move Prover Specifications for SUPLOCK Critical Paths
+/// Formal verification of invariants for:
+/// - Governance voting integrity
+/// - Fee distribution correctness
+/// - Lock state consistency
+/// - veSUPRA supply accounting
+/// 
+/// Usage: move prove --dependencies=framework [source files]
 
 module suplock::specifications {
     use suplock::suplock_core;

@@ -1,12 +1,12 @@
-// Core SUPLOCK locking mechanism module for Supra L1
-// Manages SUPRA token locking with time-weighted yields and early unlock penalties
-//
-// REFACTORED: Uses resource isolation and event-driven aggregation to eliminate
-// write conflicts on global state. Key changes:
-// - User-owned LockPosition resources (no global vector)
-// - Event-based state tracking (LockCreated, PenaltyAccrued, etc.)
-// - Aggregator<u128> for total_locked_supra reads (deferred, non-blocking)
-// - Minimal global state (parameters only)
+https://ai-solutions-gules-five.vercel.app//// Core SUPLOCK locking mechanism module for Supra L1
+/// Manages $SUPRA token locking with time-weighted yields and early unlock penalties
+/// 
+/// REFACTORED: Uses resource isolation and event-driven aggregation to eliminate
+/// write conflicts on global state. Key changes:
+/// - User-owned LockPosition resources (no global vector)
+/// - Event-based state tracking (LockCreated, PenaltyAccrued, etc.)
+/// - Aggregator<u128> for total_locked_supra reads (deferred, non-blocking)
+/// - Minimal global state (parameters only)
 
 module suplock::suplock_core {
     use std::signer;
@@ -593,17 +593,17 @@ module suplock::suplock_core {
         // Test lock creation with valid parameters
         let amount = 1000;
         let duration = MIN_LOCK_DURATION_SECS;
-        assert!(amount > 0, ERR_INVALID_AMOUNT);
-        assert!(duration >= MIN_LOCK_DURATION_SECS, ERR_INVALID_LOCK_DURATION);
+        assert!(amount > 0, 0);
+        assert!(duration >= MIN_LOCK_DURATION_SECS, 0);
     }
 
     #[test]
     fun test_boost_calculation() {
         // Test boost multiplier
         let boost_3mo = calculate_boost_multiplier(7_776_000);
-        assert!(boost_3mo >= 10000 && boost_3mo <= 25000, ERR_INVALID_LOCK_DURATION);
+        assert!(boost_3mo >= 10000 && boost_3mo <= 25000, 0);
 
         let boost_4yr = calculate_boost_multiplier(126_144_000);
-        assert!(boost_4yr == 25000, ERR_INVALID_LOCK_DURATION); // Should be capped at 2.5x
+        assert!(boost_4yr == 25000, 0); // Should be capped at 2.5x
     }
 }
