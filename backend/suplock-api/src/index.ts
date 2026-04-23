@@ -9,10 +9,27 @@ dotenv.config();
 const app: Express = express();
 const PORT = process.env.PORT || 3001;
 
-// Middleware
+// Middleware - CORS configuration for frontend communication
+const allowedOrigins = [
+  'http://localhost:3000',            // Local development
+  'http://localhost:3001',            // Local development (same origin)
+  'http://127.0.0.1:3000',           // Localhost alternative
+  'https://suplock-dapp.vercel.app',  // Production frontend
+  'https://ai-solutions-gules-five.vercel.app',
+  process.env.FRONTEND_URL || '',     // Environment variable
+];
+
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://ai-solutions-gules-five.vercel.app'],
-  credentials: true
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 

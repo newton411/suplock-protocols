@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  # Frontend dApp (Next.js)
+  suplock-frontend:
+    build:
+      context: ./frontend/suplock-dapp
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_SUPRA_RPC_URL=https://rpc-testnet.supra.com
+      - NEXT_PUBLIC_SUPRA_CHAIN_ID=8
+      - NEXT_PUBLIC_API_URL=http://localhost:3001
+    depends_on:
+      - suplock-backend
+    volumes:
+      - ./frontend/suplock-dapp/src:/app/src
+    networks:
+      - suplock
+
+  # Backend API (Express.js)
+  suplock-backend:
+    build:
+      context: ./backend/suplock-api
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - SUPRA_RPC_URL=https://rpc-testnet.supra.com
+    volumes:
+      - ./backend/suplock-api/src:/app/src
+      - /app/node_modules
+    networks:
+      - suplock
+
+networks:
+  suplock:
+    driver: bridge

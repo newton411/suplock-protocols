@@ -108,7 +108,7 @@ export const DividendPanel: React.FC = () => {
               </div>
             </div>
             <div className="mt-3 text-xs text-gray-500">
-              Active while circulating supply > 10B SUPRA
+              Active while circulating supply &gt; 10B SUPRA
             </div>
           </div>
 
