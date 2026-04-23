@@ -6,9 +6,9 @@ import { LockUI } from '@/components/LockUI';
 import { TokenomicsCharts } from '@/components/TokenomicsCharts';
 import { GovernancePanel } from '@/components/GovernancePanel';
 import { VaultPanel } from '@/components/VaultPanel';
-import { DividendPanel } from '@/components/DividendPanel';
+import { OracleDashboard } from '@/components/OracleDashboard';
 
-type Tab = 'overview' | 'lock' | 'governance' | 'vaults' | 'dividends';
+type Tab = 'overview' | 'lock' | 'governance' | 'vaults' | 'dividends' | 'oracle';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>('overview');
@@ -49,7 +49,7 @@ const App: React.FC = () => {
               <h1 className="text-2xl font-bold text-gold">SUPLOCK</h1>
             </div>
             <div className="hidden md:flex gap-6">
-              {(['overview', 'lock', 'governance', 'vaults', 'dividends'] as Tab[]).map((tab) => (
+              {(['overview', 'lock', 'governance', 'vaults', 'dividends', 'oracle'] as Tab[]).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
@@ -187,6 +187,14 @@ const App: React.FC = () => {
               <div className="max-w-2xl mx-auto">
                 <DividendPanel />
               </div>
+            </div>
+          )}
+
+          {/* Oracle Tab */}
+          {activeTab === 'oracle' && (
+            <div className="animate-fadeIn">
+              <h2 className="text-4xl font-bold text-gold text-center mb-8">Supra Oracle Network</h2>
+              <OracleDashboard />
             </div>
           )}
         </main>
