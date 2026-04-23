@@ -1,4 +1,4 @@
-import { SunyaSdk } from 'supra-l1-sdk';
+import { SupraClient } from 'supra-l1-sdk';
 
 export interface OraclePrice {
   pair: string;
@@ -17,11 +17,11 @@ export interface OracleFeed {
 }
 
 class SupraOracleService {
-  private sdk: SunyaSdk;
+  private client: SupraClient;
   private isInitialized = false;
 
   constructor() {
-    this.sdk = new SunyaSdk();
+    this.client = new SupraClient();
   }
 
   async initialize() {
@@ -29,7 +29,7 @@ class SupraOracleService {
 
     try {
       // Initialize with Supra testnet RPC
-      await this.sdk.init({
+      await this.client.init({
         rpcUrl: 'https://rpc-testnet.supra.com',
         chainId: 7, // Supra testnet chain ID
       });
@@ -44,7 +44,7 @@ class SupraOracleService {
     await this.initialize();
 
     try {
-      const priceData = await this.sdk.getPrice(pairId);
+      const priceData = await this.client.getPrice(pairId);
 
       return {
         pair: this.getPairName(pairId),
@@ -77,7 +77,7 @@ class SupraOracleService {
 
     try {
       // Get all available price feeds
-      const feeds = await this.sdk.getAllPriceFeeds();
+      const feeds = await this.client.getAllPriceFeeds();
 
       return feeds.map(feed => ({
         feedId: feed.feedId,
