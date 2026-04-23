@@ -34,6 +34,9 @@ MOVE_WORKSPACE="/workspaces/suplock-protocols/smart-contracts/supra/suplock"
 CONTRACTS_DIR="/supra/move_workspace/suplock"
 SUPRA_HOME="$HOME/.supra"
 
+# Supra Docker commands based on official documentation
+SUPRA_DOCKER_CMD="docker run --rm -v $SUPRA_HOME:/root/.supra -v $MOVE_WORKSPACE:$CONTRACTS_DIR -w $CONTRACTS_DIR $SUPRA_IMAGE"
+
 # Helper functions
 log_info() {
     echo -e "${BLUE}[INFO]${NC} $1"
@@ -185,33 +188,35 @@ fetch_dependencies() {
 # Compile contracts
 compile_contracts() {
     log_info "Compiling Move contracts..."
-    
-    docker run --rm \
-        -v "$SUPRA_HOME:/root/.supra" \
-        -v "$MOVE_WORKSPACE:$CONTRACTS_DIR" \
-        "$SUPRA_IMAGE" \
-        supra move tool compile \
-        --package-dir "$CONTRACTS_DIR" 2>&1
-    
-    log_success "Contracts compiled successfully"
+
+    # Use the correct Supra Docker command for compilation
+    $SUPRA_DOCKER_CMD supra move build 2>&1
+
+    if [ $? -eq 0 ]; then
+        log_success "Contracts compiled successfully"
+    else
+        log_error "Contract compilation failed"
+        return 1
+    fi
 }
 
 # Deploy contracts
 deploy_contracts() {
     log_info "Deploying contracts to Supra testnet..."
     log_warning "Please ensure account is funded (use 'fund_account' if not)"
-    
-    docker run --rm \
-        -v "$SUPRA_HOME:/root/.supra" \
-        -v "$MOVE_WORKSPACE:$CONTRACTS_DIR" \
-        "$SUPRA_IMAGE" \
-        supra move tool publish \
-        --package-dir "$CONTRACTS_DIR" \
+
+    # Use the correct Supra Docker command for deployment
+    $SUPRA_DOCKER_CMD supra move publish \
         --profile "$PROFILE_NAME" \
-        --rpc-url "$TESTNET_RPC" 2>&1
-    
-    log_success "Contract deployment complete!"
-    log_info "View transaction on: https://testnet.suprascan.io"
+        --url "$TESTNET_RPC" 2>&1
+
+    if [ $? -eq 0 ]; then
+        log_success "Contract deployment complete!"
+        log_info "View transaction on: https://testnet.suprascan.io"
+    else
+        log_error "Contract deployment failed"
+        return 1
+    fi
 }
 
 # Initialize contract modules
