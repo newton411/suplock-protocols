@@ -15,36 +15,26 @@ const __dirname = path.dirname(__filename);
 
 class SupraDeployer {
   constructor() {
-    this.client = new SupraClient();
+    const rpcUrl = process.env.SUPRA_RPC_URL || 'https://rpc-testnet.supra.com';
+    this.client = new SupraClient(rpcUrl);
     this.contractsDir = path.join(__dirname, '..', 'smart-contracts', 'supra', 'suplock');
-    this.isInitialized = false;
+    this.isInitialized = true; // No init needed
   }
 
   async initialize() {
-    if (this.isInitialized) return;
-
-    try {
-      console.log('🔗 Initializing Supra client...');
-      await this.client.init({
-        rpcUrl: 'https://rpc-testnet.supra.com',
-        chainId: 7, // Supra testnet
-      });
-      this.isInitialized = true;
-      console.log('✅ Supra client initialized');
-    } catch (error) {
-      console.error('❌ Failed to initialize Supra client:', error);
-      throw error;
-    }
+    // Client is already initialized in constructor
+    console.log('🔗 Supra client ready');
   }
 
   async createAccount() {
     console.log('🔑 Creating deployment account...');
 
-    // For demo purposes, we'll use a test account
-    // In production, you'd load from environment variables or secure storage
-    const privateKey = process.env.SUPRA_PRIVATE_KEY || '0x' + '1'.repeat(64); // Demo key
-    const account = SupraAccount.fromPrivateKey(privateKey);
+    const privateKey = process.env.SUPRA_PRIVATE_KEY;
+    if (!privateKey) {
+      throw new Error('SUPRA_PRIVATE_KEY environment variable is required for deployment');
+    }
 
+    const account = SupraAccount.fromPrivateKey(privateKey);
     console.log('📝 Account address:', account.address().toString());
     return account;
   }

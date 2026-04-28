@@ -33,9 +33,20 @@ PROFILE_NAME="suplock-testnet"
 MOVE_WORKSPACE="/workspaces/suplock-protocols/smart-contracts/supra/suplock"
 CONTRACTS_DIR="/supra/move_workspace/suplock"
 SUPRA_HOME="$HOME/.supra"
+SUPRA_CLI="/supra/supra"
 
-# Supra Docker commands based on official documentation
-SUPRA_DOCKER_CMD="docker run --rm -v $SUPRA_HOME:/root/.supra -v $MOVE_WORKSPACE:$CONTRACTS_DIR -w $CONTRACTS_DIR $SUPRA_IMAGE"
+# Supra Docker command wrapper
+run_supra_docker() {
+    local supra_cmd="$*"
+
+    docker run --rm \
+        -v "$SUPRA_HOME:/root/.supra" \
+        -v "$MOVE_WORKSPACE:$CONTRACTS_DIR" \
+        -w "$CONTRACTS_DIR" \
+        --entrypoint /bin/bash \
+        "$SUPRA_IMAGE" \
+        -lc "$SUPRA_CLI $supra_cmd"
+}
 
 # Helper functions
 log_info() {
@@ -123,27 +134,18 @@ setup_supra_cli() {
 create_profile() {
     log_info "Creating deployment profile '$PROFILE_NAME'..."
     
-    # Check if Docker CLI is available
-    if docker run --rm "$SUPRA_IMAGE" supra --version &>/dev/null; then
-        docker run --rm \
-            -v "$SUPRA_HOME:/root/.supra" \
-            "$SUPRA_IMAGE" \
-            supra key generate \
-            --key-type ed25519 \
-            --profile "$PROFILE_NAME" 2>&1 | grep -v "^$" || true
+    if run_supra_docker "--version" &>/dev/null; then
+        run_supra_docker "key generate --key-type ed25519 --profile $PROFILE_NAME" 2>&1 | grep -v "^$" || true
         
         log_success "Profile '$PROFILE_NAME' created"
         
         # Display profile info
         log_info "Profile Details:"
-        docker run --rm \
-            -v "$SUPRA_HOME:/root/.supra" \
-            "$SUPRA_IMAGE" \
-            supra profile list 2>&1 || true
+        run_supra_docker "profile list" 2>&1 || true
     else
         log_error "Supra CLI not available via Docker"
         log_info "Please install Supra CLI manually and create profile:"
-        log_info "supra key generate --key-type ed25519 --profile $PROFILE_NAME"
+        log_info "$SUPRA_CLI key generate --key-type ed25519 --profile $PROFILE_NAME"
         return 1
     fi
 }
@@ -152,37 +154,20 @@ create_profile() {
 fund_account() {
     log_info "Funding account from testnet faucet..."
     
-    docker run --rm \
-        -v "$SUPRA_HOME:/root/.supra" \
-        "$SUPRA_IMAGE" \
-        supra move account fund-with-faucet \
-        --profile "$PROFILE_NAME" \
-        --rpc-url "$TESTNET_RPC" 2>&1 | grep -v "^$" || true
+    run_supra_docker "move account fund-with-faucet --profile $PROFILE_NAME --rpc-url $TESTNET_RPC" 2>&1 | grep -v "^$" || true
     
     log_success "Account funded"
     
     # Check balance
     log_info "Checking account balance..."
-    docker run --rm \
-        -v "$SUPRA_HOME:/root/.supra" \
-        "$SUPRA_IMAGE" \
-        supra client balance \
-        --profile "$PROFILE_NAME" \
-        --rpc-url "$TESTNET_RPC" 2>&1 | grep -v "^$" || true
+    run_supra_docker "client balance --profile $PROFILE_NAME --rpc-url $TESTNET_RPC" 2>&1 | grep -v "^$" || true
 }
 
 # Fetch dependencies
 fetch_dependencies() {
-    log_info "Fetching Move contract dependencies..."
-    
-    docker run --rm \
-        -v "$SUPRA_HOME:/root/.supra" \
-        -v "$MOVE_WORKSPACE:$CONTRACTS_DIR" \
-        "$SUPRA_IMAGE" \
-        supra move fetch-dependencies \
-        --package-dir "$CONTRACTS_DIR"
-    
-    log_success "Dependencies fetched"
+    log_info "Resolving Move contract dependencies..."
+    log_info "Supra Move resolves package dependencies during compilation."
+    log_success "Dependency resolution is handled by the Supra Move tool."
 }
 
 # Compile contracts
@@ -190,7 +175,7 @@ compile_contracts() {
     log_info "Compiling Move contracts..."
 
     # Use the correct Supra Docker command for compilation
-    $SUPRA_DOCKER_CMD supra move build 2>&1
+    run_supra_docker "move tool compile --package-dir $CONTRACTS_DIR --included-artifacts sparse --save-metadata" 2>&1
 
     if [ $? -eq 0 ]; then
         log_success "Contracts compiled successfully"
@@ -206,9 +191,7 @@ deploy_contracts() {
     log_warning "Please ensure account is funded (use 'fund_account' if not)"
 
     # Use the correct Supra Docker command for deployment
-    $SUPRA_DOCKER_CMD supra move publish \
-        --profile "$PROFILE_NAME" \
-        --url "$TESTNET_RPC" 2>&1
+    run_supra_docker "move tool publish --package-dir $CONTRACTS_DIR --profile $PROFILE_NAME --rpc-url $TESTNET_RPC --assume-yes" 2>&1
 
     if [ $? -eq 0 ]; then
         log_success "Contract deployment complete!"
@@ -235,16 +218,8 @@ initialize_modules() {
     
     for module in "${modules[@]}"; do
         log_info "Initializing $module..."
-        
-        docker run --rm \
-            -v "$SUPRA_HOME:/root/.supra" \
-            "$SUPRA_IMAGE" \
-            supra transaction call \
-            --profile "$PROFILE_NAME" \
-            --rpc-url "$TESTNET_RPC" \
-            --package-id "$PACKAGE_ID" \
-            --module "$module" \
-            --function "initialize" 2>&1 | grep -v "^$" || log_warning "Failed to initialize $module (may already be initialized)"
+
+        run_supra_docker "transaction call --profile $PROFILE_NAME --rpc-url $TESTNET_RPC --package-id $PACKAGE_ID --module $module --function initialize" 2>&1 | grep -v "^$" || log_warning "Failed to initialize $module (may already be initialized)"
     done
     
     log_success "Module initialization complete"

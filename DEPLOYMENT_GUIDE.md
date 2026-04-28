@@ -43,15 +43,15 @@ npm --version   # 9+
 ```bash
 cd smart-contracts/supra/suplock
 
-# Install dependencies
-supra move fetch-dependencies
+# Verify package manifest and external dependency access
+cat Move.toml
 ```
 
 ### 2. Compile Contracts
 
 ```bash
-# Compile Move code
-supra move compile --move-2
+# Compile Move code with the Supra CLI tool command
+supra move tool compile --package-dir . --included-artifacts sparse --save-metadata
 
 # Expected output: All modules compiled successfully
 ```
@@ -76,7 +76,7 @@ supra move test
 
 ```bash
 # Publish contract package
-supra move publish --network testnet
+supra move tool publish --package-dir . --profile suplock-testnet --rpc-url https://rpc-testnet.supra.com --assume-yes
 
 # Output:
 # Transaction confirmed!

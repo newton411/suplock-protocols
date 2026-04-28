@@ -104,13 +104,10 @@ cat Move.toml
 ```
 
 ### 4.2 Fetch Dependencies
-```bash
-docker run -it --rm \
-  -v ~/.supra:/root/.supra \
-  -v /workspaces/suplock-protocols/smart-contracts/supra/suplock:/supra/move_workspace/suplock \
-  supraoracles/supra-testnet-validator-node:latest \
-  supra move fetch-dependencies --package-dir /supra/move_workspace/suplock
-```
+The current Supra CLI version resolves Move package dependencies during compilation.
+Because `Move.toml` points at external git dependencies, you must have access to those repositories for compilation to succeed.
+
+> Note: `supra move fetch-dependencies` is no longer available in this image; use `supra move tool compile` instead.
 
 ---
 
