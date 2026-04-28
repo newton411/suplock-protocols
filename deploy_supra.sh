@@ -43,9 +43,9 @@ run_supra_docker() {
         -v "$SUPRA_HOME:/root/.supra" \
         -v "$MOVE_WORKSPACE:$CONTRACTS_DIR" \
         -w "$CONTRACTS_DIR" \
-        --entrypoint /bin/bash \
+        --entrypoint /bin/sh \
         "$SUPRA_IMAGE" \
-        -lc "$SUPRA_CLI $supra_cmd"
+        -c "$SUPRA_CLI $supra_cmd"
 }
 
 # Helper functions

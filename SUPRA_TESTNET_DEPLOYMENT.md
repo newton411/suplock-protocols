@@ -101,6 +101,13 @@ cat Move.toml
 # [dependencies]
 # Stdlib = { git = "https://github.com/SupraOracles/supra-move-stdlib.git", rev = "main" }
 # SupraFramework = { git = "https://github.com/SupraOracles/supra-framework.git", rev = "main" }
+#
+# [addresses]
+# suplock = "0x0"
+# std = "0x1"
+# supra = "0x2"
+
+# Note: The required Supra move dependency repositories may be unavailable; compilation will fail until those repos are restored or mirrored.
 ```
 
 ### 4.2 Fetch Dependencies
@@ -546,7 +553,7 @@ For deployment issues:
 1. Check logs: `docker logs supra_cli`
 2. Verify RPC connectivity: `curl https://rpc-testnet.supra.com`
 3. Reference: [COMPLETE_INFRASTRUCTURE_SUMMARY.md](COMPLETE_INFRASTRUCTURE_SUMMARY.md)
-4. Github Issues: https://github.com/Entropy-Foundation/supra-move-stdlib/issues
+4. Supra support: https://docs.supra.com/support
 
 ---
 

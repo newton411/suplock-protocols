@@ -1,4 +1,4 @@
-https://ai-solutions-gules-five.vercel.app//// Core SUPLOCK locking mechanism module for Supra L1
+//// Core SUPLOCK locking mechanism module for Supra L1
 /// Manages $SUPRA token locking with time-weighted yields and early unlock penalties
 /// 
 /// REFACTORED: Uses resource isolation and event-driven aggregation to eliminate

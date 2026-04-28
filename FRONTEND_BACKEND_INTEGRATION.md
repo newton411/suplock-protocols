@@ -613,7 +613,7 @@ curl http://localhost:3001/api/projections?months=24
 - **Supra Docs**: https://docs.supra.com
 - **Supra Testnet**: https://testnet.suprascan.io
 - **Move Language**: https://move-language.github.io/
-- **Github Issues**: https://github.com/Entropy-Foundation/supra-move-stdlib/issues
+- **Supra Support**: https://docs.supra.com/support
 
 ---
 

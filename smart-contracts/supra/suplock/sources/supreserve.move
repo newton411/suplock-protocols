@@ -551,7 +551,7 @@ module suplock::supreserve {
         let total_post = BUYBACK_AND_BURN_BPS_POST + DIVIDENDS_BPS_POST + VE_REWARDS_BPS_POST + REINVESTMENT_BPS_POST + TREASURY_BPS_POST;
         assert!(total_post == 10000, 0);
 
-        // Adaptive reinvestment – simulate multiple epochs and ensure halving behavior
+        // Adaptive reinvestment - simulate multiple epochs and ensure halving behavior
         let base = 1000; // pretend base pre-floor
         let epoch0 = reinvestment_bps_for_epoch(0, base);
         assert!(epoch0 == base, 1);

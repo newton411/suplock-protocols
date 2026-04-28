@@ -25,8 +25,8 @@ module suplock::restake_integration {
     const TARGET_SYMBIOTIC: u8 = 11;
 
     /// Sustainability Constants (aligned with supreserve halving model)
-    const RESTAKING_YIELD_CAPTURE_BPS: u64 = 500; // 5% of restaking yield → SUPReserve
-    const PARTNER_VALUE_SHARE_BPS: u64 = 500; // 5% of partner value → SUPLOCK
+    const RESTAKING_YIELD_CAPTURE_BPS: u64 = 500; // 5% of restaking yield to SUPReserve
+    const PARTNER_VALUE_SHARE_BPS: u64 = 500; // 5% of partner value to SUPLOCK
     const REINVESTMENT_FROM_RESTAKING_BPS: u64 = 3000; // 30% of earned yields reinvested
     const PERFORMANCE_FEE_BPS: u64 = 1000; // 10% fee on excess yield above 15% APY baseline
 
