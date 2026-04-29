@@ -29,11 +29,11 @@ NC='\033[0m'
 # Configuration
 SUPRA_IMAGE="supraoracles/supra-testnet-validator-node:v10.0.6"
 TESTNET_RPC="https://rpc-testnet.supra.com"
-PROFILE_NAME="suplock-testnet"
+PROFILE_NAME="suplock_testnet"
 MOVE_WORKSPACE="/workspaces/suplock-protocols/smart-contracts/supra/suplock"
 CONTRACTS_DIR="/supra/move_workspace/suplock"
 SUPRA_HOME="$HOME/.supra"
-SUPRA_CLI="/supra/supra"
+SUPRA_CLI=""
 FRAMEWORK_GIT="https://github.com/Entropy-Foundation/aptos-core.git"
 FRAMEWORK_REV="dev"
 FRAMEWORK_SUBDIR="aptos-move/framework/supra-framework"
@@ -46,9 +46,9 @@ run_supra_docker() {
         -v "$SUPRA_HOME:/root/.supra" \
         -v "$MOVE_WORKSPACE:$CONTRACTS_DIR" \
         -w "$CONTRACTS_DIR" \
-        --entrypoint /bin/sh \
+        --entrypoint /supra/supra \
         "$SUPRA_IMAGE" \
-        -c "$SUPRA_CLI $supra_cmd"
+        $supra_cmd
 }
 
 # Helper functions
@@ -136,34 +136,70 @@ setup_supra_cli() {
 # Create deployment profile
 create_profile() {
     log_info "Creating deployment profile '$PROFILE_NAME'..."
+    log_info ""
     
-    if run_supra_docker "--version" &>/dev/null; then
-        run_supra_docker "key generate --key-type ed25519 --profile $PROFILE_NAME" 2>&1 | grep -v "^$" || true
-        
-        log_success "Profile '$PROFILE_NAME' created"
-        
-        # Display profile info
+    # Check if profile already exists
+    if run_supra_docker "profile list" 2>&1 | grep -q "$PROFILE_NAME"; then
+        log_success "Profile '$PROFILE_NAME' already exists!"
         log_info "Profile Details:"
-        run_supra_docker "profile list" 2>&1 || true
-    else
-        log_error "Supra CLI not available via Docker"
-        log_info "Please install Supra CLI manually and create profile:"
-        log_info "$SUPRA_CLI key generate --key-type ed25519 --profile $PROFILE_NAME"
-        return 1
+        run_supra_docker "profile list" 2>&1 | grep -A 2 "$PROFILE_NAME" || true
+        return 0
     fi
+    
+    log_warning "Profile creation requires an interactive terminal (TTY)"
+    log_warning "Docker non-interactive mode cannot handle password prompts"
+    log_info ""
+    log_info "════════════════════════════════════════════════════════════"
+    log_info "MANUAL PROFILE SETUP REQUIRED"
+    log_info "════════════════════════════════════════════════════════════"
+    log_info ""
+    log_info "Please run this command in a NEW terminal window:"
+    log_info ""
+    log_info "docker run -it --rm -v ~/.supra:/root/.supra \\"
+    log_info "  --entrypoint /supra/supra \\"
+    log_info "  supraoracles/supra-testnet-validator-node:v10.0.6 \\"
+    log_info "  profile new $PROFILE_NAME --network testnet"
+    log_info ""
+    log_info "When prompted:"
+    log_info "  1. Enter a secure password and confirm it"
+    log_info "  2. Review the network configuration for testnet"
+    log_info "  3. Confirm the profile creation"
+    log_info ""
+    log_info "After profile creation, the CLI will show:"
+    log_info "  - Profile name: $PROFILE_NAME"
+    log_info "  - Public key: 0x..."
+    log_info "  - Account address: 0x..."
+    log_info ""
+    log_info "════════════════════════════════════════════════════════════"
+    log_info ""
+    log_info "Then return here and run: ./deploy_supra.sh fund"
+    log_info ""
+    
+    return 1  # Force manual creation
 }
 
 # Fund account from faucet
 fund_account() {
     log_info "Funding account from testnet faucet..."
     
-    run_supra_docker "move account fund-with-faucet --profile $PROFILE_NAME --rpc-url $TESTNET_RPC" 2>&1 | grep -v "^$" || true
+    # Try to fund from faucet
+    run_supra_docker "move account fund-with-faucet --profile $PROFILE_NAME" 2>&1 | grep -v "^$" || true
     
-    log_success "Account funded"
+    if [ $? -eq 0 ]; then
+        log_success "Account funded from faucet"
+    else
+        log_warning "Faucet funding failed - manual funding required"
+        log_info "Please fund your account manually:"
+        log_info "1. Get test SUPRA from Supra testnet faucet (if available)"
+        log_info "2. Or request test tokens from Supra team"
+        log_info "3. Or use an existing funded account"
+        log_info "Account address: (check with 'supra profile list')"
+        return 1
+    fi
     
     # Check balance
     log_info "Checking account balance..."
-    run_supra_docker "client balance --profile $PROFILE_NAME --rpc-url $TESTNET_RPC" 2>&1 | grep -v "^$" || true
+    run_supra_docker "move account balance --profile $PROFILE_NAME" 2>&1 | grep -v "^$" || true
 }
 
 # Fetch dependencies
@@ -322,6 +358,67 @@ full_deployment() {
     log_warning "2. Setup environment: ./deploy_supra.sh env"
     log_warning "3. Deploy frontend: ./deploy_supra.sh frontend"
     log_warning "4. Deploy backend: ./deploy_supra.sh backend"
+}
+
+# Show deployment status
+show_status() {
+    log_info "==================================================================="
+    log_info "  SUPLOCK Supra Testnet Deployment Status"
+    log_info "==================================================================="
+    log_info ""
+    
+    # Check prerequisites
+    log_info "Prerequisites:"
+    if command -v docker &> /dev/null; then
+        log_success "✓ Docker installed: $(docker --version | cut -d' ' -f3)"
+    else
+        log_error "✗ Docker not installed"
+    fi
+    
+    if command -v aptos &> /dev/null; then
+        log_success "✓ Aptos CLI installed"
+    else
+        log_warning "⚠ Aptos CLI not installed (optional)"
+    fi
+    
+    if command -v node &> /dev/null; then
+        log_success "✓ Node.js installed: $(node --version)"
+    else
+        log_error "✗ Node.js not installed"
+    fi
+    
+    log_info ""
+    log_info "Contracts:"
+    if [ -f "smart-contracts/supra/suplock/Move.toml" ]; then
+        log_success "✓ Move.toml found"
+    else
+        log_error "✗ Move.toml not found"
+    fi
+    
+    if [ -f "smart-contracts/supra/suplock/sources/suplock_core.move" ]; then
+        log_success "✓ Contract sources present"
+        local contract_count=$(ls smart-contracts/supra/suplock/sources/*.move 2>/dev/null | wc -l)
+        log_info "  → $contract_count Move modules"
+    else
+        log_error "✗ Contract sources not found"
+    fi
+    
+    log_info ""
+    log_info "Profile Status:"
+    if [ -d "$HOME/.supra" ] && [ "$(ls -A $HOME/.supra 2>/dev/null)" ]; then
+        log_success "✓ .supra directory exists"
+        local profile_count=$(ls $HOME/.supra/*.supakey 2>/dev/null | grep -v example | wc -l)
+        if [ "$profile_count" -gt 0 ]; then
+            log_success "✓ Profiles configured: $profile_count"
+        else
+            log_warning "⚠ No profiles created yet"
+        fi
+    else
+        log_warning "⚠ No .supra directory - profiles not yet created"
+    fi
+    
+    log_info ""
+    log_info "==================================================================="
 }
 
 # Main command handler
