@@ -34,6 +34,9 @@ MOVE_WORKSPACE="/workspaces/suplock-protocols/smart-contracts/supra/suplock"
 CONTRACTS_DIR="/supra/move_workspace/suplock"
 SUPRA_HOME="$HOME/.supra"
 SUPRA_CLI="/supra/supra"
+FRAMEWORK_GIT="https://github.com/Entropy-Foundation/aptos-core.git"
+FRAMEWORK_REV="dev"
+FRAMEWORK_SUBDIR="aptos-move/framework/supra-framework"
 
 # Supra Docker command wrapper
 run_supra_docker() {
@@ -172,10 +175,18 @@ fetch_dependencies() {
 
 # Compile contracts
 compile_contracts() {
-    log_info "Compiling Move contracts..."
+    log_info "Compiling Move contracts using Aptos CLI..."
 
-    # Use the correct Supra Docker command for compilation
-    run_supra_docker "move tool compile --package-dir $CONTRACTS_DIR --included-artifacts sparse --save-metadata" 2>&1
+    # Try using aptos CLI if available, otherwise fall back to Supra Docker
+    if command -v aptos &> /dev/null; then
+        log_info "Using Aptos CLI for compilation..."
+        cd "$MOVE_WORKSPACE"
+        aptos move compile --package-dir . --save-metadata
+    else
+        log_info "Aptos CLI not found, using Supra Docker..."
+        # Use the correct Supra Docker command for compilation
+        run_supra_docker "move tool compile --package-dir $CONTRACTS_DIR --included-artifacts sparse --save-metadata" 2>&1
+    fi
 
     if [ $? -eq 0 ]; then
         log_success "Contracts compiled successfully"

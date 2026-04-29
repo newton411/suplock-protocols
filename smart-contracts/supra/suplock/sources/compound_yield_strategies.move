@@ -199,11 +199,12 @@ module suplock::compound_yield_strategies {
         registry.total_capital_deployed = registry.total_capital_deployed + (amount_usdc as u128);
 
         let allocation_bps = (amount_usdc as u128) * 10000 / (registry.total_capital_deployed as u128);
+        let allocation_bps_u64 = allocation_bps as u64;
 
         0x1::event::emit(CapitalDeployed {
             strategy_id,
             amount_deployed: amount_usdc,
-            allocation_bps: allocation_bps as u64,
+            allocation_bps: allocation_bps_u64,
             timestamp: get_current_timestamp(),
         });
     }
@@ -407,10 +408,10 @@ module suplock::compound_yield_strategies {
         assert!(position_index < vector::length(&registry.compound_positions), 6008);
 
         let position = vector::borrow(&registry.compound_positions, position_index);
-        let mut total_apy = 0u64;
-        let mut i = 0;
-
+        
         // Sum APYs across all enrolled strategies
+        let total_apy = 0u64;
+        let i = 0;
         while (i < vector::length(&position.strategies_enrolled)) {
             let strategy_id = *vector::borrow(&position.strategies_enrolled, i);
             let strategy_idx = find_strategy_index(&registry.strategies, strategy_id);

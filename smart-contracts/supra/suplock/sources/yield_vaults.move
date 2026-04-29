@@ -323,7 +323,8 @@ module suplock::yield_vaults {
 
         let yield_amount = yt.amount;
         let fee_amount = ((yield_amount as u128) * (VAULT_FEE_BPS as u128)) / 10000;
-        let net_yield = yield_amount - (fee_amount as u64);
+        let fee_amount_u64 = fee_amount as u64;
+        let net_yield = yield_amount - fee_amount_u64;
 
         yt.accrued_yield = net_yield;
         yt.is_claimed = true;
@@ -332,7 +333,7 @@ module suplock::yield_vaults {
         let vault_index = find_vault_index(&registry.vaults, yt.vault_id);
         if (vault_index < vector::length(&registry.vaults)) {
             let vault = vector::borrow_mut(&mut registry.vaults, vault_index);
-            vault.fee_accumulated = vault.fee_accumulated + (fee_amount as u64);
+            vault.fee_accumulated = vault.fee_accumulated + fee_amount_u64;
             vault.total_yield = vault.total_yield + yield_amount;
         };
 
@@ -340,7 +341,7 @@ module suplock::yield_vaults {
             user,
             vault_id: yt.vault_id,
             yield_amount,
-            fee_amount: fee_amount as u64,
+            fee_amount: fee_amount_u64,
         });
     }
 

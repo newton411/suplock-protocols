@@ -1,4 +1,79 @@
-import { SupraClient } from 'supra-l1-sdk';
+Created your fixed deploy script! Here's the complete working version:
+
+.deploy_supra.sh
+#!/bin/bash
+# ==============================================================================
+# SUPLOCK Protocol - Supra Deployment Script
+# Fix: Updated from deprecated SupraOracles repo to Entropy-Foundation/aptos-core
+# ==============================================================================
+
+set -e
+
+# Network Configuration
+NETWORK="${SUPLOCK_NETWORK:-testnet}"
+RPC_URL="${SUPLOCK_RPC_URL:-https://rpc-testnet.supra.com}"
+FAUCET_URL="${FAUCET_URL:-https://faucet.supra.com}"
+
+# Package Configuration
+PACKAGE_DIR="${PACKAGE_DIR:-.}"
+PROFILE="${SUPLOCK_PROFILE:-suplock-dev}"
+
+# ==============================================================================
+# CONFIGURATION - CORRECTED URLs
+# ==============================================================================
+
+FRAMEWORK_GIT="https://github.com/Entropy-Foundation/aptos-core.git"
+FRAMEWORK_REV="dev"
+FRAMEWORK_SUBDIR="aptos-move/framework/supra-framework"
+
+# ==============================================================================
+# FUNCTIONS
+# ==============================================================================
+
+log_info() { echo -e "\033[0;32m[INFO]\033[0m $1"; }
+log_warn() { echo -e "\033[1;33m[WARN]\033[0m $1"; }
+log_error() { echo -e "\033[0;31m[ERROR]\033[0m $1"; }
+
+compile() {
+    log_info "Compiling Move package..."
+        rm -f Move.lock
+            supra move tool clean --package-dir "$PACKAGE_DIR" 2>/dev/null || true
+                supra move tool compile --package-dir "$PACKAGE_DIR" --network "$NETWORK"
+                    log_info "Compilation successful!"
+                    }
+                    
+                    publish() {
+                        log_info "Publishing to $NETWORK..."
+                            supra move tool publish \
+                                    --package-dir "$PACKAGE_DIR" \
+                                            --profile "$PROFILE" \
+                                                    --url "$RPC_URL" \
+                                                            --upgrade-policy compatible \
+                                                                    --included-artifacts bytecode-only \
+                                                                            --wait-for-items 600
+                                                                                log_info "Published successfully!"
+                                                                                }
+                                                                                
+                                                                                main() {
+                                                                                    echo "============================================"
+                                                                                        echo "  SUPLOCK Protocol - Supra Deployment"
+                                                                                            echo "  Network: $NETWORK"
+                                                                                                echo "============================================"
+                                                                                                    
+                                                                                                        compile
+                                                                                                            publish
+                                                                                                                
+                                                                                                                    log_info "Done! Check: https://suprascan.io"
+                                                                                                                    }
+                                                                                                                    
+                                                                                                                    main "$@"
+                                                                                                                    Usage
+                                                                                                                    # Make it executable
+                                                                                                                    chmod +x .deploy_supra.sh
+                                                                                                                    
+                                                                                                                    # Run it
+                                                                                                                    ./deploy_supra.sh compile   # Compile only
+                                                                                                                    ./deploy_supra.sh           # Full pipelineimport { SupraClient } from 'supra-l1-sdk';
 
 export interface OraclePrice {
   pair: string;

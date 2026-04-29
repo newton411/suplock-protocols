@@ -207,8 +207,8 @@ module suplock::supreserve {
     /// Compute reinvestment BPS based on halving cycles and epoch (number of distributions)
     public fun reinvestment_bps_for_epoch(epoch: u64, base_bps: u64): u64 {
         let halvings = epoch / REINVEST_HALVING_PERIOD_CYCLES;
-        let mut bps = base_bps;
-        let mut i = 0;
+        let bps = base_bps;
+        let i = 0;
         while (i < halvings) {
             if (bps <= MIN_REINVEST_BPS) { break; };
             bps = bps / 2;
@@ -274,14 +274,14 @@ module suplock::supreserve {
         // Partition total fees proportionally across the dynamic weights to ensure exact splitting regardless of adaptive changes
         let total_bps_defined = base_buyback_bps + base_dividends_bps + base_ve_bps + base_treasury_bps + reinvestment_bps;
 
-        let mut buyback_allocation = (((total_fees as u128) * (base_buyback_bps as u128)) / (total_bps_defined as u128)) as u64;
-        let mut dividends_allocation = (((total_fees as u128) * (base_dividends_bps as u128)) / (total_bps_defined as u128)) as u64;
-        let mut ve_rewards_allocation = (((total_fees as u128) * (base_ve_bps as u128)) / (total_bps_defined as u128)) as u64;
-        let mut reinvestment_allocation = (((total_fees as u128) * (reinvestment_bps as u128)) / (total_bps_defined as u128)) as u64;
-        let mut treasury_allocation = (((total_fees as u128) * (base_treasury_bps as u128)) / (total_bps_defined as u128)) as u64;
+        let buyback_allocation = (((total_fees as u128) * (base_buyback_bps as u128)) / (total_bps_defined as u128)) as u64;
+        let dividends_allocation = (((total_fees as u128) * (base_dividends_bps as u128)) / (total_bps_defined as u128)) as u64;
+        let ve_rewards_allocation = (((total_fees as u128) * (base_ve_bps as u128)) / (total_bps_defined as u128)) as u64;
+        let reinvestment_allocation = (((total_fees as u128) * (reinvestment_bps as u128)) / (total_bps_defined as u128)) as u64;
+        let treasury_allocation = (((total_fees as u128) * (base_treasury_bps as u128)) / (total_bps_defined as u128)) as u64;
 
         // Fix rounding remainder to ensure allocations sum to total_fees
-        let mut sum_alloc = buyback_allocation + dividends_allocation + ve_rewards_allocation + reinvestment_allocation + treasury_allocation;
+        let sum_alloc = buyback_allocation + dividends_allocation + ve_rewards_allocation + reinvestment_allocation + treasury_allocation;
         if (sum_alloc < total_fees) {
             let remainder = total_fees - sum_alloc;
             treasury_allocation = treasury_allocation + remainder;

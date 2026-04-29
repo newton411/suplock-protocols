@@ -343,7 +343,7 @@ module suplock::gas_optimization {
     // ============== BATCH CONFIGURATION ==============
 
     /// Set max batch size (admin only)
-    pub fun set_max_batch_size(
+    public fun set_max_batch_size(
         admin: &signer,
         new_max: u64,
         processor_addr: address,
@@ -361,7 +361,7 @@ module suplock::gas_optimization {
     }
 
     /// Get batch processor statistics
-    pub fun get_processor_stats(processor_addr: address): (u64, u64) acquires BatchProcessor {
+    public fun get_processor_stats(processor_addr: address): (u64, u64) acquires BatchProcessor {
         let processor = borrow_global<BatchProcessor>(processor_addr);
         (processor.max_batch_size, processor.total_batches_processed)
     }

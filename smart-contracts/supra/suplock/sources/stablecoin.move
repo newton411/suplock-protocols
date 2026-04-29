@@ -65,7 +65,7 @@ module suplock::stablecoin {
     /// Internal helper to burn a portion of fees into SUPRA
     fun _burn_to_supra(account: address, amount: u128) {
         // placeholder: burn stable and mint/burn SUPRA via protocol bridge
-        emit Burned { account, amount, timestamp: 0 }; // timestamp to fill in
+        event::emit(Burned { account, amount, timestamp: 0 }); // timestamp to fill in
     }
 
     /// Administrative function to adjust parameters

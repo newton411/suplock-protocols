@@ -244,7 +244,8 @@ module suplock::suplock_core {
         move_to(account, lock);
 
         // Update aggregator atomically (no global lock contention)
-        aggregator::add(&mut global_state.total_locked_aggregator, amount as u128);
+        let amount_u128 = amount as u128;
+        aggregator::add(&mut global_state.total_locked_aggregator, amount_u128);
 
         // Emit event for off-chain indexing and monitoring
         0x1::event::emit(LockCreated {

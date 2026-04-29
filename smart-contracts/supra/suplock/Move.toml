@@ -3,8 +3,8 @@ name = "suplock"
 version = "0.1.0"
 
 [dependencies]
-Stdlib = { git = "https://github.com/SupraOracles/supra-move-stdlib.git", rev = "main" }
-SupraFramework = { git = "https://github.com/SupraOracles/supra-framework.git", rev = "main" }
+AptosStdlib = { git = "https://github.com/aptos-labs/aptos-core.git", rev = "main", subdir = "aptos-move/framework/aptos-stdlib" }
+MoveStdlib = { git = "https://github.com/aptos-labs/aptos-core.git", rev = "main", subdir = "aptos-move/framework/move-stdlib" }
 
 [addresses]
 suplock = "0x0"

@@ -163,7 +163,7 @@ module suplock::dvrf_integration {
         assert!(count > 0, 4005);
 
         let index = random_in_range((count as u64), manager_addr);
-        *vector::borrow(&candidates, index as u64)
+        *vector::borrow(&candidates, index)
     }
 
     /// Shuffle array using DVRF (Fisher-Yates shuffle)
@@ -181,11 +181,11 @@ module suplock::dvrf_integration {
         let i = len - 1;
 
         while (i > 0) {
-            let j = random_in_range((i as u64) + 1, manager_addr);
+            let j = random_in_range(i + 1, manager_addr);
             
             // Swap elements at i and j
-            let temp = *vector::borrow(&shuffled, i as u64);
-            *vector::borrow_mut(&mut shuffled, i as u64) = *vector::borrow(&shuffled, j);
+            let temp = *vector::borrow(&shuffled, i);
+            *vector::borrow_mut(&mut shuffled, i) = *vector::borrow(&shuffled, j);
             *vector::borrow_mut(&mut shuffled, j) = temp;
 
             i = i - 1;
