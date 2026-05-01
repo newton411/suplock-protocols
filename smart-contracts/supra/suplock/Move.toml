@@ -2,11 +2,11 @@
 name = "suplock"
 version = "0.1.0"
 
-[dependencies]
-AptosStdlib = { git = "https://github.com/aptos-labs/aptos-core.git", rev = "main", subdir = "aptos-move/framework/aptos-stdlib" }
-MoveStdlib = { git = "https://github.com/aptos-labs/aptos-core.git", rev = "main", subdir = "aptos-move/framework/move-stdlib" }
-
 [addresses]
-suplock = "0x0"
-std = "0x1"
-supra = "0x2"
+suplock = "0x0"    # Your package deployment address
+std = "0x1"        # Move standard library
+supra = "0x2"      # Supra framework
+
+[dependencies]
+# REQUIRED: Core Supra framework (includes everything you need)
+SupraFramework = { git = "https://github.com/Entropy-Foundation/aptos-core.git", subdir = "aptos-move/framework/supra-framework", rev = "dev" }
