@@ -323,7 +323,7 @@ module suplock::yield_vaults {
 
         let yield_amount = yt.amount;
         let fee_amount = ((yield_amount as u128) * (VAULT_FEE_BPS as u128)) / 10000;
-        let fee_amount_u64 = fee_amount as u64;
+        let fee_amount_u64 = (fee_amount as u64);
         let net_yield = yield_amount - fee_amount_u64;
 
         yt.accrued_yield = net_yield;

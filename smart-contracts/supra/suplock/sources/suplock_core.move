@@ -244,7 +244,7 @@ module suplock::suplock_core {
         move_to(account, lock);
 
         // Update aggregator atomically (no global lock contention)
-        let amount_u128 = amount as u128;
+        let amount_u128 = (amount as u128);
         aggregator::add(&mut global_state.total_locked_aggregator, amount_u128);
 
         // Emit event for off-chain indexing and monitoring
@@ -366,7 +366,7 @@ module suplock::suplock_core {
 
         // Update aggregator atomically (subtract from total_locked_supra)
         let global_state_mut = borrow_global_mut<GlobalLockState>(global_state_addr);
-        aggregator::sub(&mut global_state_mut.total_locked_aggregator, lock.amount as u128);
+        aggregator::sub(&mut global_state_mut.total_locked_aggregator, (lock.amount as u128));
 
         0x1::event::emit(UnlockInitiated {
             user: user_addr,
@@ -471,7 +471,7 @@ module suplock::suplock_core {
 
         let global_state = borrow_global_mut<GlobalLockState>(global_state_addr);
         global_state.total_compounded_yield = global_state.total_compounded_yield + (total_to_lock as u128);
-        aggregator::add(&mut global_state.total_locked_aggregator, total_to_lock as u128);
+        aggregator::add(&mut global_state.total_locked_aggregator, (total_to_lock as u128));
 
         0x1::event::emit(YieldCompounded {
             user: user_addr,

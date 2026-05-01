@@ -274,11 +274,11 @@ module suplock::supreserve {
         // Partition total fees proportionally across the dynamic weights to ensure exact splitting regardless of adaptive changes
         let total_bps_defined = base_buyback_bps + base_dividends_bps + base_ve_bps + base_treasury_bps + reinvestment_bps;
 
-        let buyback_allocation = (((total_fees as u128) * (base_buyback_bps as u128)) / (total_bps_defined as u128)) as u64;
-        let dividends_allocation = (((total_fees as u128) * (base_dividends_bps as u128)) / (total_bps_defined as u128)) as u64;
-        let ve_rewards_allocation = (((total_fees as u128) * (base_ve_bps as u128)) / (total_bps_defined as u128)) as u64;
-        let reinvestment_allocation = (((total_fees as u128) * (reinvestment_bps as u128)) / (total_bps_defined as u128)) as u64;
-        let treasury_allocation = (((total_fees as u128) * (base_treasury_bps as u128)) / (total_bps_defined as u128)) as u64;
+        let buyback_allocation = ((((total_fees as u128) * (base_buyback_bps as u128)) / (total_bps_defined as u128)) as u64);
+        let dividends_allocation = ((((total_fees as u128) * (base_dividends_bps as u128)) / (total_bps_defined as u128)) as u64);
+        let ve_rewards_allocation = ((((total_fees as u128) * (base_ve_bps as u128)) / (total_bps_defined as u128)) as u64);
+        let reinvestment_allocation = ((((total_fees as u128) * (reinvestment_bps as u128)) / (total_bps_defined as u128)) as u64);
+        let treasury_allocation = ((((total_fees as u128) * (base_treasury_bps as u128)) / (total_bps_defined as u128)) as u64);
 
         // Fix rounding remainder to ensure allocations sum to total_fees
         let sum_alloc = buyback_allocation + dividends_allocation + ve_rewards_allocation + reinvestment_allocation + treasury_allocation;
@@ -290,7 +290,7 @@ module suplock::supreserve {
 
         // Execute buyback: convert USDC to SUPRA and burn
         if (buyback_allocation > 0 && supra_price_usdc > 0) {
-            let supra_to_burn = (((buyback_allocation as u128) * (10u128 << SUPRA_DECIMALS as u128)) / supra_price_usdc) as u64;
+            let supra_to_burn = ((((buyback_allocation as u128) * (10u128 << SUPRA_DECIMALS as u128)) / supra_price_usdc) as u64);
             reserve.total_burned_supra = reserve.total_burned_supra + supra_to_burn;
 
             0x1::event::emit(BurnExecuted {
@@ -376,7 +376,7 @@ module suplock::supreserve {
         let reserve = borrow_global<SUPReserve>(reserve_addr);
         
         // Calculate dividend amount: ve_balance * dividend_per_share
-        let dividend_amount = ((ve_balance * reserve.dividend_per_share_usdc) / (10u128 << USDC_DECIMALS as u128)) as u64;
+        let dividend_amount = (((ve_balance * reserve.dividend_per_share_usdc) / (10u128 << USDC_DECIMALS as u128)) as u64);
         
         assert!(dividend_amount > 0, 5005);
 
@@ -498,7 +498,7 @@ module suplock::supreserve {
         
         // Update sustainability score based on reinvestment ROI
         let reinvestment_roi = if (reserve.reinvestment_deployed > 0) {
-            ((reserve.total_reinvestment_yield as u128) * 10000 / (reserve.reinvestment_deployed as u128)) as u64
+            (((reserve.total_reinvestment_yield as u128) * 10000 / (reserve.reinvestment_deployed as u128)) as u64)
         } else {
             0
         };
@@ -572,11 +572,11 @@ module suplock::supreserve {
         // call the function path used in distribution
         let (buyback_bps, dividends_bps, ve_bps, reinvest_bps, treasury_bps) = (BUYBACK_AND_BURN_BPS_PRE, DIVIDENDS_BPS_PRE, VE_REWARDS_BPS_PRE, reinvestment_bps_for_epoch(epoch, REINVESTMENT_BPS_PRE), TREASURY_BPS_PRE);
         let total_bps_defined = buyback_bps + dividends_bps + ve_bps + treasury_bps + reinvest_bps;
-        let buyback = ((total_fees as u128) * (buyback_bps as u128) / (total_bps_defined as u128)) as u64;
-        let dividends = ((total_fees as u128) * (dividends_bps as u128) / (total_bps_defined as u128)) as u64;
-        let ve = ((total_fees as u128) * (ve_bps as u128) / (total_bps_defined as u128)) as u64;
-        let reinvest = ((total_fees as u128) * (reinvest_bps as u128) / (total_bps_defined as u128)) as u64;
-        let treasury = ((total_fees as u128) * (treasury_bps as u128) / (total_bps_defined as u128)) as u64;
+        let buyback = (((total_fees as u128) * (buyback_bps as u128) / (total_bps_defined as u128)) as u64);
+        let dividends = (((total_fees as u128) * (dividends_bps as u128) / (total_bps_defined as u128)) as u64);
+        let ve = (((total_fees as u128) * (ve_bps as u128) / (total_bps_defined as u128)) as u64);
+        let reinvest = (((total_fees as u128) * (reinvest_bps as u128) / (total_bps_defined as u128)) as u64);
+        let treasury = (((total_fees as u128) * (treasury_bps as u128) / (total_bps_defined as u128)) as u64);
         let sum = buyback + dividends + ve + reinvest + treasury;
         assert!(sum == total_fees, 5);
     }

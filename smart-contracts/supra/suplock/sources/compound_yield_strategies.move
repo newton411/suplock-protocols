@@ -199,7 +199,7 @@ module suplock::compound_yield_strategies {
         registry.total_capital_deployed = registry.total_capital_deployed + (amount_usdc as u128);
 
         let allocation_bps = (amount_usdc as u128) * 10000 / (registry.total_capital_deployed as u128);
-        let allocation_bps_u64 = allocation_bps as u64;
+        let allocation_bps_u64 = (allocation_bps as u64);
 
         0x1::event::emit(CapitalDeployed {
             strategy_id,
@@ -232,7 +232,7 @@ module suplock::compound_yield_strategies {
 
         // Calculate realized APY
         let realized_apy = if (strategy.capital_allocated > 0) {
-            ((yield_amount as u128) * 10000 / (strategy.capital_allocated as u128)) as u64
+            (((yield_amount as u128) * 10000 / (strategy.capital_allocated as u128)) as u64)
         } else {
             0
         };
@@ -423,7 +423,7 @@ module suplock::compound_yield_strategies {
         };
 
         // Calculate annual yield: principal * total_apy / 10000
-        ((principal as u128) * (total_apy as u128) / 10000u128) as u64
+        (((principal as u128) * (total_apy as u128) / 10000u128) as u64)
     }
 
     /// Get current timestamp

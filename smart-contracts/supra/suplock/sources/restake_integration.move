@@ -247,7 +247,7 @@ module suplock::restake_integration {
         };
         let performance_fee = if (excess_yield > 0) {
             let fee_calc = (excess_yield * (PERFORMANCE_FEE_BPS as u128)) / 10000;
-            fee_calc as u64
+            (fee_calc as u64)
         } else {
             0
         };
