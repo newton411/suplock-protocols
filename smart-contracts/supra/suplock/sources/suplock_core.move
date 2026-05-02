@@ -347,8 +347,8 @@ module suplock::suplock_core {
         
         let global_state = borrow_global<GlobalLockState>(global_state_addr);
         let penalty_numerator = (global_state.early_unlock_penalty_bps as u128) * (time_remaining as u128);
-        let penalty_bps = (penalty_numerator / (total_lock_time as u128)) as u64;
-        let penalty_amount = ((lock.amount as u128) * (penalty_bps as u128) / 10000) as u64;
+        let penalty_bps = ((penalty_numerator / (total_lock_time as u128)) as u64);
+        let penalty_amount = (((lock.amount as u128) * (penalty_bps as u128) / 10000) as u64);
         let net_amount = lock.amount - penalty_amount;
 
         lock.is_unlocked = true;
@@ -456,7 +456,7 @@ module suplock::suplock_core {
         
         // Calculate compounding bonus: 3% per compounding event
         let bonus_bps = COMPOUND_REWARD_BPS;
-        let bonus_amount = ((original_yield as u128) * (bonus_bps as u128) / 10000) as u64;
+        let bonus_amount = (((original_yield as u128) * (bonus_bps as u128) / 10000) as u64);
         let total_to_lock = original_yield + bonus_amount;
 
         // New principal = old principal + compounded yield

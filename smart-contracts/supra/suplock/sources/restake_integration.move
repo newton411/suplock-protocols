@@ -306,7 +306,7 @@ module suplock::restake_integration {
         let position = borrow_global_mut<RestakingPosition>(user);
         assert!(position.is_active, 6013);
 
-        let yield_to_reinvest = ((position.total_yield_earned as u128) * ((REINVESTMENT_FROM_RESTAKING_BPS as u128)) / 10000) as u64;
+        let yield_to_reinvest = ((((position.total_yield_earned as u128) * ((REINVESTMENT_FROM_RESTAKING_BPS as u128)) / 10000)) as u64);
         assert!(yield_to_reinvest > 0, 6014);
 
         position.principal_amount = position.principal_amount + yield_to_reinvest;
