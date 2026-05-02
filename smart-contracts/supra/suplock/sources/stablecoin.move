@@ -16,23 +16,24 @@ module suplock::stablecoin {
     use std::option::{Self, Option};
     use aptos_framework::coin;
     use aptos_framework::event;
-    use aptos_framework::address;
+    use suplock::suplock_core;
 
     /// Constants and parameters
     const STABLECOIN_DECIMALS: u8 = 6;
-    const INITIAL_MINT_SUPPLY: u128 = 1_000_000_000 * (10u128.pow(STABLECOIN_DECIMALS)); // 1B
+    const STABLECOIN_UNIT: u128 = 1_000_000u128;
+    const INITIAL_MINT_SUPPLY: u128 = 1_000_000_000 * STABLECOIN_UNIT; // 1B
     const PEG_THRESHOLD_BPS: u64 = 50; // 0.5% drift triggers action
     const BURN_RATE_BPS: u64 = 1000; // 10% of fees automatically burned
 
     /// Events used for off-chain indexers and analytics
     #[event]
-    struct PegDeviation {
+    struct PegDeviation has store, drop {
         percentage_bps: u64,
         timestamp: u64,
     }
 
     #[event]
-    struct Burned {
+    struct Burned has store, drop {
         account: address,
         amount: u128,
         timestamp: u64,
@@ -63,7 +64,7 @@ module suplock::stablecoin {
     }
 
     /// Internal helper to burn a portion of fees into SUPRA
-    fun _burn_to_supra(account: address, amount: u128) {
+    fun burn_to_supra(account: address, amount: u128) {
         // placeholder: burn stable and mint/burn SUPRA via protocol bridge
         event::emit(Burned { account, amount, timestamp: 0 }); // timestamp to fill in
     }
@@ -77,8 +78,4 @@ module suplock::stablecoin {
     public fun lock_cross_chain(admin: &signer, dest_chain: u64, amount: u128) {
         // placeholder for invoking HyperNova router
     }
-
-    /// Compatibility/helper for existing SUPLOCK modules
-    // uses or exposes types/functions from suplock_core
-    use 0x1::suplock_core;
 }

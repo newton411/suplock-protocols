@@ -3,9 +3,10 @@ name = "suplock"
 version = "0.1.0"
 
 [addresses]
-suplock = "0x0"    # Your package deployment address
-std = "0x1"        # Move standard library
-supra = "0x2"      # Supra framework
+suplock = "0x0"        # Your package deployment address
+std = "0x1"            # Move standard library
+aptos_framework = "0x1" # Aptos framework alias for standard library modules
+supra = "0x2"          # Supra framework
 
 [dependencies]
 # REQUIRED: Core Supra framework (includes everything you need)

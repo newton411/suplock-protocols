@@ -75,7 +75,7 @@ module suplock::vesupra {
 
     /// Events
     #[event]
-    struct VeSupraMinted has drop {
+    struct VeSupraMinted has store, drop {
         user: address,
         token_id: u64,
         supra_amount: u64,
@@ -84,14 +84,14 @@ module suplock::vesupra {
     }
 
     #[event]
-    struct VeSupraBurned has drop {
+    struct VeSupraBurned has store, drop {
         user: address,
         token_id: u64,
         supra_amount: u64,
     }
 
     #[event]
-    struct ProposalCreated has drop {
+    struct ProposalCreated has store, drop {
         proposal_id: u64,
         proposer: address,
         title: String,
@@ -99,7 +99,7 @@ module suplock::vesupra {
     }
 
     #[event]
-    struct VoteCasted has drop {
+    struct VoteCasted has store, drop {
         proposal_id: u64,
         voter: address,
         ve_balance: u128,
@@ -107,7 +107,7 @@ module suplock::vesupra {
     }
 
     #[event]
-    struct ProposalExecuted has drop {
+    struct ProposalExecuted has store, drop {
         proposal_id: u64,
         timestamp: u64,
     }
@@ -411,7 +411,7 @@ module suplock::vesupra {
 
     /// Get current timestamp
     fun get_current_timestamp(): u64 {
-        0x1::chain::get_block_timestamp()
+        0x1::timestamp::now_seconds()
     }
 
     /// View: Get user's veSUPRA balance

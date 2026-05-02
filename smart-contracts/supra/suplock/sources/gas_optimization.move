@@ -15,6 +15,7 @@ module suplock::gas_optimization {
     const ERR_EMPTY_BATCH: u64 = 5001;
     const ERR_BATCH_TOO_LARGE: u64 = 5002;
     const ERR_INVALID_INDEX: u64 = 5003;
+    const ERR_UNAUTHORIZED: u64 = 5004;
 
     /// Max batch size (prevents memory issues)
     const MAX_BATCH_SIZE: u64 = 100;
@@ -57,7 +58,7 @@ module suplock::gas_optimization {
 
     /// Events
     #[event]
-    struct BatchProcessingStarted has drop {
+    struct BatchProcessingStarted has store, drop {
         batch_id: u64,
         operation_type: u8, // 1: locks, 2: dividends, 3: yields, 4: votes
         item_count: u64,
@@ -65,7 +66,7 @@ module suplock::gas_optimization {
     }
 
     #[event]
-    struct BatchProcessingCompleted has drop {
+    struct BatchProcessingCompleted has store, drop {
         batch_id: u64,
         operation_type: u8,
         items_processed: u64,
@@ -409,7 +410,7 @@ module suplock::gas_optimization {
 
     /// Get current timestamp
     fun current_timestamp(): u64 {
-        0x1::chain::get_block_timestamp()
+        0x1::timestamp::now_seconds()
     }
 
     #[test]

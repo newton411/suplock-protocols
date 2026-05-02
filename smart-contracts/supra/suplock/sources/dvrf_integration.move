@@ -40,7 +40,7 @@ module suplock::dvrf_integration {
 
     /// Randomness consumption event (for audit)
     #[event]
-    struct RandomnessConsumed has drop {
+    struct RandomnessConsumed has store, drop {
         consumer: address,
         use_case: String,
         seed_age: u64,
@@ -48,7 +48,7 @@ module suplock::dvrf_integration {
     }
 
     #[event]
-    struct RandomnessSeedUpdated has drop {
+    struct RandomnessSeedUpdated has store, drop {
         seed_count: u64,
         previous_timestamp: u64,
         new_timestamp: u64,
@@ -317,7 +317,7 @@ module suplock::dvrf_integration {
 
     /// Get current block timestamp
     fun current_timestamp(): u64 {
-        0x1::chain::get_block_timestamp()
+        0x1::timestamp::now_seconds()
     }
 
     #[test]

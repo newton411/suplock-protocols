@@ -75,7 +75,7 @@ module suplock::restake_integration {
 
     /// Events
     #[event]
-    struct RestakingPositionCreated has drop {
+    struct RestakingPositionCreated has store, drop {
         position_id: u64,
         user: address,
         lock_id: u64,
@@ -87,7 +87,7 @@ module suplock::restake_integration {
     }
 
     #[event]
-    struct RestakingYieldAcknowledged has drop {
+    struct RestakingYieldAcknowledged has store, drop {
         position_id: u64,
         user: address,
         yield_amount: u64,
@@ -97,7 +97,7 @@ module suplock::restake_integration {
     }
 
     #[event]
-    struct PartnerValueDistributed has drop {
+    struct PartnerValueDistributed has store, drop {
         position_id: u64,
         user: address,
         partner_protocol: u8,
@@ -107,7 +107,7 @@ module suplock::restake_integration {
     }
 
     #[event]
-    struct ReinvestmentExecuted has drop {
+    struct ReinvestmentExecuted has store, drop {
         position_id: u64,
         user: address,
         reinvested_amount: u64,
@@ -117,7 +117,7 @@ module suplock::restake_integration {
     }
 
     #[event]
-    struct RestakingSustainabilityUpdated has drop {
+    struct RestakingSustainabilityUpdated has store, drop {
         total_restaked: u64,
         weighted_apy: u64,
         sustainability_score: u128,
@@ -289,7 +289,7 @@ module suplock::restake_integration {
             user: user_addr,
             partner_protocol,
             value_amount,
-            percentage_of_partner_value: PARTNER_VALUE_SHARE_BPS,
+            percentage_of_partner_yield: PARTNER_VALUE_SHARE_BPS,
             timestamp: get_current_timestamp(),
         });
     }
@@ -400,7 +400,7 @@ module suplock::restake_integration {
 
     /// Get current timestamp
     fun get_current_timestamp(): u64 {
-        0x1::chain::get_block_timestamp()
+        0x1::timestamp::now_seconds()
     }
 
     #[test]

@@ -4,6 +4,7 @@
 module suplock::supreserve {
     use std::signer;
     use std::vector;
+    use std::string::String;
 
     const USDC_DECIMALS: u64 = 6;
     const SUPRA_DECIMALS: u64 = 8;
@@ -98,14 +99,14 @@ module suplock::supreserve {
 
     /// Events
     #[event]
-    struct FeesAccumulated has drop {
+    struct FeesAccumulated has store, drop {
         source: address,
         amount_usdc: u64,
         timestamp: u64,
     }
 
     #[event]
-    struct DistributionExecuted has drop {
+    struct DistributionExecuted has store, drop {
         distribution_id: u64,
         total_fees: u64,
         buyback_amount: u64,
@@ -117,14 +118,14 @@ module suplock::supreserve {
     }
 
     #[event]
-    struct BurnExecuted has drop {
+    struct BurnExecuted has store, drop {
         amount_supra: u64,
         burned_to_dead: u64,
         timestamp: u64,
     }
 
     #[event]
-    struct DividendsClaimed has drop {
+    struct DividendsClaimed has store, drop {
         user: address,
         amount_usdc: u64,
         ve_balance: u128,
@@ -132,14 +133,14 @@ module suplock::supreserve {
     }
 
     #[event]
-    struct FloorCheckExecuted has drop {
+    struct FloorCheckExecuted has store, drop {
         circulating_supply: u64,
         is_post_floor: bool,
         timestamp: u64,
     }
 
     #[event]
-    struct ReinvestmentDeployed has drop {
+    struct ReinvestmentDeployed has store, drop {
         amount_usdc: u64,
         strategy: String, // "vault_incentives", "lp_seeding", "partner_liquidity"
         expected_apy: u64, // Expected return in basis points
@@ -147,7 +148,7 @@ module suplock::supreserve {
     }
 
     #[event]
-    struct SustainabilityMetricsUpdated has drop {
+    struct SustainabilityMetricsUpdated has store, drop {
         sustainability_score: u128, // 0-10000: how sustainable is the protocol long-term?
         reinvestment_yield_rate: u64, // Annual return from reinvested capital
         protocol_health: String, // "Excellent", "Good", "Moderate", "At Risk"
@@ -445,7 +446,7 @@ module suplock::supreserve {
 
     /// Get current timestamp
     fun get_current_timestamp(): u64 {
-        0x1::chain::get_block_timestamp()
+        0x1::timestamp::now_seconds()
     }
 
     /// SUSTAINABILITY FUNCTIONS

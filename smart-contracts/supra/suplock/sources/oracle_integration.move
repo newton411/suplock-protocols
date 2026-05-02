@@ -67,7 +67,7 @@ module suplock::oracle_integration {
 
     /// Events for audit trail
     #[event]
-    struct FeedAdded has drop {
+    struct FeedAdded has store, drop {
         feed_id: u64,
         feed_name: String,
         oracle_address: address,
@@ -75,7 +75,7 @@ module suplock::oracle_integration {
     }
 
     #[event]
-    struct FeedUpdated has drop {
+    struct FeedUpdated has store, drop {
         feed_id: u64,
         old_price: u128,
         new_price: u128,
@@ -85,7 +85,7 @@ module suplock::oracle_integration {
     }
 
     #[event]
-    struct OracleAddressChanged has drop {
+    struct OracleAddressChanged has store, drop {
         feed_id: u64,
         old_address: address,
         new_address: address,
@@ -94,7 +94,7 @@ module suplock::oracle_integration {
     }
 
     #[event]
-    struct RoleGranted has drop {
+    struct RoleGranted has store, drop {
         user: address,
         role: u8,
         granted_by: address,
@@ -102,7 +102,7 @@ module suplock::oracle_integration {
     }
 
     #[event]
-    struct RoleRevoked has drop {
+    struct RoleRevoked has store, drop {
         user: address,
         role: u8,
         revoked_by: address,
@@ -110,7 +110,7 @@ module suplock::oracle_integration {
     }
 
     #[event]
-    struct FeedAccessLog has drop {
+    struct FeedAccessLog has store, drop {
         reader: address,
         feed_id: u64,
         price_returned: u128,
@@ -181,7 +181,7 @@ module suplock::oracle_integration {
             granted_at: current_timestamp(),
             granted_by: admin_addr,
         };
-        move_to(&create_signer_for_user(user), role_assignment);
+        move_to(create_signer_for_user(user), role_assignment);
 
         0x1::event::emit(RoleGranted {
             user,
@@ -246,7 +246,7 @@ module suplock::oracle_integration {
 
         let feed = Feed {
             feed_id,
-            feed_name: feed_name.clone(),
+            feed_name,
             oracle_address,
             price: initial_price,
             decimals,
@@ -330,7 +330,7 @@ module suplock::oracle_integration {
             let feed = vector::borrow_mut(&mut config.feeds, i);
             if (feed.feed_id == feed_id) {
                 // Validate price deviation
-                let max_deviation = (feed.price * config.max_price_deviation_bps) / 10000;
+                let max_deviation = (feed.price * (config.max_price_deviation_bps as u128)) / 10000;
                 let diff = if (new_price > feed.price) {
                     new_price - feed.price
                 } else {
@@ -386,7 +386,7 @@ module suplock::oracle_integration {
                     timestamp: current_timestamp(),
                 });
 
-                return (feed.price, feed.decimals);
+                return (feed.price, feed.decimals as u64);
             };
             i = i + 1;
         };
@@ -409,7 +409,7 @@ module suplock::oracle_integration {
             if (feed.feed_id == feed_id && feed.is_active) {
                 let age = current_timestamp() - feed.last_update_time;
                 if (age <= FEED_FRESHNESS_THRESHOLD) {
-                    return (feed.price, feed.decimals, false); // false = primary feed used
+                    return (feed.price, feed.decimals as u64, false); // false = primary feed used
                 };
                 break;
             };
@@ -421,7 +421,7 @@ module suplock::oracle_integration {
         while (i < vector::length(&config.fallback_feeds)) {
             let feed = vector::borrow(&config.fallback_feeds, i);
             if (feed.feed_id == feed_id && feed.is_active) {
-                return (feed.price, feed.decimals, true); // true = fallback used
+                return (feed.price, feed.decimals as u64, true); // true = fallback used
             };
             i = i + 1;
         };
@@ -496,7 +496,7 @@ module suplock::oracle_integration {
 
     /// Helper: Get current timestamp
     fun current_timestamp(): u64 {
-        0x1::chain::get_block_timestamp()
+        0x1::timestamp::now_seconds()
     }
 
     /// Helper: Create signer for user (placeholder for proper implementation)

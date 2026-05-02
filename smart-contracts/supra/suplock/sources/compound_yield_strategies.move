@@ -77,7 +77,7 @@ module suplock::compound_yield_strategies {
 
     /// Events
     #[event]
-    struct StrategyCreated has drop {
+    struct StrategyCreated has store, drop {
         strategy_id: u64,
         name: String,
         strategy_type: u8,
@@ -86,7 +86,7 @@ module suplock::compound_yield_strategies {
     }
 
     #[event]
-    struct CapitalDeployed has drop {
+    struct CapitalDeployed has store, drop {
         strategy_id: u64,
         amount_deployed: u64,
         allocation_bps: u64,
@@ -94,7 +94,7 @@ module suplock::compound_yield_strategies {
     }
 
     #[event]
-    struct YieldGenerated has drop {
+    struct YieldGenerated has store, drop {
         strategy_id: u64,
         yield_amount: u64,
         realized_apy_bps: u64,
@@ -102,7 +102,7 @@ module suplock::compound_yield_strategies {
     }
 
     #[event]
-    struct CompoundPositionCreated has drop {
+    struct CompoundPositionCreated has store, drop {
         position_id: u64,
         user: address,
         principal: u64,
@@ -112,7 +112,7 @@ module suplock::compound_yield_strategies {
     }
 
     #[event]
-    struct AutoCompoundExecuted has drop {
+    struct AutoCompoundExecuted has store, drop {
         position_id: u64,
         user: address,
         principal_before: u64,
@@ -428,7 +428,7 @@ module suplock::compound_yield_strategies {
 
     /// Get current timestamp
     fun get_current_timestamp(): u64 {
-        0x1::chain::get_block_timestamp()
+        0x1::timestamp::now_seconds()
     }
 
     const ERR_INVALID_AMOUNT: u64 = 6011;

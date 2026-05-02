@@ -11,9 +11,8 @@
 module suplock::suplock_core {
     use std::signer;
     use std::vector;
+    use std::string::String;
     use std::option::{Self, Option};
-    use aptos_framework::aggregator;
-    use aptos_framework::aggregator::Aggregator;
 
     /// SUPLOCK Core Configuration and Constants
     const MIN_LOCK_DURATION_SECS: u64 = 7_776_000; // 3 months in seconds
@@ -42,7 +41,7 @@ module suplock::suplock_core {
 
     /// Enhanced Events with additional metadata
     #[event]
-    struct LockCreated has drop {
+    struct LockCreated has store, drop {
         user: address,
         lock_id: u64,
         amount: u64,
@@ -53,7 +52,7 @@ module suplock::suplock_core {
     }
 
     #[event]
-    struct PenaltyAccrued has drop {
+    struct PenaltyAccrued has store, drop {
         user: address,
         lock_id: u64,
         amount: u64,
@@ -63,7 +62,7 @@ module suplock::suplock_core {
     }
 
     #[event]
-    struct UnlockInitiated has drop {
+    struct UnlockInitiated has store, drop {
         user: address,
         lock_id: u64,
         amount: u64,
@@ -73,7 +72,7 @@ module suplock::suplock_core {
     }
 
     #[event]
-    struct YieldClaimed has drop {
+    struct YieldClaimed has store, drop {
         user: address,
         lock_id: u64,
         yield_amount: u64,
@@ -83,7 +82,7 @@ module suplock::suplock_core {
 
     /// SUSTAINABILITY EVENTS
     #[event]
-    struct YieldCompounded has drop {
+    struct YieldCompounded has store, drop {
         user: address,
         lock_id: u64,
         principal_at_lock: u64,
@@ -95,7 +94,7 @@ module suplock::suplock_core {
     }
 
     #[event]
-    struct RestakingYieldAccrued has drop {
+    struct RestakingYieldAccrued has store, drop {
         user: address,
         lock_id: u64,
         protocol: String, // "EigenLayer" or "Symbiotic"
@@ -105,7 +104,7 @@ module suplock::suplock_core {
     }
 
     #[event]
-    struct PartnerValueShareDistributed has drop {
+    struct PartnerValueShareDistributed has store, drop {
         user: address,
         lock_id: u64,
         partner_protocol: String,
@@ -141,8 +140,8 @@ module suplock::suplock_core {
         base_apr_bps: u64,
         early_unlock_penalty_bps: u64,
         
-        // Aggregator for total_locked_supra (atomic increments, no global lock)
-        total_locked_aggregator: Aggregator<u128>,
+        // Total locked SUPRA (atomic increments handled in code)
+        total_locked: u128,
         
         // ID counter for lock generation
         next_lock_id: u64,
@@ -165,15 +164,15 @@ module suplock::suplock_core {
             ERR_ALREADY_INITIALIZED,
         );
 
-        // Create aggregator for total locked supply (supports atomic increments)
-        let total_locked_aggregator = aggregator::new(MAX_SUPRA_SUPPLY);
+        // Initialize total locked supply tracker
+        let total_locked = 0;
 
         let global_state = GlobalLockState {
             min_lock_duration_secs: MIN_LOCK_DURATION_SECS,
             max_lock_duration_secs: MAX_LOCK_DURATION_SECS,
             base_apr_bps: BASE_APR_BPS,
             early_unlock_penalty_bps: EARLY_UNLOCK_PENALTY_BPS,
-            total_locked_aggregator,
+            total_locked,
             next_lock_id: 1,
             /// Initialize sustainability trackers
             total_compounded_yield: 0,
@@ -245,7 +244,7 @@ module suplock::suplock_core {
 
         // Update aggregator atomically (no global lock contention)
         let amount_u128 = (amount as u128);
-        aggregator::add(&mut global_state.total_locked_aggregator, amount_u128);
+        global_state.total_locked = global_state.total_locked + amount_u128;
 
         // Emit event for off-chain indexing and monitoring
         0x1::event::emit(LockCreated {
@@ -366,7 +365,7 @@ module suplock::suplock_core {
 
         // Update aggregator atomically (subtract from total_locked_supra)
         let global_state_mut = borrow_global_mut<GlobalLockState>(global_state_addr);
-        aggregator::sub(&mut global_state_mut.total_locked_aggregator, (lock.amount as u128));
+        global_state_mut.total_locked = global_state_mut.total_locked - (lock.amount as u128);
 
         0x1::event::emit(UnlockInitiated {
             user: user_addr,
@@ -399,7 +398,7 @@ module suplock::suplock_core {
     /// View function: Get total locked supply via aggregator (deferred read, no contention)
     public fun get_total_locked_supra(global_addr: address): u128 acquires GlobalLockState {
         let state = borrow_global<GlobalLockState>(global_addr);
-        aggregator::read(&state.total_locked_aggregator)
+        state.total_locked
     }
 
     /// View function: Get protocol parameters
@@ -471,7 +470,7 @@ module suplock::suplock_core {
 
         let global_state = borrow_global_mut<GlobalLockState>(global_state_addr);
         global_state.total_compounded_yield = global_state.total_compounded_yield + (total_to_lock as u128);
-        aggregator::add(&mut global_state.total_locked_aggregator, (total_to_lock as u128));
+        global_state.total_locked = global_state.total_locked + (total_to_lock as u128);
 
         0x1::event::emit(YieldCompounded {
             user: user_addr,
@@ -582,7 +581,7 @@ module suplock::suplock_core {
     fun get_current_timestamp(): u64 {
         // In production, use Supra Oracle or system timestamp
         // For testing, return a mock timestamp
-        0x1::chain::get_block_timestamp()
+        0x1::timestamp::now_seconds()
     }
 
     #[test]

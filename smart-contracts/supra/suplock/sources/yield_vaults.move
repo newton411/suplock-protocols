@@ -100,7 +100,7 @@ module suplock::yield_vaults {
 
     /// Events
     #[event]
-    struct VaultCreated has drop {
+    struct VaultCreated has store, drop {
         vault_id: u64,
         name: String,
         vault_type: u8,
@@ -109,7 +109,7 @@ module suplock::yield_vaults {
     }
 
     #[event]
-    struct DepositProcessed has drop {
+    struct DepositProcessed has store, drop {
         user: address,
         vault_id: u64,
         amount_usdc: u64,
@@ -118,7 +118,7 @@ module suplock::yield_vaults {
     }
 
     #[event]
-    struct YieldClaimed has drop {
+    struct YieldClaimed has store, drop {
         user: address,
         vault_id: u64,
         yield_amount: u64,
@@ -126,7 +126,7 @@ module suplock::yield_vaults {
     }
 
     #[event]
-    struct RestakingExecuted has drop {
+    struct RestakingExecuted has store, drop {
         receipt_id: u64,
         user: address,
         vault_id: u64,
@@ -136,7 +136,7 @@ module suplock::yield_vaults {
     }
 
     #[event]
-    struct EncryptedIntentSubmitted has drop {
+    struct EncryptedIntentSubmitted has store, drop {
         intent_id: u64,
         user: address,
         intent_type: u8,
@@ -144,7 +144,7 @@ module suplock::yield_vaults {
     }
 
     #[event]
-    struct EncryptedIntentProcessed has drop {
+    struct EncryptedIntentProcessed has store, drop {
         intent_id: u64,
         user: address,
         mev_captured: u64,
@@ -547,7 +547,7 @@ module suplock::yield_vaults {
 
     /// Get current timestamp
     fun get_current_timestamp(): u64 {
-        0x1::chain::get_block_timestamp()
+        0x1::timestamp::now_seconds()
     }
 
     #[test]
