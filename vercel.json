@@ -1,5 +1,9 @@
 {
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "framework": "vite"
+  "buildCommand": "cd frontend/suplock-dapp && npm run build",
+  "installCommand": "cd frontend/suplock-dapp && npm install --legacy-peer-deps",
+  "outputDirectory": "frontend/suplock-dapp/dist",
+  "framework": "vite",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/frontend/suplock-dapp/dist/$1" }
+  ]
 }
