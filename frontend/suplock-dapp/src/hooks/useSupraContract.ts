@@ -1,29 +1,29 @@
 import { CONTRACTS } from '../config/contracts';
-import { BCS } from 'supra-l1-sdk';
 
 export const useSupraContract = () => {
-  const supra = (window as any).starkey?.supra;
-
-  const executeTransaction = async (
-    module: keyof typeof CONTRACTS, 
-    functionName: string, 
-    args: any[] = [], 
-    typeArgs: string[] = []
-  ) => {
+  const execute = async (module: keyof typeof CONTRACTS, func: string, args: any[] = []) => {
     try {
-      if (!supra) throw new Error("Starkey wallet not found");
-      const accounts = await supra.connect();
+      const starkey = (window as any).starkey;
+      if (!starkey) throw new Error("StarKey wallet not found");
+
+      const accounts = await starkey.connect();
       if (!accounts?.length) throw new Error("No account connected");
 
-      const payload = [accounts[0], 0, CONTRACTS[module], functionName, typeArgs, args];
-      const result = await supra.createRawTransactionData(payload);
-      console.log("✅ Tx submitted:", result);
-      return result;
-    } catch (error: any) {
-      console.error("❌ Supra Tx Error:", error.message);
-      throw error;
+      const payload = {
+        type: "entry_function_payload",
+        function: `\( {CONTRACTS[module]}:: \){func}`,
+        type_arguments: [],
+        arguments: args,
+      };
+
+      const tx = await starkey.signAndSubmitTransaction(payload);
+      console.log("✅ Transaction submitted:", tx);
+      return tx;
+    } catch (err: any) {
+      console.error("❌ Transaction failed:", err);
+      throw err;
     }
   };
 
-  return { executeTransaction, BCS };
+  return { execute };
 };

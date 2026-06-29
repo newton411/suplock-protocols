@@ -10,10 +10,15 @@ export const CONTRACTS = {
   RESTAKE: `${PACKAGE_ADDRESS}::restake`,
   AI_AGENT: `${PACKAGE_ADDRESS}::suplock_ai_agent`,
   SUPRESERVE: `${PACKAGE_ADDRESS}::supreserve`,
-  SWAP_ROUTER: `${PACKAGE_ADDRESS}::swap_router`,
-  USDC: `${PACKAGE_ADDRESS}::usdc`,
   YIELD_VAULTS: `${PACKAGE_ADDRESS}::yield_vaults`,
 } as const;
 
 export const RPC_URL = 'https://rpc-testnet.supra.com';
+export const CHAIN_ID = 6;
 export const EXPLORER_URL = 'https://testnet.suprascan.io';
+
+export const toQuants = (amount: number | string): string => 
+  (BigInt(Math.floor(Number(amount) * 1e8))).toString();
+
+export const fromQuants = (quants: string | number): number => 
+  Number(quants) / 1e8;
