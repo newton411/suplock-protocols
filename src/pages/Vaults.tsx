@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Zap,
@@ -15,12 +15,47 @@ import {
   Share2,
   RefreshCw,
   BookOpen,
+  Loader2,
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { InfoPopover, protocolInfo } from '../components/ui/info-popover';
 import { InfoBanner } from '../components/InfoBanner';
+import { useSupraContract } from '../hooks/useSupraContract';
+import { useWallet } from '../contexts/WalletContext';
+import { toast } from 'sonner';
 
 const Vaults = () => {
+  const [isDepositing, setIsDepositing] = useState<string | null>(null);
+  const { executeTransaction, BCS } = useSupraContract();
+  const { connected, connect } = useWallet();
+
+  const handleDeposit = async (vaultName: string) => {
+    if (!connected) {
+      toast.error('Please connect your wallet first');
+      connect();
+      return;
+    }
+
+    try {
+      setIsDepositing(vaultName);
+      toast.info(`Initiating deposit to ${vaultName}...`);
+
+      // Mock amount for demo purposes - in a real app this would come from an input
+      const amount = BigInt(100000000); // 1.0 SUPRA
+
+      await executeTransaction('YIELD_VAULTS', 'deposit', [
+        BCS.bcsSerializeUint64(amount)
+      ]);
+
+      toast.success(`Successfully deposited to ${vaultName}!`);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to deposit');
+      console.error(err);
+    } finally {
+      setIsDepositing(null);
+    }
+  };
+
   const vaults = [
     { name: 'SUPRA_STABLE_VAULT', apy: '12.4%', tvl: '$12.4M', risk: 'Low', icon: ShieldCheck },
     { name: 'USDC_DELTA_NEUTRAL', apy: '18.9%', tvl: '$8.2M', risk: 'Medium', icon: Zap },
@@ -333,7 +368,20 @@ const Vaults = () => {
                   <div className="text-sm font-bold font-mono">{v.tvl}</div>
                 </div>
               </div>
-              <button className="matrix-btn-primary w-full py-3 text-sm">DEPOSIT_ASSETS</button>
+              <button 
+                onClick={() => handleDeposit(v.name)}
+                disabled={isDepositing !== null}
+                className={`matrix-btn-primary w-full py-3 text-sm flex items-center justify-center gap-2 ${isDepositing === v.name ? 'opacity-70 cursor-wait' : ''}`}
+              >
+                {isDepositing === v.name ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    DEPOSITING...
+                  </>
+                ) : (
+                  'DEPOSIT_ASSETS'
+                )}
+              </button>
             </div>
           </motion.div>
         ))}

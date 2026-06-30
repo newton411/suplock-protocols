@@ -1,9 +1,40 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Globe, Lock, Vote, Zap, Database, RefreshCw, ArrowDownRight, Repeat, Share2, BookOpen } from 'lucide-react';
+import { Globe, Lock, Vote, Zap, Database, RefreshCw, ArrowDownRight, Repeat, Share2, BookOpen, Loader2 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
+import { useSupraContract } from '../hooks/useSupraContract';
+import { useWallet } from '../contexts/WalletContext';
+import { toast } from 'sonner';
 
 const Restake = () => {
+  const [isRestaking, setIsRestaking] = useState<string | null>(null);
+  const { executeTransaction, BCS } = useSupraContract();
+  const { connected, connect } = useWallet();
+
+  const handleRestake = async (protocolId: string) => {
+    if (!connected) {
+      toast.error('Please connect your wallet first');
+      connect();
+      return;
+    }
+
+    try {
+      setIsRestaking(protocolId);
+      toast.info(`Initiating restake from ${protocolId}...`);
+
+      await executeTransaction('RESTAKE', 'restake', [
+        // No specific arguments for generic restake in this mockup
+      ]);
+
+      toast.success(`Successfully restaked from ${protocolId}!`);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to restake');
+      console.error(err);
+    } finally {
+      setIsRestaking(null);
+    }
+  };
+
   const navItems = [
     { id: 'overview', label: 'Overview', icon: Globe, path: '/' },
     { id: 'thesis', label: 'Thesis', icon: BookOpen, path: '/thesis' },
@@ -90,8 +121,21 @@ const Restake = () => {
               <h3 className="text-2xl font-bold text-primary capitalize">{p.name}</h3>
             </div>
             <p className="text-sm text-muted-foreground mb-4">{p.description}</p>
-            <button className="matrix-btn-primary w-full h-12 flex items-center justify-center gap-2">
-              <p.icon className="w-4 h-4" /> RESTAKE_FROM_{p.id.toUpperCase()}
+            <button 
+              onClick={() => handleRestake(p.id)}
+              disabled={isRestaking !== null}
+              className={`matrix-btn-primary w-full h-12 flex items-center justify-center gap-2 ${isRestaking === p.id ? 'opacity-70 cursor-wait' : ''}`}
+            >
+              {isRestaking === p.id ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  RESTAKING...
+                </>
+              ) : (
+                <>
+                  <p.icon className="w-4 h-4" /> RESTAKE_FROM_{p.id.toUpperCase()}
+                </>
+              )}
             </button>
           </motion.div>
         ))}

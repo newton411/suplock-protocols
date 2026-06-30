@@ -12,10 +12,16 @@ import {
   RefreshCw,
   Shield,
   AlertTriangle,
+  BookOpen,
+  Repeat,
+  Loader2,
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { InfoPopover, protocolInfo } from '../components/ui/info-popover';
 import { InfoBanner } from '../components/InfoBanner';
+import { useSupraContract } from '../hooks/useSupraContract';
+import { useWallet } from '../contexts/WalletContext';
+import { toast } from 'sonner';
 
 const SwapBridge = () => {
   const [activeTab, setActiveTab] = useState<'swap' | 'bridge'>('swap');
@@ -25,6 +31,74 @@ const SwapBridge = () => {
   const [toAmount, setToAmount] = useState('');
   const [fromChain, setFromChain] = useState('Supra L1');
   const [toChain, setToChain] = useState('Ethereum');
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const { executeTransaction, BCS } = useSupraContract();
+  const { connected, connect } = useWallet();
+
+  const handleSwap = async () => {
+    if (!connected) {
+      toast.error('Please connect your wallet first');
+      connect();
+      return;
+    }
+
+    if (!fromAmount || parseFloat(fromAmount) <= 0) {
+      toast.error('Please enter a valid amount');
+      return;
+    }
+
+    try {
+      setIsProcessing(true);
+      toast.info('Initiating swap via HyperNova...');
+
+      const amount = BigInt(Math.floor(parseFloat(fromAmount) * 100_000_000));
+
+      await executeTransaction('AUTOFI', 'swap', [
+        BCS.bcsSerializeUint64(amount)
+      ]);
+
+      toast.success('Swap successful!');
+      setFromAmount('');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to swap');
+      console.error(err);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleBridge = async () => {
+    if (!connected) {
+      toast.error('Please connect your wallet first');
+      connect();
+      return;
+    }
+
+    if (!fromAmount || parseFloat(fromAmount) <= 0) {
+      toast.error('Please enter a valid amount');
+      return;
+    }
+
+    try {
+      setIsProcessing(true);
+      toast.info(`Initiating bridge to ${toChain}...`);
+
+      const amount = BigInt(Math.floor(parseFloat(fromAmount) * 100_000_000));
+
+      await executeTransaction('BRIDGE', 'bridge_assets', [
+        BCS.bcsSerializeUint64(amount)
+      ]);
+
+      toast.success('Bridge transaction initiated!');
+      setFromAmount('');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to initiate bridge');
+      console.error(err);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   const tokens = ['SUPRA', 'iSUPRA', 'USDC', 'ETH', 'BTC', 'veSUPRA'];
   const chains = ['Supra L1', 'Ethereum', 'Polygon', 'Arbitrum', 'Base', 'Solana'];
@@ -215,7 +289,20 @@ const SwapBridge = () => {
               </div>
             </div>
 
-            <button className="matrix-btn-primary w-full h-16 text-xl">Execute Swap</button>
+            <button 
+              onClick={activeTab === 'swap' ? handleSwap : handleBridge}
+              disabled={isProcessing}
+              className={`matrix-btn-primary w-full h-16 text-xl flex items-center justify-center gap-2 ${isProcessing ? 'opacity-70 cursor-wait' : ''}`}
+            >
+              {isProcessing ? (
+                <>
+                  <Loader2 className="w-6 h-6 animate-spin" />
+                  PROCESSING...
+                </>
+              ) : (
+                activeTab === 'swap' ? 'Execute Swap' : 'Initiate Bridge'
+              )}
+            </button>
           </div>
 
           <div className="matrix-card p-8 relative overflow-hidden flex flex-col justify-between">
@@ -353,7 +440,20 @@ const SwapBridge = () => {
               </div>
             </div>
 
-            <button className="matrix-btn-primary w-full h-16 text-xl">Initiate Bridge</button>
+            <button 
+              onClick={handleBridge}
+              disabled={isProcessing}
+              className={`matrix-btn-primary w-full h-16 text-xl flex items-center justify-center gap-2 ${isProcessing ? 'opacity-70 cursor-wait' : ''}`}
+            >
+              {isProcessing ? (
+                <>
+                  <Loader2 className="w-6 h-6 animate-spin" />
+                  PROCESSING...
+                </>
+              ) : (
+                'Initiate Bridge'
+              )}
+            </button>
           </div>
 
           <div className="matrix-card p-8 relative overflow-hidden flex flex-col justify-between">

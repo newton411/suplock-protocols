@@ -12,14 +12,55 @@ import {
   Repeat,
   Share2,
   BookOpen,
+  RefreshCw,
+  Loader2,
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 // imports kept for potential future use
 import { InfoPopover, protocolInfo } from '../components/ui/info-popover';
+import { useSupraContract } from '../hooks/useSupraContract';
+import { useWallet } from '../contexts/WalletContext';
+import { toast } from 'sonner';
 
 const Swap = () => {
   const [fromAmount, setFromAmount] = useState('');
   const [toAmount, setToAmount] = useState('');
+  const [isSwapping, setIsSwapping] = useState(false);
+
+  const { executeTransaction, BCS } = useSupraContract();
+  const { connected, connect } = useWallet();
+
+  const handleSwap = async () => {
+    if (!connected) {
+      toast.error('Please connect your wallet first');
+      connect();
+      return;
+    }
+
+    if (!fromAmount || parseFloat(fromAmount) <= 0) {
+      toast.error('Please enter a valid amount');
+      return;
+    }
+
+    try {
+      setIsSwapping(true);
+      toast.info('Initiating swap...');
+
+      const amount = BigInt(Math.floor(parseFloat(fromAmount) * 100_000_000));
+
+      await executeTransaction('AUTOFI', 'swap', [
+        BCS.bcsSerializeUint64(amount)
+      ]);
+
+      toast.success('Swap successful!');
+      setFromAmount('');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to swap');
+      console.error(err);
+    } finally {
+      setIsSwapping(false);
+    }
+  };
 
   const navItems = [
     { id: 'overview', label: 'Overview', icon: Globe, path: '/' },
@@ -136,7 +177,20 @@ const Swap = () => {
             </div>
           </div>
 
-          <button className="matrix-btn-primary w-full py-4 text-lg mt-4">Confirm Swap</button>
+          <button 
+            onClick={handleSwap}
+            disabled={isSwapping}
+            className={`matrix-btn-primary w-full py-4 text-lg mt-4 flex items-center justify-center gap-2 ${isSwapping ? 'opacity-70 cursor-wait' : ''}`}
+          >
+            {isSwapping ? (
+              <>
+                <Loader2 className="w-6 h-6 animate-spin" />
+                SWAPPING...
+              </>
+            ) : (
+              'Confirm Swap'
+            )}
+          </button>
         </div>
 
         <div className="mt-6 p-4 bg-primary/5 border border-primary/20 flex items-start gap-3">

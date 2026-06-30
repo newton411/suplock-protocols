@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { LockKeyhole, Activity, Globe, Lock, Vote, Zap, Database, Repeat, Share2, RefreshCw, BookOpen } from 'lucide-react';
+import { LockKeyhole, Activity, Globe, Lock, Vote, Zap, Database, Repeat, Share2, RefreshCw, BookOpen, Loader2 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { InfoPopover, protocolInfo } from '../components/ui/info-popover';
 import { InfoBanner } from '../components/InfoBanner';
@@ -10,13 +10,57 @@ import {
   AccordionTrigger,
   AccordionContent,
 } from '../components/ui/accordion';
+import { useSupraContract } from '../hooks/useSupraContract';
+import { useWallet } from '../contexts/WalletContext';
+import { toast } from 'sonner';
 
 const Locking = () => {
   const [lockAmount, setLockAmount] = useState('');
   const [lockDuration, setLockDuration] = useState(12);
+  const [isLocking, setIsLocking] = useState(false);
+
+  const { executeTransaction, BCS } = useSupraContract();
+  const { connected, connect } = useWallet();
 
   const calculateBoost = (months: number) => {
     return (1 + (months / 48) * 1.5).toFixed(2);
+  };
+
+  const handleLock = async () => {
+    if (!connected) {
+      toast.error('Please connect your wallet first');
+      connect();
+      return;
+    }
+
+    if (!lockAmount || parseFloat(lockAmount) <= 0) {
+      toast.error('Please enter a valid amount');
+      return;
+    }
+
+    try {
+      setIsLocking(true);
+      toast.info('Initiating lock transaction...');
+
+      // Convert amount to on-chain units (assuming 8 decimals for SUPRA)
+      const amountInUnits = BigInt(Math.floor(parseFloat(lockAmount) * 100_000_000));
+      // Convert months to seconds
+      const durationInSeconds = BigInt(lockDuration * 30 * 24 * 60 * 60);
+
+      const txHash = await executeTransaction('CORE', 'create_lock', [
+        BCS.bcsSerializeUint64(amountInUnits),
+        BCS.bcsSerializeUint64(durationInSeconds)
+      ]);
+
+      toast.success('Lock successful!');
+      console.log("Transaction Hash:", txHash);
+      setLockAmount('');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to execute lock');
+      console.error(err);
+    } finally {
+      setIsLocking(false);
+    }
   };
 
   const navItems = [
@@ -252,7 +296,20 @@ const Locking = () => {
             </div>
           </div>
 
-          <button className="matrix-btn-primary w-full h-16 text-xl">EXECUTE_LOCK_CONTRACT</button>
+          <button 
+            onClick={handleLock}
+            disabled={isLocking}
+            className={`matrix-btn-primary w-full h-16 text-xl flex items-center justify-center gap-3 ${isLocking ? 'opacity-70 cursor-wait' : ''}`}
+          >
+            {isLocking ? (
+              <>
+                <Loader2 className="w-6 h-6 animate-spin" />
+                EXECUTING...
+              </>
+            ) : (
+              'EXECUTE_LOCK_CONTRACT'
+            )}
+          </button>
         </div>
 
         <div className="matrix-card p-8 relative overflow-hidden flex flex-col justify-between">

@@ -1,11 +1,43 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Vote, FileText, Users, TrendingUp, Globe, Lock, Zap, Database, Repeat, Share2, RefreshCw, BookOpen } from 'lucide-react';
+import { Vote, FileText, Users, TrendingUp, Globe, Lock, Zap, Database, Repeat, Share2, RefreshCw, BookOpen, Loader2 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { InfoPopover, protocolInfo } from '../components/ui/info-popover';
 import { InfoBanner } from '../components/InfoBanner';
+import { useSupraContract } from '../hooks/useSupraContract';
+import { useWallet } from '../contexts/WalletContext';
+import { toast } from 'sonner';
 
 const Governance = () => {
+  const [isVoting, setIsVoting] = useState<string | null>(null);
+  const { executeTransaction, BCS } = useSupraContract();
+  const { connected, connect } = useWallet();
+
+  const handleVote = async (proposalId: string) => {
+    if (!connected) {
+      toast.error('Please connect your wallet first');
+      connect();
+      return;
+    }
+
+    try {
+      setIsVoting(proposalId);
+      toast.info(`Casting vote for ${proposalId}...`);
+
+      // Mock vote choice (1 = FOR)
+      await executeTransaction('CORE', 'vote', [
+        BCS.bcsSerializeUint64(BigInt(1)) // Assuming proposal ID is passed elsewhere or this is simplified
+      ]);
+
+      toast.success(`Successfully voted on ${proposalId}!`);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to vote');
+      console.error(err);
+    } finally {
+      setIsVoting(null);
+    }
+  };
+
   const proposals = [
     { id: 'SIP-004', title: 'Adjust Yield Vault Multipliers', status: 'Active', votes: '12.4M', endsIn: '2d 4h' },
     { id: 'SIP-003', title: 'Enable veSUPRA Dividend Distribution', status: 'Passed', votes: '45.1M', endsIn: 'Ended' },
@@ -272,7 +304,20 @@ const Governance = () => {
                   <div className="text-[10px] text-primary/40 uppercase">Time Remaining</div>
                   <div className="text-sm font-bold text-primary">{p.endsIn}</div>
                 </div>
-                <button className="matrix-btn-primary px-6 py-2 text-xs">View_Details</button>
+                <button 
+                  onClick={() => handleVote(p.id)}
+                  disabled={isVoting !== null || p.status !== 'Active'}
+                  className={`matrix-btn-primary px-6 py-2 text-xs flex items-center justify-center gap-2 ${(isVoting === p.id || p.status !== 'Active') ? 'opacity-70 cursor-wait' : ''}`}
+                >
+                  {isVoting === p.id ? (
+                    <>
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      VOTING...
+                    </>
+                  ) : (
+                    p.status === 'Active' ? 'CAST_VOTE' : 'VIEW_DETAILS'
+                  )}
+                </button>
               </div>
             </motion.div>
           ))}

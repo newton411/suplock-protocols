@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { StatsDashboard } from '../components/StatsDashboard';
+import { OracleDashboard } from '../components/OracleDashboard';
 import { Roadmap } from '../components/Roadmap';
 import { YieldCalculator } from '../components/YieldCalculator';
 
@@ -70,8 +71,11 @@ export function Home() {
 
       {/* Stats Dashboard */}
       <section className="py-12 bg-primary/[0.02] border-y border-primary/10">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 space-y-12">
           <StatsDashboard />
+          <div className="max-w-2xl mx-auto">
+            <OracleDashboard />
+          </div>
         </div>
       </section>
 

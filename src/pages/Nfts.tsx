@@ -20,6 +20,7 @@ import {
   Repeat,
   Share2,
   BookOpen,
+  Loader2,
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { Button } from '../components/ui/button';
@@ -28,6 +29,9 @@ import { Badge } from '../components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Progress } from '../components/ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../components/ui/tooltip';
+import { useSupraContract } from '../hooks/useSupraContract';
+import { useWallet } from '../contexts/WalletContext';
+import { toast } from 'sonner';
 
 const NFT_COLLECTION = [
   {
@@ -166,6 +170,34 @@ const VideoModal = ({ url, onClose }: { url: string; onClose: () => void }) => {
 
 export const Nfts = () => {
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
+  const [isMinting, setIsMinting] = useState<string | null>(null);
+
+  const { executeTransaction, BCS } = useSupraContract();
+  const { connected, connect } = useWallet();
+
+  const handleMint = async (nftId: string) => {
+    if (!connected) {
+      toast.error('Please connect your wallet first');
+      connect();
+      return;
+    }
+
+    try {
+      setIsMinting(nftId);
+      toast.info(`Initiating mint for ${nftId}...`);
+
+      await executeTransaction('GENESIS_NFT', 'mint_nft', [
+        // No specific arguments for generic mint in this mockup
+      ]);
+
+      toast.success(`Successfully minted ${nftId}!`);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to mint');
+      console.error(err);
+    } finally {
+      setIsMinting(null);
+    }
+  };
 
   const navItems = [
     { id: 'overview', label: 'Overview', icon: Globe, path: '/' },
@@ -342,9 +374,22 @@ export const Nfts = () => {
                     </div>
                   ))}
 
-                  <Button className="w-full matrix-btn-primary h-12 flex items-center justify-center gap-2 text-xs font-black uppercase tracking-widest">
-                    <span>MINT NOW</span>
-                    <ChevronRight className="w-4 h-4" />
+                  <Button 
+                    onClick={() => handleMint(nft.id)}
+                    disabled={isMinting !== null}
+                    className="w-full matrix-btn-primary h-12 flex items-center justify-center gap-2 text-xs font-black uppercase tracking-widest"
+                  >
+                    {isMinting === nft.id ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>MINTING...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>MINT NOW</span>
+                        <ChevronRight className="w-4 h-4" />
+                      </>
+                    )}
                   </Button>
                 </div>
               </CardContent>
