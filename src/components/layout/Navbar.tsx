@@ -31,6 +31,7 @@ const Navbar = ({ onOpenLearn }: { onOpenLearn?: () => void }) => {
 
   const navItems = [
     { id: 'overview', label: 'Overview', icon: Globe, path: '/' },
+    { id: 'ai-dashboard', label: 'AI', icon: Zap, path: '/ai-dashboard' },
     { id: 'thesis', label: 'Thesis', icon: BookOpen, path: '/thesis' },
     { id: 'nfts', label: 'NFTs', icon: Sparkles, path: '/nfts' },
     { id: 'lock', label: 'Lock', icon: Lock, path: '/locking' },

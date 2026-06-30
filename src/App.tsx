@@ -21,6 +21,7 @@ const Restake = React.lazy(() => import('./pages/Restake'));
 const Swap = React.lazy(() => import('./pages/Swap'));
 const SwapBridge = React.lazy(() => import('./pages/SwapBridge'));
 const StablecoinThesis = React.lazy(() => import('./pages/StablecoinThesis'));
+const AiDashboard = React.lazy(() => import('./pages/AiDashboard'));
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -144,6 +145,7 @@ function App() {
                   <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/locking" element={<Locking />} />
+                    <Route path="/ai-dashboard" element={<AiDashboard />} />
                     <Route path="/governance" element={<Governance />} />
                     <Route path="/vaults" element={<Vaults />} />
                     <Route path="/reserve" element={<Reserve />} />
