@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useWallet } from '../hooks/useStarkeyWallet'; // adjust if hook path differs
+import { useStarkeyWallet } from '../hooks/useStarkeyWallet';
 import { CONTRACTS, toQuants, getPairPrice, EXPLORER_URL } from '../config/contracts';
 
 const LOCK_TIERS = [
@@ -11,9 +11,9 @@ const LOCK_TIERS = [
 ];
 
 export const LockUI: React.FC = () => {
-  const { address, sendTransaction } = useWallet();
+  const { address, isConnected, sendTransaction, connect } = useStarkeyWallet();
   const [amount, setAmount] = useState<string>('');
-  const [selectedTier, setSelectedTier] = useState<number>(1); // default 3 months
+  const [selectedTier, setSelectedTier] = useState<number>(1);
   const [loading, setLoading] = useState(false);
   const [price, setPrice] = useState<number>(0.42);
   const [txHash, setTxHash] = useState<string>('');
@@ -30,8 +30,13 @@ export const LockUI: React.FC = () => {
   }, []);
 
   const handleLock = async () => {
-    if (!address || !amount || Number(amount) <= 0) {
-      alert("Please enter a valid amount and connect wallet");
+    if (!isConnected || !address) {
+      alert("Please connect your wallet");
+      connect();
+      return;
+    }
+    if (!amount || Number(amount) <= 0) {
+      alert("Please enter a valid amount");
       return;
     }
 
@@ -47,10 +52,9 @@ export const LockUI: React.FC = () => {
       };
 
       const tx = await sendTransaction(payload);
-
       setTxHash(tx.hash || tx);
 
-      alert(`✅ Lock Transaction Sent!\n\nTx Hash: ${tx.hash || tx}\n\nView: \( {EXPLORER_URL}/tx/ \){tx.hash || tx}`);
+      alert(`✅ Lock Transaction Sent!\n\nTx: ${tx.hash || tx}\n\nView on Explorer: \( {EXPLORER_URL}/tx/ \){tx.hash || tx}`);
     } catch (error: any) {
       console.error(error);
       alert("Transaction failed: " + (error.message || error));
@@ -62,10 +66,8 @@ export const LockUI: React.FC = () => {
   const selected = LOCK_TIERS[selectedTier];
 
   return (
-    <div className="glass-card p-6 rounded-2xl border border-cyan-400/30 bg-black/60">
-      <h2 className="text-2xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-green-400">
-        Lock SUPRA — Yield Forever
-      </h2>
+    <div className="glass p-6 rounded-2xl border border-cyan-500/30 bg-black/60">
+      <h2 className="text-2xl font-bold mb-4 text-cyan-400">Lock SUPRA — Yield Forever</h2>
 
       <div className="mb-4 text-sm">
         Current Price: <span className="text-green-400 font-medium">${price.toFixed(4)}</span>
@@ -106,7 +108,7 @@ export const LockUI: React.FC = () => {
 
       <button
         onClick={handleLock}
-        disabled={loading || !amount || !address}
+        disabled={loading || !amount}
         className="w-full py-4 rounded-2xl font-bold text-lg bg-gradient-to-r from-cyan-500 via-green-500 to-emerald-500 hover:brightness-110 disabled:opacity-50 transition-all"
       >
         {loading ? "CONFIRMING ON SUPRA..." : `LOCK ${amount || ''} SUPRA`}
