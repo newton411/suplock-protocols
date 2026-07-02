@@ -356,14 +356,14 @@ const AiDashboard = () => {
                       <Terminal className="w-4 h-4" /> System_Logs
                     </h4>
                     <div className="bg-black p-3 font-mono text-[8px] text-cyan-400/60 h-48 overflow-y-auto space-y-1 custom-scrollbar">
-                      <div>> Initializing Supra_L1_Connection...</div>
-                      <div>> Validating Smart_Contract_Interfaces...</div>
-                      <div>> Core::suplock_core [CONNECTED]</div>
-                      <div>> Integration::oracle [SYNCING]</div>
-                      <div>> Fetching Oracle Pair 0 (BTC/USD)...</div>
-                      <div className="text-primary">> Received: $92,410.42</div>
-                      <div>> Calculating Governance_Multiplier...</div>
-                      <div>> Status: All systems nominal.</div>
+                      <div>&gt; Initializing Supra_L1_Connection...</div>
+                      <div>&gt; Validating Smart_Contract_Interfaces...</div>
+                      <div>&gt; Core::suplock_core [CONNECTED]</div>
+                      <div>&gt; Integration::oracle [SYNCING]</div>
+                      <div>&gt; Fetching Oracle Pair 0 (BTC/USD)...</div>
+                      <div className="text-primary">&gt; Received: $92,410.42</div>
+                      <div>&gt; Calculating Governance_Multiplier...</div>
+                      <div>&gt; Status: All systems nominal.</div>
                       <div className="animate-pulse">_</div>
                     </div>
                   </div>
