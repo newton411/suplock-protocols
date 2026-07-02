@@ -1,10 +1,28 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Database, Coins, ArrowDownToLine, RefreshCw, Globe, Lock, Vote, Zap, TrendingDown, Flame, Gift, Repeat, Share2, BookOpen } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { InfoBanner } from '../components/InfoBanner';
+import { readProtocolMetrics } from '../services/contractReads';
 
 const Reserve = () => {
+  const [metrics, setMetrics] = useState({ totalBurned: 0, accumulatedFees: 0, totalLocked: 0 });
+
+  useEffect(() => {
+    const loadMetrics = async () => {
+      try {
+        const data = await readProtocolMetrics();
+        setMetrics(data);
+      } catch (error) {
+        console.error('Failed to load reserve metrics', error);
+      }
+    };
+
+    loadMetrics();
+    const interval = setInterval(loadMetrics, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
   const navItems = [
     { id: 'overview', label: 'Overview', icon: Globe, path: '/' },
     { id: 'thesis', label: 'Thesis', icon: BookOpen, path: '/thesis' },
@@ -64,18 +82,18 @@ const Reserve = () => {
             <h3 className="text-sm font-bold uppercase tracking-widest opacity-40 flex items-center gap-2">
               <Coins className="w-4 h-4" /> Your_Pending_Rewards
             </h3>
-            <div className="text-6xl font-bold tracking-tighter neon-text">4,291.42</div>
+            <div className="text-6xl font-bold tracking-tighter neon-text">{metrics.accumulatedFees.toLocaleString()}</div>
             <div className="text-primary/40 font-mono text-xs tracking-widest uppercase">SUPRA Tokens</div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="p-4 border border-primary/10 bg-primary/5 space-y-1">
               <div className="text-[8px] text-primary/40 uppercase">Protocol Fees</div>
-              <div className="text-lg font-bold">1,842.10</div>
+              <div className="text-lg font-bold">{metrics.accumulatedFees.toLocaleString()}</div>
             </div>
             <div className="p-4 border border-primary/10 bg-primary/5 space-y-1">
               <div className="text-[8px] text-primary/40 uppercase">veSUPRA Dividends</div>
-              <div className="text-lg font-bold">2,449.32</div>
+              <div className="text-lg font-bold">{metrics.totalBurned.toLocaleString()}</div>
             </div>
           </div>
 
@@ -93,10 +111,10 @@ const Reserve = () => {
 
             <div className="space-y-4">
               {[
-                { label: 'Total Fees Collected', value: '$842,910' },
-                { label: 'Distributed To veSUPRA', value: '$421,455' },
-                { label: 'Protocol Treasury', value: '$210,727' },
-                { label: 'Reserve Buybacks', value: '$210,727' },
+                { label: 'Total Fees Collected', value: `$${metrics.accumulatedFees.toLocaleString()}` },
+                { label: 'Total Locked', value: `$${metrics.totalLocked.toLocaleString()}` },
+                { label: 'Protocol Treasury', value: `$${Math.round(metrics.accumulatedFees * 0.25).toLocaleString()}` },
+                { label: 'Reserve Buybacks', value: `$${Math.round(metrics.totalBurned * 0.5).toLocaleString()}` },
               ].map((m, i) => (
                 <div key={i} className="flex justify-between items-center py-2 border-b border-primary/5">
                   <span className="text-xs text-primary/60 font-mono">{m.label}</span>
