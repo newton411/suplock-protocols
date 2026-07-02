@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { LockKeyhole, Activity, Globe, Lock, Vote, Zap, Database, Repeat, Share2, RefreshCw, BookOpen, Loader2 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
@@ -13,14 +13,36 @@ import {
 import { useSupraContract } from '../hooks/useSupraContract';
 import { useWallet } from '../contexts/WalletContext';
 import { toast } from 'sonner';
+import { readContractMetric } from '../services/contractReads';
 
 const Locking = () => {
   const [lockAmount, setLockAmount] = useState('');
   const [lockDuration, setLockDuration] = useState(12);
   const [isLocking, setIsLocking] = useState(false);
+  const [totalPower, setTotalPower] = useState(0);
+  const [avgLockDays, setAvgLockDays] = useState(0);
 
   const { executeTransaction, BCS } = useSupraContract();
   const { connected, connect } = useWallet();
+
+  useEffect(() => {
+    const loadLockMetrics = async () => {
+      try {
+        const [power, lockDurationSeconds] = await Promise.all([
+          readContractMetric('CORE', 'get_total_locked_supra', ["0x0"]),
+          readContractMetric('CORE', 'get_protocol_params', ["0x0"]),
+        ]);
+        setTotalPower(power);
+        setAvgLockDays(Math.round((Number(lockDurationSeconds) || 0) / 86400));
+      } catch (error) {
+        console.error('Failed to load lock metrics', error);
+      }
+    };
+
+    loadLockMetrics();
+    const interval = setInterval(loadLockMetrics, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const calculateBoost = (months: number) => {
     return (1 + (months / 48) * 1.5).toFixed(2);
@@ -327,11 +349,11 @@ const Locking = () => {
                   <div className="text-[10px] text-primary/40 uppercase mb-1">
                     Total veSUPRA Power
                   </div>
-                  <div className="text-3xl font-bold tracking-tighter neon-text">84.2M</div>
+                  <div className="text-3xl font-bold tracking-tighter neon-text">{totalPower.toLocaleString()}</div>
                 </div>
                 <div className="p-4 border border-primary/10 bg-primary/5">
                   <div className="text-[10px] text-primary/40 uppercase mb-1">Avg. Lock Time</div>
-                  <div className="text-3xl font-bold tracking-tighter neon-text">34.2 MONTHS</div>
+                  <div className="text-3xl font-bold tracking-tighter neon-text">{avgLockDays} DAYS</div>
                 </div>
               </div>
             </div>

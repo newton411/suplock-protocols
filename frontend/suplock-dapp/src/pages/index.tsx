@@ -17,9 +17,9 @@ const App: React.FC = () => {
   const handleLock = async (amount: string, duration: number) => {
     setIsLocking(true);
     try {
-      // Mock lock transaction
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      console.log(`Locked ${amount} SUPRA for ${duration} seconds`);
+      // TODO: replace with real on-chain lock transaction using Supra SDK and wallet
+      // Example: use window.supraWallet or supra-l1-sdk to submit a transaction
+      console.log(`Requesting lock of ${amount} SUPRA for ${duration} seconds (testnet)`);
     } finally {
       setIsLocking(false);
     }

@@ -19,8 +19,18 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWallet } from '@/contexts/WalletContext';
 
-const Navbar = ({ onOpenLearn }: { onOpenLearn?: () => void }) => {
+interface NavbarProps {
+  onOpenLearn?: () => void;
+  connected?: boolean;
+  account?: string;
+  connectWallet?: () => void;
+}
+
+const Navbar = ({ onOpenLearn, connected: propConnected, account: propAccount, connectWallet: propConnect }: NavbarProps) => {
   const { connected, account, loading, error, connect, disconnect } = useWallet();
+  const effectiveConnected = typeof propConnected === 'boolean' ? propConnected : connected;
+  const effectiveAccount = typeof propAccount === 'string' ? propAccount : account;
+  const effectiveConnect = propConnect || connect;
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
 
@@ -154,17 +164,19 @@ const Navbar = ({ onOpenLearn }: { onOpenLearn?: () => void }) => {
         )}
 
         <button
-          onClick={connected ? disconnect : connect}
+          onClick={effectiveConnected ? disconnect : effectiveConnect}
           disabled={loading}
           className={`matrix-btn-primary flex items-center gap-2 group min-w-[160px] justify-center transition-all ${
             loading ? 'opacity-50 cursor-wait' : ''
           }`}
         >
-          {connected ? (
+          {effectiveConnected ? (
             <>
               <LogOut className="w-4 h-4" />
               <span className="text-xs">
-                {account?.slice(0, 6)}...{account?.slice(-4)}
+                {effectiveAccount
+                  ? (effectiveAccount.includes('...') ? effectiveAccount : `${effectiveAccount.slice(0, 6)}...${effectiveAccount.slice(-4)}`)
+                  : ''}
               </span>
             </>
           ) : (

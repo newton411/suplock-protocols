@@ -1,4 +1,4 @@
-import React, { createContext, useState, useCallback } from 'react';
+import React, { createContext, useEffect, useState, useCallback } from 'react';
 
 export interface WalletContextType {
   address: string | null;
@@ -15,33 +15,83 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [isConnected, setIsConnected] = useState(false);
   const [balance, setBalance] = useState('0');
 
-  const connectWallet = useCallback(async () => {
-    try {
-      // Mock wallet connection for Supra L1
-      if (typeof window !== 'undefined' && (window as any).supraWallet) {
-        const accounts = await (window as any).supraWallet.requestAccounts();
-        if (accounts.length > 0) {
-          setAddress(accounts[0]);
-          setIsConnected(true);
-          setBalance('1000'); // Mock balance
-        }
-      } else {
-        // Fallback: simulate wallet connection
-        const mockAddress = '0x' + Math.random().toString(16).slice(2);
-        setAddress(mockAddress);
-        setIsConnected(true);
-        setBalance('1000');
-      }
-    } catch (error) {
-      console.error('Failed to connect wallet:', error);
+  const getStarKeyProvider = useCallback(() => {
+    if (typeof window === 'undefined') {
+      return null;
     }
+
+    const wallet = (window as Window & { starkey?: any }).starkey;
+    if (!wallet) {
+      return null;
+    }
+
+    const provider = wallet.supra || wallet.provider || wallet;
+    const isValidProvider = Boolean(provider && (provider.isStarkey || wallet.isStarkey || provider.connect || provider.requestAccounts || provider.on));
+    return isValidProvider ? provider : null;
   }, []);
 
-  const disconnectWallet = useCallback(() => {
-    setAddress(null);
-    setIsConnected(false);
+  const syncWalletState = useCallback((accounts: string[] | null | undefined) => {
+    if (!accounts || accounts.length === 0) {
+      setAddress(null);
+      setIsConnected(false);
+      setBalance('0');
+      return;
+    }
+
+    setAddress(accounts[0]);
+    setIsConnected(true);
     setBalance('0');
   }, []);
+
+  const connectWallet = useCallback(async () => {
+    try {
+      const provider = getStarKeyProvider();
+      if (!provider) {
+        console.warn('No StarKey wallet provider detected. Please install the extension.');
+        if (typeof window !== 'undefined') {
+          window.open('https://starkey.app/', '_blank');
+        }
+        return;
+      }
+
+      const accounts = (await provider.connect?.()) ?? (await provider.requestAccounts?.());
+      syncWalletState(accounts);
+    } catch (error) {
+      console.error('Failed to connect StarKey wallet:', error);
+    }
+  }, [getStarKeyProvider, syncWalletState]);
+
+  const disconnectWallet = useCallback(async () => {
+    try {
+      const provider = getStarKeyProvider();
+      await provider?.disconnect?.();
+    } catch (error) {
+      console.error('Failed to disconnect StarKey wallet:', error);
+    } finally {
+      setAddress(null);
+      setIsConnected(false);
+      setBalance('0');
+    }
+  }, [getStarKeyProvider]);
+
+  useEffect(() => {
+    const provider = getStarKeyProvider();
+    if (!provider) {
+      return;
+    }
+
+    const handleAccountsChanged = (accounts: string[]) => {
+      syncWalletState(accounts);
+    };
+
+    provider.on?.('accountChanged', handleAccountsChanged);
+    provider.on?.('accountsChanged', handleAccountsChanged);
+
+    return () => {
+      provider.off?.('accountChanged', handleAccountsChanged);
+      provider.off?.('accountsChanged', handleAccountsChanged);
+    };
+  }, [getStarKeyProvider, syncWalletState]);
 
   return (
     <WalletContext.Provider value={{ address, isConnected, connectWallet, disconnectWallet, balance }}>
