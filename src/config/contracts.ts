@@ -12,7 +12,7 @@ export const CONTRACTS = {
 export const RPC_URL = 'https://rpc-testnet.supra.com';
 export const EXPLORER_URL = 'https://testnet.suprascan.io';
 
-// BigInt-safe helpers
+// BigInt-safe helpers (fixes truncation risk)
 export const toQuants = (amount: string | number): string => {
   return (BigInt(Math.floor(Number(amount) * 1e8))).toString();
 };
@@ -21,7 +21,7 @@ export const fromQuants = (quants: string | number | bigint): number => {
   return Number(BigInt(quants) / 100000000n);
 };
 
-// Robust view function (fixes RPC flakiness)
+// Robust RPC view function (addresses the main RPC issue)
 export const viewFunction = async (
   modulePath: string,
   functionName: string,
